@@ -1,0 +1,8 @@
+date,city,temperature,humidity,precipitation
+2023-08-01,New York,30,80,5
+2023-08-02,Los Angeles,28,65,0
+2023-08-03,Chicago,25,70,
+2023-08-04,Houston,,85,10
+2023-08-05,Phoenix,40,30,0
+2023-08-06,Dallas,35,,15
+2023-08-07,San Francisco,22,60,0

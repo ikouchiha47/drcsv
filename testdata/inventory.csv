@@ -1,0 +1,8 @@
+product_id,product_name,category,price,stock_quantity
+1,Apple,Fruit,1.00,100
+2,Banana,Fruit,0.50,150
+3,Orange,Fruit,,
+4,Carrot,Vegetable,0.75,80
+5,Potato,Vegetable,0.60,,
+6,Broccoli,Vegetable,1.25,50
+7,Cucumber,Vegetable,1.00,60
