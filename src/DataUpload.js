@@ -15,10 +15,13 @@ function DataUpload({ onDataProcessed }) {
     }
 
     const df = await dfd.readCSV(file);
+    const id = Array.from({ length: df.shape[0] }, (_, i) => i);
+
+    df.addColumn('id', id, { inplace: true })
     // df.fillNa("", { axis: 1 })
 
     // setDf(df);
-    onDataProcessed(df, file.fileName)
+    onDataProcessed(df, file.name)
   };
 
   return (

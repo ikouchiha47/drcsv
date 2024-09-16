@@ -1,109 +1,52 @@
-import React, { useEffect, useState } from 'react';
-import DataGrid from 'react-data-grid';
+import React, { useState, useEffect } from 'react';
+import { HotTable } from '@handsontable/react';
+import { registerAllModules } from 'handsontable/registry';
 
-const EditableCell = ({ row, column }) => {
-  const [value, setValue] = useState(row[column.key]);
+import 'handsontable/dist/handsontable.full.css';
 
-  const handleRowChange = (updatedRow, columnKey, newValue) => {
-    console.log("change", updatedRow, columnKey, newValue)
-  }
-
-  const handleBlur = () => {
-    handleRowChange(row, column.key, value);
-  };
-
-  return (
-    <input
-      type="text"
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      onBlur={handleBlur}
-      style={{ width: "100%" }}
-    />
-  );
-};
+registerAllModules();
 
 const DataTable = ({ df, header }) => {
-  const [rows, setRows] = useState([]);
+  const [data, setData] = useState([]);
   const [columns, setColumns] = useState([]);
 
-  const getRows = (df) => {
-    return df.values.map((row) => {
-      let rowData = {};
-      df.columns.forEach((col, idx) => {
-        rowData[col] = row[idx];
-      });
-      return rowData;
-    })
-  }
-
-  const getColumns = (df) => {
-    return df.columns.map(col => ({
-      key: col,
-      name: col,
-      editable: true,
-      resizable: true,
-      sortable: true,
-    }))
-  }
-
   useEffect(() => {
-    console.log("datatable::useeffect")
-    setRows(getRows(df))
-    setColumns(getColumns(df))
-  }, [df])
+    const loadData = async () => {
+      try {
+        const dataArray = df.values;
+        const columnNames = df.columns;
 
-  const renderColumns = (columns) => {
-    return columns.map((col) => ({ ...col, formatter: (props) => <EditableCell row={props.row} column={col} /> }));
-  }
+        setData(dataArray);
+        setColumns(columnNames.map(name => ({ data: name, title: name })));
+      } catch (err) {
+        console.error("Error loading CSV data:", err);
+      }
+    };
 
-  console.log("df", df);
+    loadData();
+  }, [df]);
 
-  if (!df) {
-    return;
-  }
 
   return (
     <div>
       <h2>{header}</h2>
-      <DataGrid
-        columns={renderColumns(columns)}
-        rows={rows}
-        rowHeight={50} />
+      {data.length > 0 && columns.length > 0 && (
+        <HotTable
+          data={data}
+          colHeaders={columns.map(col => col.title)}
+          rowHeaders={true}
+          licenseKey="non-commercial-and-evaluation"
+          stretchH="all"
+          manualColumnResize={true}
+          manualRowResize={true}
+          contextMenu={true}
+          hiddenColumns={{ columns: [columns.findIndex(col => col.data == 'id')] }}
+          columnSorting={true}
+        />
+      )}
     </div>
   );
+};
 
-}
-
-// function DataTable({df}) {
-//   return (
-//     <div>
-//       <Table df={df} />
-//     </div>
-//   );
-// }
-
-function Table({ df }) {
-  return (
-    <table>
-      <thead>
-        <tr>
-          {df.columns.map((col) => (
-            <th key={col}>{col}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {df.values.map((row, idx) => (
-          <tr key={idx}>
-            {row.map((val, idx2) => (
-              <td key={idx2}>{val}</td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )
-}
 
 export default DataTable;
