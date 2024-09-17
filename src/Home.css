@@ -1,0 +1,59 @@
+.App-container {
+  display: flex;
+  height: 100vh;
+}
+
+.Sidebar {
+  width: 16svw;
+  background-color: #f4f4f4;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.Upload-section {
+  margin-bottom: 32px;
+}
+
+.File-history {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.File-history ul {
+  list-style: none;
+  padding: 0;
+}
+
+.File-history li {
+  cursor: pointer;
+  padding: 16px;
+  margin-bottom: 8px;
+  background-color: #e0e0e0;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.File-history li:hover {
+  background-color: #ccc;
+}
+
+.File-history li.active {
+  background-color: #0087ff ;
+  color: #fff;
+  font-weight: bold;
+}
+
+.Table-container {
+  width: 96%;
+  padding: 16px;
+}
+
+.Table-container h2 {
+  margin-bottom: 32px;
+}
+
+.Table-container p {
+  font-size: 16px;
+}
+

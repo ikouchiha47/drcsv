@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import './App.css';
+import './Home.css';
 
 import DataUpload from './DataUpload';
 import DataTable from './DataTable';
@@ -32,13 +33,12 @@ function App() {
   return (
     <div className="App">
       <Header />
-      <DataUpload onDataProcessed={handleDataProcessed} />
-      {df && (
-        <div>
-          <h2>Processed Data</h2>
+      <section className='App-container'>
+        <DataUpload onDataProcessed={handleDataProcessed} />
+        {df && (
           <DataTable df={df} header={fileName} />
-        </div>
-      )}
+        )}
+      </section>
     </div>
   );
 }

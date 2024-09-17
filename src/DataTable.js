@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
 
 import 'handsontable/dist/handsontable.full.css';
+import './Home.css';
 
 registerAllModules();
 
 const DataTable = ({ df, header }) => {
   const [data, setData] = useState([]);
   const [columns, setColumns] = useState([]);
+  const dfRef = useRef(null); // Create a ref object to store the DataFrame
+
+  dfRef.current = df;
 
   useEffect(() => {
     const loadData = async () => {
@@ -26,9 +30,20 @@ const DataTable = ({ df, header }) => {
     loadData();
   }, [df]);
 
+  const handleAfterChange = (changes, source) => {
+    if (changes) {
+      changes.forEach(([row, col, oldValue, newValue]) => {
+        if (oldValue !== newValue) {
+          // Update the DataFrame
+          // console.log(col, columnName, row, "rrr")
+          dfRef.current.values[row][col] = newValue;
+        }
+      });
+    }
+  };
 
   return (
-    <div>
+    <div className='Table-container'>
       <h2>{header}</h2>
       {data.length > 0 && columns.length > 0 && (
         <HotTable
@@ -42,6 +57,7 @@ const DataTable = ({ df, header }) => {
           contextMenu={true}
           hiddenColumns={{ columns: [columns.findIndex(col => col.data == 'id')] }}
           columnSorting={true}
+          afterChange={handleAfterChange}
         />
       )}
     </div>
