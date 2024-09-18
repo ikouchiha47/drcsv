@@ -1,10 +1,19 @@
 import React, { useState } from 'react';
 
+import { registerAllModules } from 'handsontable/registry';
+
 import './App.css';
 import './Home.css';
 
-import DataUpload from './DataUpload';
+import WareHouse from './WareHouse';
 import DataTable from './DataTable';
+import AnalysisTables from './AnalysisTables';
+
+Array.zip = (src, dst) => {
+  return src.map((item, i) => [item, dst[i]])
+}
+
+registerAllModules();
 
 function Header() {
   return (
@@ -28,16 +37,19 @@ function App() {
   const handleDataProcessed = (dataFrame, fileName) => {
     setDf(dataFrame);
     setFileName(fileName);
+
+    window.df = dataFrame.copy()
   };
 
   return (
     <div className="App">
       <Header />
       <section className='App-container'>
-        <DataUpload onDataProcessed={handleDataProcessed} />
-        {df && (
+        <WareHouse onDataProcessed={handleDataProcessed} />
+        <section className='Main'>
           <DataTable df={df} header={fileName} />
-        )}
+          <AnalysisTables df={df} fileName={fileName} />
+        </section>
       </section>
     </div>
   );

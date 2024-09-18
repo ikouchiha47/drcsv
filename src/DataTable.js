@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { HotTable } from '@handsontable/react';
-import { registerAllModules } from 'handsontable/registry';
 
 import 'handsontable/dist/handsontable.full.css';
 import './Home.css';
-
-registerAllModules();
 
 const DataTable = ({ df, header }) => {
   const [data, setData] = useState([]);
@@ -14,8 +11,11 @@ const DataTable = ({ df, header }) => {
 
   dfRef.current = df;
 
+
   useEffect(() => {
     const loadData = async () => {
+      if (!df) return;
+
       try {
         const dataArray = df.values;
         const columnNames = df.columns;
@@ -30,17 +30,19 @@ const DataTable = ({ df, header }) => {
     loadData();
   }, [df]);
 
-  const handleAfterChange = (changes, source) => {
-    if (changes) {
-      changes.forEach(([row, col, oldValue, newValue]) => {
-        if (oldValue !== newValue) {
-          // Update the DataFrame
-          // console.log(col, columnName, row, "rrr")
-          dfRef.current.values[row][col] = newValue;
-        }
-      });
-    }
-  };
+  // const handleAfterChange = (changes, source) => {
+  //   if (changes) {
+  //     changes.forEach(([row, col, oldValue, newValue]) => {
+  //       if (oldValue !== newValue) {
+  //         // console.log(col, columnName, row, "rrr")
+  //         dfRef.current.values[row][col] = newValue;
+  //       }
+  //     });
+  //   }
+  // };
+
+
+  if (!df) return (<></>);
 
   return (
     <div className='Table-container'>
@@ -54,10 +56,12 @@ const DataTable = ({ df, header }) => {
           stretchH="all"
           manualColumnResize={true}
           manualRowResize={true}
+          height='auto'
+          width='100%'
           contextMenu={true}
-          hiddenColumns={{ columns: [columns.findIndex(col => col.data == 'id')] }}
+          hiddenColumns={{ columns: [columns.findIndex(col => col.data === 'id')] }}
           columnSorting={true}
-          afterChange={handleAfterChange}
+        // afterChange={handleAfterChange}
         />
       )}
     </div>

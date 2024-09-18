@@ -5,3 +5,5 @@ order_id,customer_id,order_date,product,quantity,price
 4,204,2023-09-04,Monitor,2,300.00
 5,205,2023-09-05,Keyboard,3,75.00
 6,206,2023-09-06,Mouse,,30.00
+7,204,2023-09-02,Phone,2,300.00
+8,202,2023-09-03,Headphones,1,150.00
