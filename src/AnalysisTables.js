@@ -86,7 +86,7 @@ function GroupingTable({ df, filters }) {
   );
 }
 
-function GroupSelector({ df, onSelect, onApplyFilters, filterOn }) {
+function GroupSelector({ df, onSelect, onClear }) {
   const groupColumns = df.columns.map(col => ({ value: col, label: col }));
   const aggrColumns = df.columns.map(col => ({ value: col, label: col }));
   const actions = AggregateColumns.map(aggr => ({ value: aggr, label: aggr }))
@@ -95,11 +95,11 @@ function GroupSelector({ df, onSelect, onApplyFilters, filterOn }) {
   const aggrRef = useRef(null);
   const actionRef = useRef(null);
 
-  const cleanUpInput = (withGrouper = false) => {
-    withGrouper && columnRef && columnRef.current.setValue(null);
-    aggrRef && aggrRef.current.setValue(null)
-    actionRef && actionRef.current.setValue(null)
-  }
+  // const cleanUpInput = (withGrouper = false) => {
+  //   withGrouper && columnRef && columnRef.current.setValue(null);
+  //   aggrRef && aggrRef.current.setValue(null)
+  //   actionRef && actionRef.current.setValue(null)
+  // }
 
   const handleSelect = (e) => {
     e.preventDefault()
@@ -108,25 +108,17 @@ function GroupSelector({ df, onSelect, onApplyFilters, filterOn }) {
     let aggrValue = aggrRef.current.getValue()[0];
     let actionValue = actionRef.current.getValue()[0];
 
-    if (!columnValue) return;
-    if (aggrValue && !actionValue) return
+    let res = []
+    if (columnValue) {
+      res.push({ type: 'group', column: columnValue.value })
+    }
 
-    let res = { [columnValue.value]: { type: 'group', column: columnValue.value } }
     if (aggrValue && actionValue) {
-      res = {
-        ...res,
-        [aggrValue.value]: { type: 'aggr', column: aggrValue.value, action: actionValue.value }
-      }
+      res.push({ type: 'aggr', column: aggrValue.value, action: actionValue.value })
     }
 
     onSelect(res)
-    cleanUpInput()
   }
-
-  useEffect(() => {
-    if (!filterOn) cleanUpInput(true);
-
-  }, [filterOn])
 
   return (
     <div className='flex flex-row' style={{ gap: '16px', marginBottom: '16px', alignItems: 'flex-end' }}>
@@ -160,20 +152,18 @@ function GroupSelector({ df, onSelect, onApplyFilters, filterOn }) {
         placeholder="Aggregate By"
         styles={{ menu: base => ({ ...base, zIndex: 999 }) }}
       />
-      <button className='Button-blue' onClick={handleSelect}>Add</button>
-
-      <button onClick={onApplyFilters} className='Button-blue'>{filterOn ? 'Clear' : 'Apply'}</button>
+      <button className='Button-blue' onClick={handleSelect}>Apply</button>
+      <button onClick={onClear} className='Button-blue'>Clear</button>
     </div>
   );
 }
 
 function GroupFilters({ filters, removeFilter }) {
-  let fss = Object.values(filters)
-  if (!fss.length) return;
+  if (!filters.length) return;
 
   return (
     <ul className='Groupings'>
-      {fss.map(((filter, idx) => {
+      {filters.map((filter, idx) => {
         return (
           <li
             key={idx + 1}
@@ -185,36 +175,42 @@ function GroupFilters({ filters, removeFilter }) {
             <span>x</span>
           </li>
         )
-      }))}
+      })}
     </ul>
   )
 }
 
 function AnalysisTables({ df, fileName }) {
-  const [filters, setFilters] = useState({});
-  const [filterOn, toggleFilter] = useState(false);
+  const [filters, setFilters] = useState([]);
+  const [uniqueFilters, setUniqueFilters] = useState(new Set())
 
-  const handleSelect = (option) => {
-    setFilters({ ...filters, ...option })
+  const toFilterKey = (filter) => {
+    return [filter.column, filter.type, filter.action].filter(d => d).join('_')
+  }
+
+  const handleSelect = (options) => {
+    let filteredOptions = options.filter(option => !uniqueFilters.has(toFilterKey(option)))
+
+    let newFilterKeys = new Set(options.map(option => {
+      return option && toFilterKey(option)
+    }))
+
+    newFilterKeys = newFilterKeys.union(uniqueFilters)
+
+    setUniqueFilters(newFilterKeys)
+    setFilters(filteredOptions.concat(filters))
   }
 
   const handleRemoveFilter = (filter) => {
-    let _filters = filters;
-    delete (_filters[filter.column])
+    let cleanedFilters = filters.filter(f => !(f.type == filter.type && f.column == filter.column))
 
-    setFilters({ ..._filters })
+    setFilters(cleanedFilters)
+    setUniqueFilters(new Set(cleanedFilters.map(f => f && toFilterKey(f))))
   }
 
-  const applyFilters = (e) => {
-    e.preventDefault();
-
-    if (Object.keys(filters).length == 0) return;
-
-    if (filterOn) {
-      setFilters({})
-    }
-
-    toggleFilter(!filterOn)
+  const handleClearFilters = () => {
+    if (!filters.length) return;
+    setFilters([])
   }
 
   if (!df) return;
@@ -226,12 +222,12 @@ function AnalysisTables({ df, fileName }) {
       <section className='Operations'>
         <h3 className='Table-header'>Aggregations</h3>
         <section className='Grouping-container'>
-          <GroupSelector df={df} onSelect={handleSelect} onApplyFilters={applyFilters} filterOn={filterOn} />
+          <GroupSelector df={df} onSelect={handleSelect} onClear={handleClearFilters} />
           <GroupFilters filters={filters} removeFilter={handleRemoveFilter} />
         </section>
       </section>
 
-      {filterOn && <GroupingTable df={df} filters={filters} />}
+      {filters.length ? <GroupingTable df={df} filters={filters} /> : null}
     </section>
   )
 }

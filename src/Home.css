@@ -1,6 +1,6 @@
 .App-container {
   display: flex;
-  height: 100vh;
+  min-height: 100svh;
 }
 
 .Button-blue {
@@ -77,7 +77,7 @@
 }
 
 .Static {
-  height: 480px; 
+  min-height: 560px; 
   padding: 16px 16px 0;
   background-color: var(--bg-green);
   border-top: 1px solid #ccc;
