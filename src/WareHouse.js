@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import * as dfd from 'danfojs';
 
 import './Home.css';
+import './Form.css';
 
 async function loadData(file) {
   const df = await dfd.readCSV(file);
@@ -12,6 +13,52 @@ async function loadData(file) {
   // df.fillNa("", { axis: 1 })
 
   return df
+}
+
+function DefaultValueForm({ df, onUpdateDF }) {
+  const [defaultValues, setDefaultValues] = useState({});
+
+  const handleInputChange = (e, column) => {
+    setDefaultValues({
+      ...defaultValues,
+      [column]: e.target.value,
+    });
+  };
+
+  const handleApplyDefaults = () => {
+    let newDf = df.copy();
+    for (let column in defaultValues) {
+      if (defaultValues[column]) {
+        newDf[column] = newDf[column].fillNa(defaultValues[column]);
+      }
+    }
+    onUpdateDF(newDf);
+  };
+
+  if (!df) return;
+
+  return (
+    <section className='Defaults'>
+      <h3>Set Default Values</h3>
+      <form className='Form'>
+        {df.columns.map((column, idx) => (
+          <div key={idx} className="Form-row">
+            <label className='Form-label'>
+              {column}:
+            </label>
+            <input
+              type="text"
+              className="Form-input"
+              onChange={(e) => handleInputChange(e, column)}
+            />
+          </div>
+        ))}
+        <button type="button" className="Submit-button" onClick={handleApplyDefaults}>
+          Apply Default Values
+        </button>
+      </form>
+    </section>
+  );
 }
 
 function WareHouse({ onDataProcessed }) {
@@ -70,6 +117,11 @@ function WareHouse({ onDataProcessed }) {
     onDataProcessed(_cleaned, currentFile)
   }
 
+  const handleDfUpdate = (df) => {
+    setDf(df);
+    onDataProcessed(df, currentFile)
+  }
+
   return (
     <div className="Sidebar">
       <div className="Vertical-split-container">
@@ -85,6 +137,9 @@ function WareHouse({ onDataProcessed }) {
           <h3>Operations</h3>
           <ul className='List'>
             <li onClick={handleCleanData}>Clean</li>
+            {df && <li>
+              <DefaultValueForm df={df} onUpdateDF={handleDfUpdate} />
+            </li>}
           </ul>
         </div>
       </div>

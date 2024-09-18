@@ -1,0 +1,41 @@
+.Form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.Form-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.Form-label {
+  flex: 1;
+  text-align: left;
+  font-weight: bold;
+}
+
+.Form-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.Submit-button {
+  margin-top: 16px;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.Submit-button:hover {
+  background-color: #45a049;
+}
