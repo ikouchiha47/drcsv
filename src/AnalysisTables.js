@@ -22,7 +22,7 @@ function DescriptionTable({ df }) {
         autoWrapCol={true}
         data={types}
         licenseKey="non-commercial-and-evaluation"
-        stretchH='all'
+        // stretchH='all'
         height={'auto'}
       />
     </section>
@@ -77,6 +77,7 @@ function GroupingTable({ df, filters }) {
         data={groupedDf.values}
         colHeaders={groupedDf.columns}
         rowHeaders={true}
+        height={'auto'}
         stretchH="all"
         licenseKey="non-commercial-and-evaluation"
         hiddenColumns={{ columns: [groupedDf.columns.findIndex(col => col === 'id')] }}
@@ -194,7 +195,6 @@ function AnalysisTables({ df, fileName }) {
   const [filterOn, toggleFilter] = useState(false);
 
   const handleSelect = (option) => {
-    console.log(filters, option)
     setFilters({ ...filters, ...option })
   }
 
@@ -207,6 +207,8 @@ function AnalysisTables({ df, fileName }) {
 
   const applyFilters = (e) => {
     e.preventDefault();
+
+    if (Object.keys(filters).length == 0) return;
 
     if (filterOn) {
       setFilters({})

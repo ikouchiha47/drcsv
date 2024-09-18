@@ -14,13 +14,13 @@
   cursor: pointer;
   display: inline-block;
   text-decoration: none;
-  font-size: 24px;
+  font-size: 16px;
 }
 
 .Sidebar {
   width: 16svw;
   background-color: #f4f4f4;
-  padding: 16px;
+  /* padding: 16px; */
   display: flex;
   flex-direction: column;
 }

@@ -1,3 +1,7 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=Manrope:wght@200..800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+
 :root {
   --active-bg-blue: #0087ff;
   --bg-green: #70eb3f;
@@ -5,17 +9,31 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+* {
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
 }
+
+h1, h2, h3 {
+  font-family: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+code, pre, a, button {
+  font-family: 'Space Mono', -apple-system, BlinkMacSystemFont, monospace;
+}
+
+td {
+  font-size: 16px;
+}
+
+th {
+  font-size: 18px;
+  font-weight: bold;
+}
+
 
 .flex {
   display: flex;
