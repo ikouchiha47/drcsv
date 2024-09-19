@@ -15,9 +15,8 @@ function loadMoreData(df, start, count) {
   return df.loc({ rows: [`${start}:${end}`] });
 }
 
-const DataTable = ({ df, header }) => {
+export const ScrollableDataTable = ({ df }) => {
   const [data, setData] = useState([]);
-  const [columns, setColumns] = useState([]);
   const [startIdx, setStartIdx] = useState(0);
   const [loading, setLoading] = useState(false);
 
@@ -34,7 +33,7 @@ const DataTable = ({ df, header }) => {
         const initialData = df.head(WINDOW_SIZE);
 
         setData(initialData.values);
-        setColumns(df.columns.map(name => ({ data: name, title: name })));
+        // setColumns(df.columns.map(name => ({ data: name, title: name })));
         setStartIdx(WINDOW_SIZE)
 
       } catch (err) {
@@ -57,7 +56,7 @@ const DataTable = ({ df, header }) => {
   // };
 
 
-  let dfcolumns = df.columns;
+  let columns = df.columns;
 
   const handleScroll = useCallback(() => {
     if (!scrollRef.current) return;
@@ -72,7 +71,7 @@ const DataTable = ({ df, header }) => {
       let moreData = loadMoreData(dfRef.current, startIdx, BATCH_SIZE);
 
       setData(prevData => {
-        const prevDataDf = new dfd.DataFrame(prevData, { columns: dfcolumns });
+        const prevDataDf = new dfd.DataFrame(prevData, { columns: columns });
         const combinedDf = dfd.concat({ dfList: [moreData, prevDataDf], axis: 0 })
 
         // const slicedDf = combinedDf.tail(WINDOW_SIZE);
@@ -84,7 +83,7 @@ const DataTable = ({ df, header }) => {
 
       setLoading(false);
     }
-  }, [loading, startIdx, dfcolumns])
+  }, [loading, startIdx, columns])
 
   useEffect(() => {
     let container = scrollRef.current;
@@ -101,34 +100,43 @@ const DataTable = ({ df, header }) => {
   }, [handleScroll]);
 
   return (
-    <div className='Table-container Preview-Table-container'>
-      <h2>{header}</h2>
-      {data.length > 0 && columns.length > 0 && (
-        <div
-          ref={scrollRef}
-          style={{ height: ['auto', '240px'][Number(data.length > 20)], width: '100%', overflowY: 'auto' }}
-        >
-          <HotTable
+    <>
+      {
+        data.length > 0 && columns.length > 0 && (
+          <div
             ref={scrollRef}
-            data={data}
-            colHeaders={columns.map(col => col.title)}
-            rowHeaders={true}
-            licenseKey="non-commercial-and-evaluation"
-            stretchH="all"
-            manualColumnResize={true}
-            manualRowResize={true}
-            height={'auto'}
-            width='100%'
-            contextMenu={true}
-            hiddenColumns={{ columns: [columns.findIndex(col => col.data === 'id')] }}
-            columnSorting={true}
-          // afterChange={handleAfterChange}
-          />
-        </div>
-      )}
-    </div>
+            style={{ height: ['auto', '240px'][Number(data.length > 20)], width: '100%', overflowY: 'auto' }}
+          >
+            <HotTable
+              ref={scrollRef}
+              data={data}
+              colHeaders={columns.map(col => col.title)}
+              rowHeaders={true}
+              licenseKey="non-commercial-and-evaluation"
+              stretchH="all"
+              manualColumnResize={true}
+              manualRowResize={true}
+              height={'auto'}
+              width='100%'
+              contextMenu={true}
+              hiddenColumns={{ columns: [columns.findIndex(col => col.data === 'id')] }}
+              columnSorting={true}
+            // afterChange={handleAfterChange}
+            />
+          </div>
+        )
+      }
+    </>
   );
 };
 
+function DataTable({ df, header }) {
+  return (
+    <div className='Table-container Preview-Table-container'>
+      <h2>{header}</h2>
+      <ScrollableDataTable df={df} />
+    </div>
+  )
+}
 
 export default DataTable;

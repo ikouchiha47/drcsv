@@ -5,6 +5,7 @@ import Select from 'react-select';
 import 'handsontable/dist/handsontable.full.css';
 import './Analysis.css';
 import './Home.css';
+import { ScrollableDataTable } from './DataTable';
 
 
 const AggregateColumns = ['sum', 'max', 'min', 'cumsum', 'count'].sort();
@@ -68,6 +69,7 @@ const groupData = (df, filters) => {
   return groupedDf.agg(aggregators);
 };
 
+// TODO: replace this with DataTable
 function GroupingTable({ df }) {
   const [showResults, toggleShowResults] = useState(true)
 
@@ -77,16 +79,7 @@ function GroupingTable({ df }) {
         <h3 className='Table-header'>Grouped Data</h3>
         <a href="#" onClick={() => toggleShowResults(!showResults)}>Show/Hide</a>
       </header>
-      {showResults ? <HotTable
-        data={df.values}
-        colHeaders={df.columns}
-        rowHeaders={true}
-        height={'auto'}
-        stretchH="all"
-        columnSorting={true}
-        licenseKey="non-commercial-and-evaluation"
-        hiddenColumns={{ columns: [df.columns.findIndex(col => col === 'id')] }}
-      /> : null}
+      {showResults ? <ScrollableDataTable df={df} /> : null}
     </div>
   );
 }
