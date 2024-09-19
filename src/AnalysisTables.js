@@ -49,6 +49,8 @@ const groupData = (df, filters) => {
   const selectedColumns = new Set(taggedColumns.groups.map(col => col.column))
   const groupedDf = df.groupby([...selectedColumns]);
 
+  console.log("queries", taggedColumns)
+
   if (!aggrFound) return groupedDf.apply(g => g);
 
   const aggregators = taggedColumns.aggrs.reduce((acc, data) => {
@@ -66,32 +68,27 @@ const groupData = (df, filters) => {
   return groupedDf.agg(aggregators);
 };
 
-function GroupingTable({ df, filters }) {
-  console.log("again", filters)
-  if (!filters.length) return;
-
-  const groupedDf = groupData(df, filters);
-
+function GroupingTable({ df }) {
   return (
     <div className='Table-container'>
       <h3 className='Table-header'>Grouped Data</h3>
       <HotTable
-        data={groupedDf.values}
-        colHeaders={groupedDf.columns}
+        data={df.values}
+        colHeaders={df.columns}
         rowHeaders={true}
         height={'auto'}
         stretchH="all"
         columnSorting={true}
         licenseKey="non-commercial-and-evaluation"
-        hiddenColumns={{ columns: [groupedDf.columns.findIndex(col => col === 'id')] }}
+        hiddenColumns={{ columns: [df.columns.findIndex(col => col === 'id')] }}
       />
     </div>
   );
 }
 
-function GroupSelector({ df, onSelect, onClear }) {
-  const groupColumns = df.columns.map(col => ({ value: col, label: col }));
-  const aggrColumns = df.columns.map(col => ({ value: col, label: col }));
+function GroupSelector({ columns, onSelect, onClear }) {
+  const groupColumns = columns.map(col => ({ value: col, label: col }));
+  const aggrColumns = columns.map(col => ({ value: col, label: col }));
   const actions = AggregateColumns.map(aggr => ({ value: aggr, label: aggr }))
 
   const columnRef = useRef(null);
@@ -105,17 +102,11 @@ function GroupSelector({ df, onSelect, onClear }) {
 
     return () => {
       console.log("unmount selector")
-      columnCurrent && columnCurrent.setValue(null);
-      aggrCurrent && aggrCurrent.setValue(null)
-      actionCurrent && actionCurrent.setValue(null)
+      [columnCurrent, aggrCurrent, actionCurrent].forEach(curr => curr && curr.setValue(null))
     }
 
-  }, [columnRef, aggrRef, actionRef])
-  // const cleanUpInput = (withGrouper = false) => {
-  //   withGrouper && columnRef && columnRef.current.setValue(null);
-  //   aggrRef && aggrRef.current.setValue(null)
-  //   actionRef && actionRef.current.setValue(null)
-  // }
+  }, [columns, columnRef, aggrRef, actionRef]) // when columns change, relaod
+
 
   const handleSelect = (e) => {
     e.preventDefault()
@@ -196,9 +187,10 @@ function GroupFilters({ filters, removeFilter }) {
   )
 }
 
-function AnalysisTables({ df, fileName, resetFilters }) {
+function AnalysisTables({ df, fileName }) {
   const [filters, setFilters] = useState([]);
   const [uniqueFilters, setUniqueFilters] = useState(new Set())
+  const [groupedDf, setGroupedDf] = useState(df);
 
   const toFilterKey = (filter) => {
     return [filter.column, filter.type, filter.action].filter(d => d).join('_')
@@ -212,9 +204,11 @@ function AnalysisTables({ df, fileName, resetFilters }) {
     }))
 
     newFilterKeys = newFilterKeys.union(uniqueFilters)
+    filteredOptions = filteredOptions.concat(filters)
 
     setUniqueFilters(newFilterKeys)
-    setFilters(filteredOptions.concat(filters))
+    setFilters(filteredOptions)
+    setGroupedDf(groupData(df, filteredOptions))
   };
 
   const handleRemoveFilter = (filter) => {
@@ -222,24 +216,27 @@ function AnalysisTables({ df, fileName, resetFilters }) {
 
     setFilters(cleanedFilters)
     setUniqueFilters(new Set(cleanedFilters.map(f => f && toFilterKey(f))))
+    setGroupedDf(groupData(df, cleanedFilters))
   };
 
   const handleClearFilters = () => {
-    if (!filters.length) return;
+    // console.log("clearing", filters.length)
+
+    if (!filters.length) return
+
+    setGroupedDf(groupData(df, []))
     setFilters([])
+    setUniqueFilters(new Set());
   };
 
   useEffect(() => {
-    console.log("reseting table")
+    console.log("clearing effect")
 
-    return () => {
-      console.log("unmounting")
+    setGroupedDf(groupData(df, []))
+    setFilters([])
+    setUniqueFilters(new Set());
 
-      setFilters([]);
-      setUniqueFilters(new Set());
-    }
-
-  }, [df, resetFilters]);
+  }, [df]);
 
   return (
     <section className='Analysis'>
@@ -248,12 +245,12 @@ function AnalysisTables({ df, fileName, resetFilters }) {
       <section className='Operations'>
         <h3 className='Table-header'>Aggregations</h3>
         <section className='Grouping-container'>
-          <GroupSelector df={df} onSelect={handleSelect} onClear={handleClearFilters} />
+          <GroupSelector columns={df.columns} onSelect={handleSelect} onClear={handleClearFilters} />
           <GroupFilters filters={filters} removeFilter={handleRemoveFilter} />
         </section>
       </section>
 
-      {filters.length ? <GroupingTable df={df} filters={filters} /> : null}
+      {filters.length ? <GroupingTable df={groupedDf} /> : null}
     </section>
   )
 }

@@ -125,9 +125,6 @@ function WareHouse({ df, onDataProcessed }) {
   const handleCleanData = () => {
     if (!df) return
 
-    // let _cleaned = df.copy()
-    // _cleaned.dropNa({ inplace: true })
-
     onDataProcessed(df.dropNa(), currentFile)
   }
 

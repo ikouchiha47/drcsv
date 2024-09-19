@@ -33,11 +33,8 @@ function Header() {
 function App() {
   const [df, setDf] = useState(null);
   const [fileName, setFileName] = useState('');
-  const [resetFilters, setResetFilters] = useState(false);
 
   const handleDataProcessed = (dataFrame, fileName) => {
-    setResetFilters(prev => !prev);
-
     // postpoing for next cycle
     // setTimeout(() => {
     //   setDf(dataFrame);
@@ -53,14 +50,13 @@ function App() {
     <div className="App">
       <Header />
       <section className='App-container'>
-        <WareHouse onDataProcessed={handleDataProcessed} />
+        <WareHouse df={df} onDataProcessed={handleDataProcessed} />
         <section className='Main'>
-          {df ? <DataTable df={df} header={fileName} /> : null}
-          {df ? (<AnalysisTables
+          {df && <DataTable df={df} header={fileName} />}
+          {df && <AnalysisTables
             df={df}
             fileName={fileName}
-            resetFilters={resetFilters}
-          />) : null
+          />
           }
         </section>
       </section>
