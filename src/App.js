@@ -35,15 +35,10 @@ function App() {
   const [fileName, setFileName] = useState('');
 
   const handleDataProcessed = (dataFrame, fileName) => {
-    // postpoing for next cycle
-    // setTimeout(() => {
-    //   setDf(dataFrame);
-    //   setFileName(fileName);
-    // }, 0)
-
     setDf(dataFrame);
     setFileName(fileName);
-    // window.df = dataFrame.copy()
+
+    window.df = dataFrame.copy()
   };
 
   return (

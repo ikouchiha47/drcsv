@@ -69,10 +69,15 @@ const groupData = (df, filters) => {
 };
 
 function GroupingTable({ df }) {
+  const [showResults, toggleShowResults] = useState(true)
+
   return (
     <div className='Table-container'>
-      <h3 className='Table-header'>Grouped Data</h3>
-      <HotTable
+      <header className='flex flex-row' style={{ alignItems: 'baseline', gap: '16px' }}>
+        <h3 className='Table-header'>Grouped Data</h3>
+        <a href="#" onClick={() => toggleShowResults(!showResults)}>Show/Hide</a>
+      </header>
+      {showResults ? <HotTable
         data={df.values}
         colHeaders={df.columns}
         rowHeaders={true}
@@ -81,7 +86,7 @@ function GroupingTable({ df }) {
         columnSorting={true}
         licenseKey="non-commercial-and-evaluation"
         hiddenColumns={{ columns: [df.columns.findIndex(col => col === 'id')] }}
-      />
+      /> : null}
     </div>
   );
 }
@@ -101,12 +106,20 @@ function GroupSelector({ columns, onSelect, onClear }) {
     let actionCurrent = actionRef.current;
 
     return () => {
-      console.log("unmount selector")
-      [columnCurrent, aggrCurrent, actionCurrent].forEach(curr => curr && curr.setValue(null))
+      console.log("unmount selector");
+
+      [
+        columnCurrent,
+        aggrCurrent,
+        actionCurrent
+      ].forEach(cur => { cur && cur.setValue(null) });
+
+      // columnCurrent && columnCurrent.setValue(null);
+      // aggrCurrent && aggrCurrent.setValue(null)
+      // actionCurrent && actionCurrent.setValue(null)
     }
 
-  }, [columns, columnRef, aggrRef, actionRef]) // when columns change, relaod
-
+  }, [columns, columnRef, aggrRef, actionRef]) // reload when columns change
 
   const handleSelect = (e) => {
     e.preventDefault()
