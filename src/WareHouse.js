@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import * as dfd from 'danfojs';
+import { ArrowUpTrayIcon } from '@heroicons/react/24/outline'
 
 import './Home.css';
 import './Form.css';
@@ -9,10 +10,25 @@ async function loadData(file) {
   const id = Array.from({ length: df.shape[0] }, (_, i) => i);
 
   df.addColumn('id', id, { inplace: true })
-  // df.dropNa({ inplace: true })
-  // df.fillNa("", { axis: 1 })
 
   return df
+}
+
+function mapDTypeToJS(dtype, value) {
+  switch (dtype) {
+    case 'int32':
+    case 'int64':
+    case 'float32':
+    case 'float64':
+      return Number(value);
+    case 'bool':
+      return Boolean(value);
+    case 'string':
+      return String(value)
+    case 'object':
+    default:
+      return JSON.stringify(value);
+  }
 }
 
 function DefaultValueForm({ df, onUpdateDF }) {
@@ -25,22 +41,24 @@ function DefaultValueForm({ df, onUpdateDF }) {
     });
   };
 
+  const dtypeMap = new Map(Array.zip(df.columns, df.dtypes))
+
   const handleApplyDefaults = () => {
     let newDf = df.copy();
+
     for (let column in defaultValues) {
       if (defaultValues[column]) {
-        newDf[column] = newDf[column].fillNa(defaultValues[column]);
+        newDf[column] = newDf[column].fillNa(mapDTypeToJS(dtypeMap.get(column) || 'string', defaultValues[column]));
       }
     }
+
     onUpdateDF(newDf);
   };
-
-  if (!df) return;
 
   return (
     <section className='Defaults'>
       <h3>Set Default Values</h3>
-      <form className='Form'>
+      <form className='Form' id='default-value-form'>
         {df.columns.map((column, idx) => (
           <div key={idx} className="Form-row">
             <label className='Form-label'>
@@ -61,8 +79,7 @@ function DefaultValueForm({ df, onUpdateDF }) {
   );
 }
 
-function WareHouse({ onDataProcessed }) {
-  const [df, setDf] = useState(null);
+function WareHouse({ df, onDataProcessed }) {
   const [files, updateFiles] = useState(new Map());
   const [currentFile, setCurrentFile] = useState(null);
 
@@ -79,9 +96,8 @@ function WareHouse({ onDataProcessed }) {
     try {
       let _df = await loadData(file)
 
-      setDf(_df);
-      onDataProcessed(_df, file.name)
       setCurrentFile(file.name)
+      onDataProcessed(_df, file.name)
 
     } catch (e) {
       console.error(e)
@@ -98,9 +114,8 @@ function WareHouse({ onDataProcessed }) {
     try {
       let _df = await loadData(file)
 
-      setDf(_df)
-      onDataProcessed(_df, file.name)
       setCurrentFile(file.name)
+      onDataProcessed(_df, file.name)
 
     } catch (e) {
       console.error(e)
@@ -110,15 +125,13 @@ function WareHouse({ onDataProcessed }) {
   const handleCleanData = () => {
     if (!df) return
 
-    let _cleaned = df.copy()
-    _cleaned.dropNa({ inplace: true })
+    // let _cleaned = df.copy()
+    // _cleaned.dropNa({ inplace: true })
 
-    setDf(_cleaned)
-    onDataProcessed(_cleaned, currentFile)
+    onDataProcessed(df.dropNa(), currentFile)
   }
 
   const handleDfUpdate = (df) => {
-    setDf(df);
     onDataProcessed(df, currentFile)
   }
 
@@ -148,7 +161,21 @@ function WareHouse({ onDataProcessed }) {
 }
 
 function FileUpload({ handleFileUpload }) {
-  return <input type="file" accept=".csv" onChange={handleFileUpload} />
+  return (
+    <div className="upload-card">
+      <input
+        type="file"
+        id="fileUpload"
+        accept=".csv"
+        onChange={handleFileUpload}
+        hidden
+      />
+      <label htmlFor="fileUpload" className="upload-label">
+        <ArrowUpTrayIcon className='upload-icon' />
+        <p>Upload CSV</p>
+      </label>
+    </div>
+  )
 }
 
 function RenderFileHistory({ files, selectFile, currentFile }) {

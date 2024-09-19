@@ -7,14 +7,14 @@ import './Analysis.css';
 import './Home.css';
 
 
-const AggregateColumns = ['sum', 'max', 'min', 'cumsum', 'count'];
+const AggregateColumns = ['sum', 'max', 'min', 'cumsum', 'count'].sort();
 
 function DescriptionTable({ df }) {
   const columns = ['Header', 'Type'];
   const types = Array.zip(df.columns, df.dtypes);
 
   return (
-    <section className='Description'>
+    <section className='Description Table-container'>
       <h3 className='Table-header'>Table Descriptions</h3>
       <HotTable
         colHeaders={columns}
@@ -23,6 +23,7 @@ function DescriptionTable({ df }) {
         data={types}
         licenseKey="non-commercial-and-evaluation"
         // stretchH='all'
+        columnSorting={true}
         height={'auto'}
       />
     </section>
@@ -31,7 +32,7 @@ function DescriptionTable({ df }) {
 
 const groupData = (df, filters) => {
   if (!filters) return df;
-  if (!Object.keys(filters).length) return df;
+  if (!filters.length) return df;
 
   let taggedColumns = Object.values(filters).reduce((acc, filter) => {
     if (filter.type === 'group') {
@@ -66,12 +67,13 @@ const groupData = (df, filters) => {
 };
 
 function GroupingTable({ df, filters }) {
-  if (!Object.keys(filters).length) return;
+  console.log("again", filters)
+  if (!filters.length) return;
 
-  const groupedDf = groupData(df.copy(), filters);
+  const groupedDf = groupData(df, filters);
 
   return (
-    <div>
+    <div className='Table-container'>
       <h3 className='Table-header'>Grouped Data</h3>
       <HotTable
         data={groupedDf.values}
@@ -79,6 +81,7 @@ function GroupingTable({ df, filters }) {
         rowHeaders={true}
         height={'auto'}
         stretchH="all"
+        columnSorting={true}
         licenseKey="non-commercial-and-evaluation"
         hiddenColumns={{ columns: [groupedDf.columns.findIndex(col => col === 'id')] }}
       />
@@ -95,6 +98,19 @@ function GroupSelector({ df, onSelect, onClear }) {
   const aggrRef = useRef(null);
   const actionRef = useRef(null);
 
+  useEffect(() => {
+    let columnCurrent = columnRef.current;
+    let aggrCurrent = aggrRef.current;
+    let actionCurrent = actionRef.current;
+
+    return () => {
+      console.log("unmount selector")
+      columnCurrent && columnCurrent.setValue(null);
+      aggrCurrent && aggrCurrent.setValue(null)
+      actionCurrent && actionCurrent.setValue(null)
+    }
+
+  }, [columnRef, aggrRef, actionRef])
   // const cleanUpInput = (withGrouper = false) => {
   //   withGrouper && columnRef && columnRef.current.setValue(null);
   //   aggrRef && aggrRef.current.setValue(null)
@@ -180,7 +196,7 @@ function GroupFilters({ filters, removeFilter }) {
   )
 }
 
-function AnalysisTables({ df, fileName }) {
+function AnalysisTables({ df, fileName, resetFilters }) {
   const [filters, setFilters] = useState([]);
   const [uniqueFilters, setUniqueFilters] = useState(new Set())
 
@@ -199,21 +215,31 @@ function AnalysisTables({ df, fileName }) {
 
     setUniqueFilters(newFilterKeys)
     setFilters(filteredOptions.concat(filters))
-  }
+  };
 
   const handleRemoveFilter = (filter) => {
-    let cleanedFilters = filters.filter(f => !(f.type == filter.type && f.column == filter.column))
+    let cleanedFilters = filters.filter(f => !(f.type === filter.type && f.column === filter.column))
 
     setFilters(cleanedFilters)
     setUniqueFilters(new Set(cleanedFilters.map(f => f && toFilterKey(f))))
-  }
+  };
 
   const handleClearFilters = () => {
     if (!filters.length) return;
     setFilters([])
-  }
+  };
 
-  if (!df) return;
+  useEffect(() => {
+    console.log("reseting table")
+
+    return () => {
+      console.log("unmounting")
+
+      setFilters([]);
+      setUniqueFilters(new Set());
+    }
+
+  }, [df, resetFilters]);
 
   return (
     <section className='Analysis'>

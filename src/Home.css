@@ -77,7 +77,7 @@
 }
 
 .Static {
-  min-height: 560px; 
+  min-height: 480px; 
   padding: 16px 16px 0;
   background-color: var(--bg-green);
   border-top: 1px solid #ccc;
@@ -88,7 +88,11 @@
   color: #fff;
 }
 
-.Table-container {
+.Table-container td {
+  padding: 8px !important;
+}
+
+.Preview-Table-container {
   padding: 16px;
   width: 100%;
   overflow: hidden;
@@ -97,11 +101,66 @@
   align-items: center;
 }
 
-.Table-container h2 {
+.Preview-Table-container h2 {
   margin-bottom: 32px;
 }
 
-.Table-container p {
+.Preview-Table-container p {
   font-size: 16px;
 }
 
+
+.upload-card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100px;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.upload-card:hover {
+  background-color: #f1f1f1;
+}
+
+.upload-icon {
+  width: 32px;
+}
+
+.upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Arial', sans-serif;
+  font-size: 16px;
+  color: #333;
+  text-align: center;
+  cursor: pointer;
+  width: 100%;
+}
+
+.upload-label p {
+  margin-top: 10px;
+  font-weight: bold;
+  color: #333;
+}
+
+.upload-label:hover {
+  color: #000;
+}
+
+.upload-label svg {
+  color: #666;
+}
+
+.upload-label:hover svg {
+  color: #333;
+}
+
+input[type="file"] {
+  display: none; /* Hide the default file input */
+}
