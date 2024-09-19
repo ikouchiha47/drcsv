@@ -69,7 +69,6 @@ const groupData = (df, filters) => {
   return groupedDf.agg(aggregators);
 };
 
-// TODO: replace this with DataTable
 function GroupingTable({ df }) {
   const [showResults, toggleShowResults] = useState(true)
 
@@ -218,7 +217,7 @@ function AnalysisTables({ df, fileName }) {
   };
 
   const handleRemoveFilter = (filter) => {
-    let cleanedFilters = filters.filter(f => !(f.type === filter.type && f.column === filter.column))
+    let cleanedFilters = filters.filter(f => !(f.type === filter.type && f.column === filter.column && f.action == filter.action))
 
     setFilters(cleanedFilters)
     setUniqueFilters(new Set(cleanedFilters.map(f => f && toFilterKey(f))))
