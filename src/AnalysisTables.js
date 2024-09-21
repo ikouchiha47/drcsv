@@ -10,14 +10,20 @@ import { ScrollableDataTable } from './DataTable';
 
 const AggregateColumns = ['sum', 'max', 'min', 'cumsum', 'count'].sort();
 
-function DescriptionTable({ df }) {
+export function DescriptionTable({ df }) {
+  const [showResults, toggleShowResults] = useState(false)
+
+
   const columns = ['Header', 'Type'];
   const types = Array.zip(df.columns, df.dtypes);
 
   return (
     <section className='Description Table-container'>
-      <h3 className='Table-header'>Table Descriptions</h3>
-      <HotTable
+      <header className='flex flex-row' style={{ alignItems: 'baseline', gap: '16px' }}>
+        <h3 className='Table-header'>Table Descriptions</h3>
+        <button type="button" onClick={() => toggleShowResults(!showResults)}>Show/Hide</button>
+      </header>
+      {showResults ? <HotTable
         colHeaders={columns}
         autoWrapRow={true}
         autoWrapCol={true}
@@ -26,8 +32,10 @@ function DescriptionTable({ df }) {
         // stretchH='all'
         columnSorting={true}
         height={'auto'}
-      />
+      /> : null}
+
     </section>
+
   )
 }
 
@@ -73,7 +81,7 @@ function GroupingTable({ df }) {
   const [showResults, toggleShowResults] = useState(true)
 
   return (
-    <div className='Table-container'>
+    <div className='Table-container Container'>
       <header className='flex flex-row' style={{ alignItems: 'baseline', gap: '16px' }}>
         <h3 className='Table-header'>Grouped Data</h3>
         <button type="button" onClick={() => toggleShowResults(!showResults)}>Show/Hide</button>
@@ -243,20 +251,38 @@ function AnalysisTables({ df, fileName }) {
 
   }, [df]);
 
-  return (
-    <section className='Analysis Container'>
-      <DescriptionTable df={df} />
-
-      <section className='Operations Container'>
-        <h3 className='Table-header'>Aggregations</h3>
-        <section className='Grouping-container'>
-          <GroupSelector columns={df.columns} onSelect={handleSelect} onClear={handleClearFilters} />
-          <GroupFilters filters={filters} removeFilter={handleRemoveFilter} />
-        </section>
+  const renderUsage = () => {
+    return (
+      <section class='Container Operations-usage'>
+        <p> Usage: </p>
+        <ul>
+          <li>Select appropriate columns to group and aggregate</li>
+          <li>Integer aggregations: sum, min, max, count</li>
+          <li>Non-Integer aggregations: count</li>
+        </ul>
       </section>
+    )
+  }
 
-      {filters.length ? <GroupingTable df={groupedDf} /> : null}
-    </section>
+  return (
+    <>
+      <hr className='separator' />
+      <section className='Analysis Container'>
+        <DescriptionTable df={df} />
+        <section className='Operations Container'>
+          <header className='flex flex-row' style={{ gap: '16px', alignItems: 'baseline' }}>
+            <h3 className='Table-header'>Aggregations</h3>
+            <em>*Group, filter and analyse data</em>
+          </header>
+          <section className='Grouping-container'>
+            <GroupSelector columns={df.columns} onSelect={handleSelect} onClear={handleClearFilters} />
+            <GroupFilters filters={filters} removeFilter={handleRemoveFilter} />
+          </section>
+        </section>
+        {renderUsage()}
+        {filters.length ? <GroupingTable df={groupedDf} /> : null}
+      </section>
+    </>
   )
 }
 

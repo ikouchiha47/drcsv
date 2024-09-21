@@ -151,22 +151,28 @@ function WareHouse({ df, onDataProcessed, onSqlLaunch }) {
 
   return (
     <div className="Sidebar">
+      <section className='Upload-section'>
+        <FileUpload handleFileUpload={handleFileUpload} />
+      </section>
       <div className="Vertical-split-container">
-        <div className='Scrollable'>
-          <section className='Upload-section'>
-            <FileUpload handleFileUpload={handleFileUpload} />
-          </section>
-          {renderFileHistory()}
-        </div>
-        <div className="Static">
+        {df && (<div className="Static">
           <h3>Operations</h3>
-          {df && (
-            <ul className='List'>
-              <li onClick={handleCleanData}>Clean</li>
-              <li onClick={handleSqlLaunchWithTableName}>Sequelize</li>
-              <li><DefaultValueForm df={df} onUpdateDF={handleDfUpdate} /></li>
-            </ul>
-          )}
+
+          <ul className='List'>
+            <li onClick={handleCleanData}>Clean</li>
+            <li onClick={handleSqlLaunchWithTableName}>Sequelize</li>
+            <li style={{ background: '#fff' }}>
+              <DefaultValueForm
+                df={df}
+                onUpdateDF={handleDfUpdate}
+              />
+            </li>
+          </ul>
+        </div>
+        )}
+
+        <div className='Scrollable'>
+          {renderFileHistory()}
         </div>
       </div>
     </div>
@@ -185,7 +191,7 @@ function FileUpload({ handleFileUpload }) {
       />
       <label htmlFor="fileUpload" className="upload-label">
         <ArrowUpTrayIcon className='upload-icon' />
-        <p>Upload CSV</p>
+        <p>Import CSV</p>
       </label>
     </div>
   )

@@ -41,7 +41,7 @@
 }
 
 .Upload-section {
-  margin-bottom: 32px;
+  /* margin-bottom: 32px; */
 }
 
 .File-history {
@@ -94,13 +94,24 @@
 .Static {
   min-height: 480px; 
   padding: 16px 16px 0;
-  background-color: var(--bg-green);
+  background-color: #02002a;
   border-top: 1px solid #ccc;
 }
 
-.Static .List li {
-  background-color: #000;
+.Static h3 {
   color: #fff;
+  font-size: 24px;
+}
+
+.Defaults h3 {
+  color: #000;
+}
+
+.Static .List li {
+  background-color: #693ccc;
+  color: #fff;
+  font-size: 16px;
+  font-family: var(--secondary-font);
 }
 
 .Table-container td {
@@ -126,6 +137,11 @@
 
 .Container {
   padding: 0 16px 16px;
+}
+
+.Defaults {
+  background-color: white;
+  color: black;
 }
 
 .upload-card {

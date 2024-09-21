@@ -86,7 +86,7 @@ export const ScrollableDataTable = ({ df, classNames }) => {
         setLoading(false);
       }, 0)
     }
-  }, [loading, startIdx, columns])
+  }, [loading, startIdx, columns, totalRows])
 
   useEffect(() => {
     let container = scrollRef.current;

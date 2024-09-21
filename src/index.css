@@ -62,3 +62,8 @@ th {
 .flex-col {
   flex-direction: column;
 }
+
+.separator {
+  margin: 32px auto;
+  width: 95%;
+}

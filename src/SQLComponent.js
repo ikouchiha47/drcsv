@@ -126,14 +126,19 @@ const SQLComponent = ({ file, df, tableName, launched }) => {
   }
 
   return (
-    <div className="Playground Container">
-      {/* Query Textarea */}
-      {render()}
-      {/* Results Table */}
-      {data.length > 0 && db && (
-        <ScrollableDataTable df={toDF(columns, data)} classNames={['query-result']} />
-      )}
-    </div>
+    <>
+      <hr className='separator' />
+      <section className="Playground Container">
+        <h3 className='Table-header'>SeQueLize</h3>
+        {/* Query Textarea */}
+        {render()}
+        {/* Results Table */}
+        <h3 className='Table-header'>Results</h3>
+        {data.length > 0 && db && (
+          <ScrollableDataTable df={toDF(columns, data)} classNames={['query-result']} />
+        )}
+      </section>
+    </>
   );
 };
 
