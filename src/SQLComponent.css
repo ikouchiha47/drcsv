@@ -1,0 +1,12 @@
+.query-playground {
+    display: block;
+    width: 90%;
+    margin-bottom: 16px;
+    height: 120px;
+    font-size: 18px;
+    font-family: var(--secondary-font);
+}
+
+.query-result {
+  margin-top: 16px;
+}

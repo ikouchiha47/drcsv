@@ -76,7 +76,7 @@ function GroupingTable({ df }) {
     <div className='Table-container'>
       <header className='flex flex-row' style={{ alignItems: 'baseline', gap: '16px' }}>
         <h3 className='Table-header'>Grouped Data</h3>
-        <a href="#" onClick={() => toggleShowResults(!showResults)}>Show/Hide</a>
+        <button type="button" onClick={() => toggleShowResults(!showResults)}>Show/Hide</button>
       </header>
       {showResults ? <ScrollableDataTable df={df} /> : null}
     </div>
@@ -164,8 +164,8 @@ function GroupSelector({ columns, onSelect, onClear }) {
         placeholder="Aggregate By"
         styles={{ menu: base => ({ ...base, zIndex: 999 }) }}
       />
-      <button className='Button-blue' onClick={handleSelect}>Apply</button>
-      <button onClick={onClear} className='Button-blue'>Clear</button>
+      <button className='Button Btn-blue' onClick={handleSelect}>Apply</button>
+      <button onClick={onClear} className='Button Btn-blue'>Clear</button>
     </div>
   );
 }
@@ -217,7 +217,7 @@ function AnalysisTables({ df, fileName }) {
   };
 
   const handleRemoveFilter = (filter) => {
-    let cleanedFilters = filters.filter(f => !(f.type === filter.type && f.column === filter.column && f.action == filter.action))
+    let cleanedFilters = filters.filter(f => !(f.type === filter.type && f.column === filter.column && f.action === filter.action))
 
     setFilters(cleanedFilters)
     setUniqueFilters(new Set(cleanedFilters.map(f => f && toFilterKey(f))))
@@ -244,10 +244,10 @@ function AnalysisTables({ df, fileName }) {
   }, [df]);
 
   return (
-    <section className='Analysis'>
+    <section className='Analysis Container'>
       <DescriptionTable df={df} />
 
-      <section className='Operations'>
+      <section className='Operations Container'>
         <h3 className='Table-header'>Aggregations</h3>
         <section className='Grouping-container'>
           <GroupSelector columns={df.columns} onSelect={handleSelect} onClear={handleClearFilters} />

@@ -79,9 +79,10 @@ function DefaultValueForm({ df, onUpdateDF }) {
   );
 }
 
-function WareHouse({ df, onDataProcessed }) {
+function WareHouse({ df, onDataProcessed, onSqlLaunch }) {
   const [files, updateFiles] = useState(new Map());
   const [currentFile, setCurrentFile] = useState(null);
+
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
@@ -96,8 +97,8 @@ function WareHouse({ df, onDataProcessed }) {
     try {
       let _df = await loadData(file)
 
-      setCurrentFile(file.name)
-      onDataProcessed(_df, file.name)
+      setCurrentFile(file)
+      onDataProcessed(_df, file)
 
     } catch (e) {
       console.error(e)
@@ -114,8 +115,8 @@ function WareHouse({ df, onDataProcessed }) {
     try {
       let _df = await loadData(file)
 
-      setCurrentFile(file.name)
-      onDataProcessed(_df, file.name)
+      setCurrentFile(file)
+      onDataProcessed(_df, file)
 
     } catch (e) {
       console.error(e)
@@ -132,6 +133,16 @@ function WareHouse({ df, onDataProcessed }) {
     onDataProcessed(df, currentFile)
   }
 
+  const renderFileHistory = () => {
+    if (!currentFile) return;
+
+    return (
+      <section className='File-history'>
+        <RenderFileHistory files={files} selectFile={handleSelectFile} currentFile={currentFile.name} />
+      </section>
+    )
+  }
+
   return (
     <div className="Sidebar">
       <div className="Vertical-split-container">
@@ -139,18 +150,17 @@ function WareHouse({ df, onDataProcessed }) {
           <section className='Upload-section'>
             <FileUpload handleFileUpload={handleFileUpload} />
           </section>
-          <section className='File-history'>
-            <RenderFileHistory files={files} selectFile={handleSelectFile} currentFile={currentFile} />
-          </section>
+          {renderFileHistory()}
         </div>
         <div className="Static">
           <h3>Operations</h3>
-          <ul className='List'>
-            <li onClick={handleCleanData}>Clean</li>
-            {df && <li>
-              <DefaultValueForm df={df} onUpdateDF={handleDfUpdate} />
-            </li>}
-          </ul>
+          {df && (
+            <ul className='List'>
+              <li onClick={handleCleanData}>Clean</li>
+              <li onClick={() => onSqlLaunch(true)}>Sequelize</li>
+              <li><DefaultValueForm df={df} onUpdateDF={handleDfUpdate} /></li>
+            </ul>
+          )}
         </div>
       </div>
     </div>

@@ -8,6 +8,7 @@ import './Home.css';
 import WareHouse from './WareHouse';
 import DataTable from './DataTable';
 import AnalysisTables from './AnalysisTables';
+import SQLComponent from './SQLComponent';
 
 Array.zip = (src, dst) => {
   return src.map((item, i) => [item, dst[i]])
@@ -32,11 +33,12 @@ function Header() {
 
 function App() {
   const [df, setDf] = useState(null);
-  const [fileName, setFileName] = useState('');
+  const [file, setFile] = useState(null);
+  const [launchSqlite, signalLanuchSql] = useState(false);
 
-  const handleDataProcessed = (dataFrame, fileName) => {
+  const handleDataProcessed = (dataFrame, file) => {
     setDf(dataFrame);
-    setFileName(fileName);
+    setFile(file);
 
     window.df = dataFrame.copy()
   };
@@ -45,14 +47,15 @@ function App() {
     <div className="App">
       <Header />
       <section className='App-container'>
-        <WareHouse df={df} onDataProcessed={handleDataProcessed} />
+        <WareHouse df={df} onDataProcessed={handleDataProcessed} onSqlLaunch={signalLanuchSql} />
         <section className='Main'>
-          {df && <DataTable df={df} header={fileName} />}
+          {df && <DataTable df={df} header={file.name} />}
           {df && <AnalysisTables
             df={df}
-            fileName={fileName}
+            fileName={file.name}
           />
           }
+          {launchSqlite ? <SQLComponent df={df} file={file} launched={launchSqlite} tableName='dummy' /> : null}
         </section>
       </section>
     </div>

@@ -15,7 +15,7 @@ function loadMoreData(df, start, count) {
   return df.loc({ rows: [`${start}:${end}`] });
 }
 
-export const ScrollableDataTable = ({ df }) => {
+export const ScrollableDataTable = ({ df, classNames }) => {
   const [data, setData] = useState([]);
   const [startIdx, setStartIdx] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -24,6 +24,7 @@ export const ScrollableDataTable = ({ df }) => {
   const scrollRef = useRef(null);
 
   dfRef.current = df;
+  classNames ||= [];
 
   useEffect(() => {
     const loadData = async () => {
@@ -56,7 +57,7 @@ export const ScrollableDataTable = ({ df }) => {
   // };
 
 
-  let columns = df.columns;
+  let columns = df.columns.map(name => ({ data: name, title: name }));
 
   const handleScroll = useCallback(() => {
     if (!scrollRef.current) return;
@@ -106,6 +107,7 @@ export const ScrollableDataTable = ({ df }) => {
           <div
             ref={scrollRef}
             style={{ height: ['auto', '240px'][Number(data.length > 20)], width: '100%', overflowY: 'auto' }}
+            className={classNames.join(' ')}
           >
             <HotTable
               ref={scrollRef}
