@@ -83,7 +83,6 @@ function WareHouse({ df, onDataProcessed, onSqlLaunch }) {
   const [files, updateFiles] = useState(new Map());
   const [currentFile, setCurrentFile] = useState(null);
 
-
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
 
@@ -133,6 +132,13 @@ function WareHouse({ df, onDataProcessed, onSqlLaunch }) {
     onDataProcessed(df, currentFile)
   }
 
+  const handleSqlLaunchWithTableName = () => {
+    const defaultTableName = currentFile.name.split('.').slice(0, -1).join('_').toLowerCase();
+    const tableName = window.prompt("Enter table name:", defaultTableName);
+
+    onSqlLaunch({ state: tableName !== null, error: false, table: tableName });
+  }
+
   const renderFileHistory = () => {
     if (!currentFile) return;
 
@@ -157,7 +163,7 @@ function WareHouse({ df, onDataProcessed, onSqlLaunch }) {
           {df && (
             <ul className='List'>
               <li onClick={handleCleanData}>Clean</li>
-              <li onClick={() => onSqlLaunch(true)}>Sequelize</li>
+              <li onClick={handleSqlLaunchWithTableName}>Sequelize</li>
               <li><DefaultValueForm df={df} onUpdateDF={handleDfUpdate} /></li>
             </ul>
           )}

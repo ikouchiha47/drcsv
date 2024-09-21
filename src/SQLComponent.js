@@ -14,12 +14,20 @@ const duckdb = new DuckDB();
 
 let _ = duckdb;
 
+const DataLoadStates = {
+  LOADING: 'loading',
+  LOADED: 'loaded',
+  FAILED: 'failed'
+}
+
 const SQLComponent = ({ file, df, tableName, launched }) => {
   const [db, setDb] = useState(null);
   const [query, setQuery] = useState('');
   const [data, setData] = useState([]);
   const [columns, setColumns] = useState([]);
   const [notifier, setNotifier] = useState(null);
+
+  const [dataLoadStatus, setDataLoaded] = useState(DataLoadStates.LOADING)
 
   const loadSqlJs = async () => {
     const _db = await sqlite.init()
@@ -43,9 +51,7 @@ const SQLComponent = ({ file, df, tableName, launched }) => {
   }, [launched]);
 
   useEffect(() => {
-    console.log("waiting for db", db);
-
-    const $loadSQLTable = async () => {
+    const $loadSQLTable = async () => {  // $ signifies it throws error
       if (!db || !df) return false;
       await db.loadCSV(tableName, file, df)
     };
@@ -54,13 +60,14 @@ const SQLComponent = ({ file, df, tableName, launched }) => {
 
     if (db) {
       console.log("importing data")
-      try {
-        $loadSQLTable(); // $ signifies it throws error
+      $loadSQLTable().then(() => {
         notifier.send('Success', `Imported ${fileName} to table: ${tableName}`);
-      } catch (error) {
+        setDataLoaded(DataLoadStates.LOADED)
+      }).catch(error => {
         notifier.send('Failure', `Failed to build table for ${fileName}`);
         console.error("db:import:error", error)
-      }
+        setDataLoaded(DataLoadStates.FAILED)
+      });
     }
   }, [db, df, notifier, file, tableName])
 
@@ -87,17 +94,41 @@ const SQLComponent = ({ file, df, tableName, launched }) => {
     }
   };
 
+
+  const render = () => {
+    if (dataLoadStatus === DataLoadStates.FAILED) {
+      return <p className='error'>Failed to load data to db</p>
+    }
+
+    if (dataLoadStatus === DataLoadStates.LOADING) {
+      return <p className='info'>Loading Records into database</p>
+    }
+
+    if (dataLoadStatus === DataLoadStates.LOADED) {
+      return (
+        <>
+          <div className='Table-info'>
+            <p>Table Name: <b>{tableName}</b></p>
+            <p>Example Query: <em>SELECT * FROM {tableName}</em></p>
+          </div>
+          <textarea
+            className='query-playground'
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Write your SQL query here..."
+          />
+          <button className='Button Btn-green' onClick={handleQueryExecution}>Run Query</button>
+        </>
+      )
+    }
+
+    return null;
+  }
+
   return (
     <div className="Playground Container">
       {/* Query Textarea */}
-      <textarea
-        className='query-playground'
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Write your SQL query here..."
-      />
-      <button className='Button Btn-green' onClick={handleQueryExecution}>Run Query</button>
-
+      {render()}
       {/* Results Table */}
       {data.length > 0 && db && (
         <ScrollableDataTable df={toDF(columns, data)} classNames={['query-result']} />

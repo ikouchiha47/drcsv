@@ -5,19 +5,18 @@ import { HotTable } from '@handsontable/react';
 import 'handsontable/dist/handsontable.full.css';
 import './Home.css';
 
-const BATCH_SIZE = 20;
+const BATCH_SIZE = 50;
 const WINDOW_SIZE = 100;
 
-function loadMoreData(df, start, count) {
-  const end = Math.min(start + count, df.shape[0]);
-  start = Math.max(0, start);
+function loadMoreData(df, start, count, totalRows) {
+  let end = Math.min(Math.max(0, start) + count, totalRows);
 
-  return df.loc({ rows: [`${start}:${end}`] });
+  return df.iloc({ rows: [`${start}:${end}`] });
 }
 
 export const ScrollableDataTable = ({ df, classNames }) => {
   const [data, setData] = useState([]);
-  const [startIdx, setStartIdx] = useState(0);
+  const [startIdx, setStartIdx] = useState(WINDOW_SIZE);
   const [loading, setLoading] = useState(false);
 
   const dfRef = useRef(null);
@@ -34,8 +33,7 @@ export const ScrollableDataTable = ({ df, classNames }) => {
         const initialData = df.head(WINDOW_SIZE);
 
         setData(initialData.values);
-        // setColumns(df.columns.map(name => ({ data: name, title: name })));
-        setStartIdx(WINDOW_SIZE)
+        setStartIdx(initialData.shape[0])
 
       } catch (err) {
         console.error("Error loading CSV data:", err);
@@ -58,31 +56,35 @@ export const ScrollableDataTable = ({ df, classNames }) => {
 
 
   let columns = df.columns.map(name => ({ data: name, title: name }));
+  const totalRows = df.shape[0];
 
   const handleScroll = useCallback(() => {
     if (!scrollRef.current) return;
 
     const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
 
-    if (scrollTop + clientHeight >= scrollHeight - 50 && !loading) {
-      console.log("loading more")
+    if (startIdx + BATCH_SIZE > totalRows) return;
 
+    if (scrollTop + clientHeight >= scrollHeight - 100 && !loading) {
       setLoading(true);
 
-      let moreData = loadMoreData(dfRef.current, startIdx, BATCH_SIZE);
+      let moreData = loadMoreData(dfRef.current, startIdx, BATCH_SIZE, totalRows);
 
       setData(prevData => {
-        const prevDataDf = new dfd.DataFrame(prevData, { columns: columns });
-        const combinedDf = dfd.concat({ dfList: [moreData, prevDataDf], axis: 0 })
+        const prevDataDf = new dfd.DataFrame(prevData, { columns: columns.map(col => col.title), config: { lowMemoryMode: true } });
+        const combinedDf = dfd.concat({ dfList: [prevDataDf, moreData], axis: 0 })
 
+        // console.log("loadmore", prevDataDf.shape[0], moreData.shape[0], combinedDf.shape[0]);
         // const slicedDf = combinedDf.tail(WINDOW_SIZE);
         // console.log("sliced", slicedDf.values.length);
         return combinedDf.values;
       });
 
-      setStartIdx(startIdx + BATCH_SIZE);
 
-      setLoading(false);
+      setStartIdx(startIdx + BATCH_SIZE);
+      setTimeout(() => {
+        setLoading(false);
+      }, 0)
     }
   }, [loading, startIdx, columns])
 
@@ -121,13 +123,15 @@ export const ScrollableDataTable = ({ df, classNames }) => {
               height={'auto'}
               width='100%'
               contextMenu={true}
-              hiddenColumns={{ columns: [columns.findIndex(col => col.data === 'id')] }}
+              hiddenColumns={{ columns: [columns.findIndex(col => col.title === 'id')] }}
               columnSorting={true}
             // afterChange={handleAfterChange}
             />
           </div>
         )
       }
+
+      <em style={{ marginTop: '16px', color: '#999' }}> {loading ? `loading...` : ''}&nbsp;</em>
     </>
   );
 };

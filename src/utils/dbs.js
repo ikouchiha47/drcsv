@@ -103,10 +103,11 @@ export class SQLite {
   async insertData(tableName, df) {
     const columns = this._getColumns(df);
     const totalRows = df.shape[0];
-    const generator = batchDf(df, 500);
+    const generator = batchDf(df, 500, totalRows);
 
     for (const batch of generator) {
       const insertSQL = `INSERT INTO ${tableName} (${columns.join(',')}) VALUES `;
+
       const values = batch.values.map(row => {
         const placeholders = row.map(() => '?').join(', ');
         return `(${placeholders})`;
@@ -114,17 +115,16 @@ export class SQLite {
 
       const sql = insertSQL + values;
 
-      // console.log("insert", sql);
-      // console.log(batch.columns, batch.values, "flatvalues")
+      console.log("insert", batch.shape, batch.values.length);
 
       const stmt = this.db.prepare(sql);
       const flatValues = batch.values.flat();
+
       stmt.run(flatValues);
       stmt.free();
     }
 
     console.log(`Inserted ${totalRows} records into ${tableName}`);
-
   }
 
   exec(query) {

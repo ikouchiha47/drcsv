@@ -34,7 +34,7 @@ function Header() {
 function App() {
   const [df, setDf] = useState(null);
   const [file, setFile] = useState(null);
-  const [launchSqlite, signalLanuchSql] = useState(false);
+  const [launchSqlite, signalLanuchSql] = useState({});
 
   const handleDataProcessed = (dataFrame, file) => {
     setDf(dataFrame);
@@ -55,7 +55,14 @@ function App() {
             fileName={file.name}
           />
           }
-          {launchSqlite ? <SQLComponent df={df} file={file} launched={launchSqlite} tableName='dummy' /> : null}
+          {launchSqlite.state ? <SQLComponent
+            df={df}
+            file={file}
+            launched={launchSqlite}
+            tableName={launchSqlite.table}
+            onSqlLoad={signalLanuchSql}
+          /> : null}
+          {launchSqlite.error ? <p className='error'>Failed to load data to database</p> : null}
         </section>
       </section>
     </div>
