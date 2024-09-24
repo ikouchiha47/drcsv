@@ -91,6 +91,7 @@ function GroupingTable({ df }) {
   );
 }
 
+
 function GroupSelector({ columns, onSelect, onClear }) {
   const groupColumns = columns.map(col => ({ value: col, label: col }));
   const aggrColumns = columns.map(col => ({ value: col, label: col }));

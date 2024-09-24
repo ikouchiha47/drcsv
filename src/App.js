@@ -5,10 +5,14 @@ import { registerAllModules } from 'handsontable/registry';
 import './App.css';
 import './Home.css';
 
-import WareHouse from './WareHouse';
-import DataTable from './DataTable';
-import AnalysisTables from './AnalysisTables';
-import SQLComponent from './SQLComponent';
+// import WareHouse from './WareHouse';
+// import DataTable from './DataTable';
+// import AnalysisTables from './AnalysisTables';
+// import SQLComponent from './SQLComponent';
+
+import { FileUpload } from './components/FileUpload';
+import SideDeck from './components/SideDeck';
+import WorkSpace from './components/Workspace';
 
 Array.zip = (src, dst) => {
   return src.map((item, i) => [item, dst[i]])
@@ -16,7 +20,7 @@ Array.zip = (src, dst) => {
 
 registerAllModules();
 
-function Header() {
+function Header({ handleFileUpload }) {
   return (
     <header className="App-header">
       <a
@@ -27,25 +31,50 @@ function Header() {
       >
         dr.csv
       </a>
+
+      <FileUpload handleFileUpload={handleFileUpload} wrapperClass='Upload-container' />
     </header>
   )
 }
 
 function App() {
-  const [df, setDf] = useState(null);
   const [file, setFile] = useState(null);
   const [launchSqlite, signalLanuchSql] = useState({});
 
-  const handleDataProcessed = (dataFrame, file) => {
-    setDf(dataFrame);
+  const [files, updateFiles] = useState(new Map());
+
+  const onFileUpload = async (event) => {
+    const files = event.target.files;
+
+    if (!files) return;
+    if (!files.length) return;
+
+    updateFiles(prevFiles => {
+      let newMap = new Map(prevFiles);
+
+      return [...files].reduce((acc, file) => {
+        acc.set(file.name, file)
+        return acc;
+      }, newMap)
+    })
+
+    setFile(files[0]);
+  }
+
+  // const handleDataProcessed = (dataFrame, file) => {
+  //   setDf(dataFrame);
+  //   setFile(file);
+  //
+  //   window.df = dataFrame.copy()
+  // };
+
+  const onFileSelected = (file) => {
     setFile(file);
+  }
 
-    window.df = dataFrame.copy()
-  };
-
-  return (
+  /*const renderOld = () => (
     <div className="App">
-      <Header />
+      <Header handleFileUpload={onFileUpload} />
       <section className='App-container'>
         <WareHouse df={df} onDataProcessed={handleDataProcessed} onSqlLaunch={signalLanuchSql} />
         <section className='Main'>
@@ -67,6 +96,17 @@ function App() {
       </section>
     </div>
   );
+  */
+
+  return (
+    <div className="App">
+      <Header handleFileUpload={onFileUpload} />
+      <section className='App-container'>
+        <SideDeck files={files} currentFile={file} handleSelectFile={onFileSelected} />
+        {file && <WorkSpace file={file} />}
+      </section>
+    </div>
+  )
 }
 
 export default App;

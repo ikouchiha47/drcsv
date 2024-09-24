@@ -1,0 +1,21 @@
+.toolbar-wrapper h3 {
+  margin: 16px 0;
+}
+
+.toolbar {
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 16px;
+  color: #ccc;
+}
+
+.aggregations {
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar h3 {
+  margin: 0;
+  padding: 0;
+}

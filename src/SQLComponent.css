@@ -3,13 +3,15 @@
 }
 
 .query-playground {
-    display: block;
-    width: 90%;
-    margin-top: 16px;
-    margin-bottom: 16px;
-    height: 120px;
-    font-size: 18px;
-    font-family: var(--secondary-font);
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  height: 240px;
+  font-size: 18px;
+  font-family: var(--secondary-font);
+  padding: 8px;
 }
 
 .query-result {

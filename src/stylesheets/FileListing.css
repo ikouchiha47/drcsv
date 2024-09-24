@@ -1,0 +1,40 @@
+.File-history {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-left: 24px;
+}
+
+.List {
+  list-style: none;
+  padding: 0;
+}
+
+.List li {
+  cursor: pointer;
+  padding: 16px;
+  transition: background-color 0.3s ease;
+  color: #aaa;
+  font-weight: 700;
+  width: 90%;
+  border-bottom: 1px solid var(--border-color);
+  /* border-radius: 8px; */
+}
+
+.List li:last-child {
+  border-bottom: none;
+}
+
+.List li:hover {
+  color: #fff;
+}
+
+.List li.active {
+  background-color: var(--active-bg-blue) ;
+  color: #fff;
+  font-weight: bold;
+}
+
+.Table-name {
+  display: flex;
+  flex-direction: row;
+}
