@@ -9,6 +9,8 @@ import GroupFilters from "./Grouping";
 
 import '../stylesheets/Toolbar.css';
 import AdvancedCtrl from "./AdvancedCtrls";
+import { TableInfo } from "./TableDescription";
+import SideDeck from "./SideDeck";
 
 async function loadData(file, options) {
   const df = await dfd.readCSV(file, options);
@@ -25,11 +27,15 @@ const Filter = {
   action: null,
 }
 
+const hasUnmatchedColumns = (err) => {
+  return err && err.includes('DtypeError') && err.includes('array of length')
+}
+
 const toFilterKey = (filter) => {
   return [filter.type, filter.column, filter.action].filter(v => v).join('_')
 }
 
-const WorkSpace = ({ file }) => {
+const WorkSpace = ({ files, file, handleSelectFile }) => {
   const [df, setDf] = useState(null);
   const [origDf, setOrigDf] = useState(null);
 
@@ -42,6 +48,9 @@ const WorkSpace = ({ file }) => {
   useEffect(() => {
     const loadAndSet = async (_file) => {
       let dframe = await loadData(_file)
+
+      window._df = dframe;
+
       setDf(dframe);
       setOrigDf(dframe);
     }
@@ -115,10 +124,17 @@ const WorkSpace = ({ file }) => {
   }
 
   const handleDataClean = (_, _prev, next) => {
-    if (next)
+    if (!next) {
+      origDf && setDf(origDf)
+      return;
+    }
+
+    try {
+      console.log("cleaner", df.columns, df.values)
       setDf(df.dropNa())
-    else
-      setDf(origDf)
+    } catch (e) {
+      console.log(e.message,)
+    }
   }
 
   const showAdvancedControls = (_, prev, next) => {
@@ -167,27 +183,36 @@ const WorkSpace = ({ file }) => {
   }
 
   return (
-    <section className="workspace" style={{ minWidth: '84%' }}>
-      {sqlState.state !== SqlLoaderStates.SUCCESS ? (<Toolbar
+    <>
+      <SideDeck
         df={df}
-        handleGroupBy={handleGroupBy}
-        handleAggregator={handleAggregator}
-        handleFilter={handleFilter}
-        handleClear={handleClear}
-        handleSqlLaunch={handleSqlLaunch}
-        handleDataClean={handleDataClean}
-        sqlLaunched={sqlState.state === SqlLoaderStates.SUCCESS}
-        showAdvancedControls={showAdvancedControls}
-      />) : null}
+        files={files}
+        currentFile={file}
+        handleSelectFile={handleSelectFile}
+      />
+      <section className="workspace" style={{ minWidth: '84%' }}>
+        {sqlState.state !== SqlLoaderStates.SUCCESS ? (<Toolbar
+          df={df}
+          handleGroupBy={handleGroupBy}
+          handleAggregator={handleAggregator}
+          handleFilter={handleFilter}
+          handleClear={handleClear}
+          handleSqlLaunch={handleSqlLaunch}
+          handleDataClean={handleDataClean}
+          handleAdvancedControls={showAdvancedControls}
+          sqlLaunched={sqlState.state === SqlLoaderStates.SUCCESS}
+        />) : null}
 
-      {filters.length ? <GroupFilters filters={filters} removeFilter={handleClear} /> : null}
+        {filters.length ? <GroupFilters filters={filters} removeFilter={handleClear} /> : null}
 
-      {showAdvCtrl ? <AdvancedCtrl df={df} handleSanitizer={sanitizeData} /> : null}
-      {sqlState.state !== SqlLoaderStates.SUCCESS ? renderWithoutSql() : null}
-      {sqlState.state !== SqlLoaderStates.FAILED ? renderWithSql() : null}
-    </section>
+        {showAdvCtrl ? <AdvancedCtrl df={df} handleSanitizer={sanitizeData} /> : null}
+        {df && <TableInfo df={df} />}
+        <hr className="separator" />
+        {sqlState.state !== SqlLoaderStates.SUCCESS ? renderWithoutSql() : null}
+        {sqlState.state !== SqlLoaderStates.FAILED ? renderWithSql() : null}
+      </section>
+    </>
   );
 }
-
 
 export default WorkSpace;

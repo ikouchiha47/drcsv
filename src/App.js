@@ -67,8 +67,12 @@ function App() {
     <div className="App">
       <Header handleFileUpload={onFileUpload} />
       <section className='App-container'>
-        <SideDeck files={files} currentFile={file} handleSelectFile={onFileSelected} />
-        {file && <WorkSpace file={file} />}
+        {file && (
+          <WorkSpace
+            files={files}
+            handleSelectFile={onFileSelected}
+            file={file} />
+        )}
       </section>
     </div>
   )

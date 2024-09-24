@@ -20,16 +20,12 @@ const groupData = (df, filters) => {
   const selectedColumns = new Set(taggedColumns.groups.map(col => col.column))
   const groupedDf = df.groupby([...selectedColumns]);
 
-  console.log("queries", taggedColumns)
+  // console.log("queries", taggedColumns)
 
   if (!aggrFound) return groupedDf.apply(g => g);
 
   const aggregators = taggedColumns.aggrs.reduce((acc, data) => {
     let { column, action } = data;
-
-    // if (!AggregateColumns.includes(action)) {
-    //   return acc;
-    // }
 
     acc[column] = action;
     return acc;

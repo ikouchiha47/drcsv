@@ -143,9 +143,9 @@ const Toolbar = ({
   handleFilter,
   handleClear,
   handleSqlLaunch,
-  sqlLaunched,
   handleDataClean,
-  showAdvancedControls,
+  handleAdvancedControls,
+  sqlLaunched,
 }) => {
   if (!df) return null;
 
@@ -166,7 +166,7 @@ const Toolbar = ({
           </Portal>
         ) : null}
         <Portal title='Clean Data' handleClick={handleDataClean} />
-        <Portal title='Advanced' handleClick={showAdvancedControls} />
+        <Portal title='Advanced' handleClick={handleAdvancedControls} />
       </div>
     </section>
   )
