@@ -1,0 +1,7 @@
+Name, Age, Occupation, Salary
+James, 34, Lawyer, 75000
+,29,Teacher,50000
+Sophia, Data Scientist, 80000
+Henry, 40, Doctor, ExtraValue, 90000
+Michael, 38, , 45000
+Susan, 45, Engineer

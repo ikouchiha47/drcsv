@@ -1,0 +1,7 @@
+Name,Age,Occupation,Salary
+John Doe,29,,50000
+Jane Smith,34,Engineer,
+Alex,,Data Scientist,70000
+Emily,28,Doctor,ExtraValue,60000
+,45,Teacher,55000
+Mark Johnson,50,Manager,80000

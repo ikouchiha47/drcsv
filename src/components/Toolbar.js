@@ -1,43 +1,13 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect } from "react";
 import Select from 'react-select';
 
 import ConvertToSqlBtn from "./SqlLauncher";
+import Portal from "./Portal";
 
 import 'handsontable/dist/handsontable.full.css';
 import '../Analysis.css';
 
 const AggregateColumns = ['sum', 'max', 'min', 'cumsum', 'count'].sort();
-
-function Portal({ title, handleClick, noToggle, children }) {
-  const [showHide, toggleShowHide] = useState(false)
-
-  let onClick = () => toggleShowHide(!showHide)
-
-  if (handleClick) {
-    onClick = (e) => {
-      handleClick(e);
-
-      if (noToggle && showHide) {
-        return;
-      }
-
-      toggleShowHide(!showHide)
-    }
-  }
-
-  return (
-    <section className="portal">
-      <h3
-        style={{ cursor: 'pointer' }}
-        onClick={onClick}
-        className={showHide ? 'active' : ''}
-      >
-        {`${title}${noToggle ? '!' : ''}`}
-      </h3>
-      {showHide && children ? <section className="portal-content">{children}</section> : null}
-    </section>
-  )
-}
 
 function GroupSelector({
   columns,
@@ -175,6 +145,7 @@ const Toolbar = ({
   handleSqlLaunch,
   sqlLaunched,
   handleDataClean,
+  showAdvancedControls,
 }) => {
   if (!df) return null;
 
@@ -194,7 +165,8 @@ const Toolbar = ({
             <ConvertToSqlBtn handleSqlLaunch={handleSqlLaunch} />
           </Portal>
         ) : null}
-        <Portal title='Clean Data' noToggle={true} handleClick={handleDataClean} />
+        <Portal title='Clean Data' handleClick={handleDataClean} />
+        <Portal title='Advanced' handleClick={showAdvancedControls} />
       </div>
     </section>
   )

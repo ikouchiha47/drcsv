@@ -39,8 +39,6 @@ function Header({ handleFileUpload }) {
 
 function App() {
   const [file, setFile] = useState(null);
-  const [launchSqlite, signalLanuchSql] = useState({});
-
   const [files, updateFiles] = useState(new Map());
 
   const onFileUpload = async (event) => {
@@ -61,42 +59,9 @@ function App() {
     setFile(files[0]);
   }
 
-  // const handleDataProcessed = (dataFrame, file) => {
-  //   setDf(dataFrame);
-  //   setFile(file);
-  //
-  //   window.df = dataFrame.copy()
-  // };
-
   const onFileSelected = (file) => {
     setFile(file);
   }
-
-  /*const renderOld = () => (
-    <div className="App">
-      <Header handleFileUpload={onFileUpload} />
-      <section className='App-container'>
-        <WareHouse df={df} onDataProcessed={handleDataProcessed} onSqlLaunch={signalLanuchSql} />
-        <section className='Main'>
-          {df && <DataTable df={df} header={file.name} />}
-          {df && <AnalysisTables
-            df={df}
-            fileName={file.name}
-          />
-          }
-          {launchSqlite.state ? <SQLComponent
-            df={df}
-            file={file}
-            launched={launchSqlite}
-            tableName={launchSqlite.table}
-            onSqlLoad={signalLanuchSql}
-          /> : null}
-          {launchSqlite.error ? <p className='error'>Failed to load data to database</p> : null}
-        </section>
-      </section>
-    </div>
-  );
-  */
 
   return (
     <div className="App">

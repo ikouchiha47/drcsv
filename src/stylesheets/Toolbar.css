@@ -49,3 +49,13 @@
   box-shadow: 2px 1px 5px #333;
   z-index: 999;
 }
+
+.advanced-ctrl {
+  padding: 16px 8px;
+  border: 1px solid var(--border-color);
+}
+
+.advanced-ctrl .portal {
+  width: max-content;
+  font-size: 16px;
+}

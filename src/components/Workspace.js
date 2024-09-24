@@ -8,9 +8,10 @@ import SqlArena from "./SqlArena";
 import GroupFilters from "./Grouping";
 
 import '../stylesheets/Toolbar.css';
+import AdvancedCtrl from "./AdvancedCtrls";
 
-async function loadData(file) {
-  const df = await dfd.readCSV(file);
+async function loadData(file, options) {
+  const df = await dfd.readCSV(file, options);
   const id = Array.from({ length: df.shape[0] }, (_, i) => i);
 
   df.addColumn('id', id, { inplace: true })
@@ -30,21 +31,26 @@ const toFilterKey = (filter) => {
 
 const WorkSpace = ({ file }) => {
   const [df, setDf] = useState(null);
+  const [origDf, setOrigDf] = useState(null);
+
   const [sqlState, setSqlState] = useState({ state: null, table: null });
 
   const [filters, setFilters] = useState([]);
   const [uniqueFilters, setUniqueFilters] = useState(new Set())
+  const [showAdvCtrl, toggleAdvCtrl] = useState(false)
 
   useEffect(() => {
     const loadAndSet = async (_file) => {
       let dframe = await loadData(_file)
       setDf(dframe);
+      setOrigDf(dframe);
     }
 
     loadAndSet(file)
 
     return () => {
       setDf(null)
+      setOrigDf(null)
       setFilters([])
       setUniqueFilters(new Set())
     }
@@ -108,8 +114,15 @@ const WorkSpace = ({ file }) => {
     setSqlState(launchData);
   }
 
-  const handleDataClean = () => {
-    setDf(df.dropNa())
+  const handleDataClean = (_, _prev, next) => {
+    if (next)
+      setDf(df.dropNa())
+    else
+      setDf(origDf)
+  }
+
+  const showAdvancedControls = (_, prev, next) => {
+    toggleAdvCtrl(next)
   }
 
   const renderWithSql = () => {
@@ -138,6 +151,21 @@ const WorkSpace = ({ file }) => {
     );
   }
 
+  const sanitizeData = async (event) => {
+    if (!event) return;
+
+    let { action, isOn } = event;
+
+    if (action === 'remove_header') {
+      if (!isOn) return setDf(origDf);
+
+      let dframe = await loadData(file, { header: false })
+      setDf(dframe);
+
+      return
+    }
+  }
+
   return (
     <section className="workspace" style={{ minWidth: '84%' }}>
       {sqlState.state !== SqlLoaderStates.SUCCESS ? (<Toolbar
@@ -149,10 +177,12 @@ const WorkSpace = ({ file }) => {
         handleSqlLaunch={handleSqlLaunch}
         handleDataClean={handleDataClean}
         sqlLaunched={sqlState.state === SqlLoaderStates.SUCCESS}
+        showAdvancedControls={showAdvancedControls}
       />) : null}
 
       {filters.length ? <GroupFilters filters={filters} removeFilter={handleClear} /> : null}
 
+      {showAdvCtrl ? <AdvancedCtrl df={df} handleSanitizer={sanitizeData} /> : null}
       {sqlState.state !== SqlLoaderStates.SUCCESS ? renderWithoutSql() : null}
       {sqlState.state !== SqlLoaderStates.FAILED ? renderWithSql() : null}
     </section>
