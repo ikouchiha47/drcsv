@@ -116,6 +116,7 @@ const WorkSpace = ({ file }) => {
       <>
         <div className='Table-info'>
           <p>Table Name: <b>{sqlState.table}</b></p>
+          <button type="button" onClick={() => { setSqlState({ state: null, table: sqlState.table }) }}>Switch Back</button>
         </div>
 
         <SqlArena
@@ -129,7 +130,6 @@ const WorkSpace = ({ file }) => {
   }
 
   const renderWithoutSql = () => {
-    console.log("re-render");
     return (
       <>
         <ConvertToSqlBtn handleSqlLaunch={handleSqlLaunch} />
