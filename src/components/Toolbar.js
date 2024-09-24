@@ -1,10 +1,43 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import Select from 'react-select';
+
+import ConvertToSqlBtn from "./SqlLauncher";
 
 import 'handsontable/dist/handsontable.full.css';
 import '../Analysis.css';
 
 const AggregateColumns = ['sum', 'max', 'min', 'cumsum', 'count'].sort();
+
+function Portal({ title, handleClick, noToggle, children }) {
+  const [showHide, toggleShowHide] = useState(false)
+
+  let onClick = () => toggleShowHide(!showHide)
+
+  if (handleClick) {
+    onClick = (e) => {
+      handleClick(e);
+
+      if (noToggle && showHide) {
+        return;
+      }
+
+      toggleShowHide(!showHide)
+    }
+  }
+
+  return (
+    <section className="portal">
+      <h3
+        style={{ cursor: 'pointer' }}
+        onClick={onClick}
+        className={showHide ? 'active' : ''}
+      >
+        {`${title}${noToggle ? '!' : ''}`}
+      </h3>
+      {showHide && children ? <section className="portal-content">{children}</section> : null}
+    </section>
+  )
+}
 
 function GroupSelector({
   columns,
@@ -90,54 +123,46 @@ function GroupSelector({
   }
 
   return (
-    <div className="flex flex-row toolbar">
-      <h3>Group By</h3>
-      <Select
-        isClearable
-        defaultValue={null}
-        ref={columnRef}
-        options={groupColumns}
-        hideSelectedOptions={true}
-        placeholder="Group By"
-        onChange={handleGroupBy}
-        styles={selectStyle}
-      />
-      <div className="flex flex-row aggregations">
-        <h3>Aggregate By</h3>
+    <>
+      <Portal title='Group By'>
         <Select
           isClearable
-          ref={aggrRef}
           defaultValue={null}
-          options={aggrColumns}
+          ref={columnRef}
+          options={groupColumns}
           hideSelectedOptions={true}
-          placeholder="Aggregate By"
+          placeholder="Group By"
+          onChange={handleGroupBy}
           styles={selectStyle}
         />
-        <h3>Aggregator</h3>
-        <Select
-          isClearable
-          ref={actionRef}
-          defaultValue={null}
-          options={actions}
-          hideSelectedOptions={true}
-          onChange={onAggregatorChange}
-          placeholder="Aggregate By"
-          styles={selectStyle}
-        />
-      </div>
-      {/*<h3>Filter By</h3>
-      <Select
-        isClearable
-        ref={filterRef}
-        defaultValue={null}
-        options={groupColumns}
-        hideSelectedOptions={true}
-        onChange={onAggregatorChange}
-        placeholder="Filter By"
-        styles={{ menu: base => ({ ...base, zIndex: 999 }) }}
-      />*/}
-      <button onClick={onClear} className='Button Btn-blue'>Clear</button>
-    </div>
+      </Portal>
+
+      <Portal title='Aggregator'>
+        <div className="flex flex-row aggregations">
+          <Select
+            isClearable
+            ref={aggrRef}
+            defaultValue={null}
+            options={aggrColumns}
+            hideSelectedOptions={true}
+            placeholder="Aggregate By"
+            styles={selectStyle}
+          />
+          <Select
+            isClearable
+            ref={actionRef}
+            defaultValue={null}
+            options={actions}
+            hideSelectedOptions={true}
+            onChange={onAggregatorChange}
+            placeholder="Operation"
+            styles={selectStyle}
+          />
+        </div>
+
+      </Portal>
+      {/*<button onClick={onClear} className='Button Btn-blue'>Clear</button>*/}
+    </>
   );
 }
 
@@ -147,19 +172,30 @@ const Toolbar = ({
   handleAggregator,
   handleFilter,
   handleClear,
+  handleSqlLaunch,
+  sqlLaunched,
+  handleDataClean,
 }) => {
   if (!df) return null;
 
   return (
     <section className="toolbar-wrapper margin-b-xl">
       <h3>Action Center</h3>
-      <GroupSelector
-        columns={df.columns}
-        handleGroupBy={handleGroupBy}
-        handleAggregator={handleAggregator}
-        handleFilter={handleFilter}
-        handleClear={handleClear}
-      />
+      <div className="flex flex-row toolbar">
+        <GroupSelector
+          columns={df.columns}
+          handleGroupBy={handleGroupBy}
+          handleAggregator={handleAggregator}
+          handleFilter={handleFilter}
+          handleClear={handleClear}
+        />
+        {!sqlLaunched ? (
+          <Portal title='Squelize'>
+            <ConvertToSqlBtn handleSqlLaunch={handleSqlLaunch} />
+          </Portal>
+        ) : null}
+        <Portal title='Clean Data' noToggle={true} handleClick={handleDataClean} />
+      </div>
     </section>
   )
 

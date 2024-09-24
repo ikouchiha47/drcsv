@@ -12,10 +12,40 @@
 
 .aggregations {
   align-items: center;
-  gap: 8px;
+  gap: 16px;
 }
 
 .toolbar h3 {
   margin: 0;
   padding: 0;
+}
+
+.portal {
+  position: relative;
+}
+
+.portal h3 {
+  padding: 8px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.portal h3.active {
+  color: #fff; 
+  background-color: rgb(66, 59, 174);
+}
+
+.portal-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 48px;
+
+  padding: 32px 16px;
+  border: 1px solid var(--border-color);
+  background-color: rgb(66, 59, 174);
+  width: max-content;
+  min-width: 400px;
+  box-shadow: 2px 1px 5px #333;
+  z-index: 999;
 }

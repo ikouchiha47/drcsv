@@ -126,6 +126,8 @@ const SqlArena = ({ df, tableName, launched, handleSqlState }) => {
     return null;
   }
 
+  if (!df) return null;
+
   return (
     <>
       <hr className='separator' />
@@ -141,7 +143,7 @@ const SqlArena = ({ df, tableName, launched, handleSqlState }) => {
               flexShrink: 0
             }}
           >
-            <DescriptionTable df={df} />
+            {dataLoadStatus === SqlLoaderStates.SUCCESS ? <DescriptionTable df={df} /> : null}
           </section>
         </div>
         {/* Results Table */}

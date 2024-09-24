@@ -6,12 +6,12 @@ export const SqlLoaderStates = {
   FAILED: 'failed'
 }
 
-const SqlState = {
-  state: null,
-  table: null,
-}
+// const SqlState = {
+//   state: null,
+//   table: null,
+// }
 
-const ConvertToSqlBtn = ({ handleSqlLaunch }) => {
+const ConvertToSqlBtn = ({ handleSqlLaunch, classNames }) => {
   const tableRef = useRef(null);
 
   const handleSubmit = () => {
@@ -20,10 +20,15 @@ const ConvertToSqlBtn = ({ handleSqlLaunch }) => {
 
     handleSqlLaunch({ state: SqlLoaderStates.LOADING, table: value });
   }
+
+  let defaultClasses = new Set(['flex', 'flex-row']);
+  if (!classNames) classNames = defaultClasses;
+  else classNames = defaultClasses.union(classNames);
+
   return (
-    <section className="flex flex-row margin-b-xl" style={{ gap: '16px' }}>
+    <section className={[...classNames].join(' ')} style={{ gap: '16px' }}>
       <input ref={tableRef} type="text" placeholder="Enter table name" id="tableName" />
-      <button type="button" onClick={handleSubmit} className="Button Btn-blue">Convert to SQL</button>
+      <button type="button" onClick={handleSubmit} className="Button Btn-blue">Load Data</button>
     </section>
   )
 };

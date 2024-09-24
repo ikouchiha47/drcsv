@@ -3,7 +3,7 @@ import * as dfd from 'danfojs';
 
 import Toolbar from "./Toolbar";
 import Preview from "./Preview";
-import ConvertToSqlBtn, { SqlLoaderStates } from "./SqlLauncher";
+import { SqlLoaderStates } from "./SqlLauncher";
 import SqlArena from "./SqlArena";
 import GroupFilters from "./Grouping";
 
@@ -80,8 +80,7 @@ const WorkSpace = ({ file }) => {
   }
 
 
-  const handleFilter = (event) => {
-  }
+  const handleFilter = () => { }
 
   const handleClear = (filter) => {
     if (filter === "all") {
@@ -93,9 +92,9 @@ const WorkSpace = ({ file }) => {
     if (typeof filter !== "object") return;
 
     const key = toFilterKey(filter);
-    let newSet = new Set(uniqueFilters)
-    let updatedFilters = filters.filter(f => toFilterKey(f) != key)
+    const updatedFilters = filters.filter(f => toFilterKey(f) != key)
 
+    let newSet = new Set(uniqueFilters)
     newSet.delete(key)
 
     setUniqueFilters(newSet)
@@ -107,6 +106,10 @@ const WorkSpace = ({ file }) => {
     if (!launchData.table) return;
 
     setSqlState(launchData);
+  }
+
+  const handleDataClean = () => {
+    setDf(df.dropNa())
   }
 
   const renderWithSql = () => {
@@ -131,10 +134,7 @@ const WorkSpace = ({ file }) => {
 
   const renderWithoutSql = () => {
     return (
-      <>
-        <ConvertToSqlBtn handleSqlLaunch={handleSqlLaunch} />
-        <Preview df={df} fileName={file.name} filters={filters} />
-      </>
+      <Preview df={df} fileName={file.name} filters={filters} />
     );
   }
 
@@ -146,6 +146,9 @@ const WorkSpace = ({ file }) => {
         handleAggregator={handleAggregator}
         handleFilter={handleFilter}
         handleClear={handleClear}
+        handleSqlLaunch={handleSqlLaunch}
+        handleDataClean={handleDataClean}
+        sqlLaunched={sqlState.state === SqlLoaderStates.SUCCESS}
       />) : null}
 
       {filters.length ? <GroupFilters filters={filters} removeFilter={handleClear} /> : null}
