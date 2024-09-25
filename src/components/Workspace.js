@@ -11,14 +11,15 @@ import '../stylesheets/Toolbar.css';
 import AdvancedCtrl from "./AdvancedCtrls";
 import { TableInfo } from "./TableDescription";
 import SideDeck from "./SideDeck";
+import { ActionError } from "./Errors";
 
 async function loadData(file, options) {
   const df = await dfd.readCSV(file, options);
   const id = Array.from({ length: df.shape[0] }, (_, i) => i);
 
-  df.addColumn('id', id, { inplace: true })
-
-  return df
+  return df.
+    addColumn('id', id).
+    rename(df.columns.reduce((acc, col) => ({ ...acc, [col]: col.trim() }), {}))
 }
 
 const Filter = {
@@ -44,6 +45,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
   const [filters, setFilters] = useState([]);
   const [uniqueFilters, setUniqueFilters] = useState(new Set())
   const [showAdvCtrl, toggleAdvCtrl] = useState(false)
+  const [errors, setErrors] = useState([])
 
   useEffect(() => {
     const loadAndSet = async (_file) => {
@@ -94,7 +96,6 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
     setFilters(filters.concat(filter))
   }
 
-
   const handleFilter = () => { }
 
   const handleClear = (filter) => {
@@ -130,10 +131,9 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
     }
 
     try {
-      console.log("cleaner", df.columns, df.values)
       setDf(df.dropNa())
     } catch (e) {
-      console.log(e.message,)
+      setErrors(errors.concat({ action: 'dropNa', error: e.message }))
     }
   }
 
@@ -180,6 +180,29 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
 
       return
     }
+
+    if (action === 'update_df_values') {
+      if (!(isOn && event.data)) return setDf(origDf);
+
+      setDf(event.data)
+
+      return
+    }
+
+    if (action === 'update_df_types') {
+      if (!(isOn && event.data)) return setDf(origDf);
+
+      let types = event.data;
+      let newDf = df.dropNa();
+
+      Object.entries(types).forEach(([col, typ]) => {
+        newDf = newDf.asType(col, typ)
+      })
+
+      // console.log("old", df.dtypes, "new", newDf.dtypes)
+      setDf(newDf);
+    }
+
   }
 
   return (
@@ -206,6 +229,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
         {filters.length ? <GroupFilters filters={filters} removeFilter={handleClear} /> : null}
 
         {showAdvCtrl ? <AdvancedCtrl df={df} handleSanitizer={sanitizeData} /> : null}
+        <ActionError errors={errors} />
         {df && <TableInfo df={df} />}
         <hr className="separator" />
         {sqlState.state !== SqlLoaderStates.SUCCESS ? renderWithoutSql() : null}

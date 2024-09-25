@@ -31,4 +31,20 @@ function Portal({ title, handleClick, noToggle, children }) {
   )
 }
 
+export function DumbPortal({ title, handleClick, showHide, children }) {
+  return (
+    <section className="portal">
+      <h3
+        style={{ cursor: 'pointer' }}
+        onClick={handleClick}
+        className={showHide ? 'active' : ''}
+      >
+        {title}
+      </h3>
+      {showHide && children ? <section className="portal-content">{children}</section> : null}
+    </section>
+  )
+
+}
+
 export default Portal;

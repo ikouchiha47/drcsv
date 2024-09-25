@@ -161,7 +161,7 @@ const Toolbar = ({
           handleClear={handleClear}
         />
         {!sqlLaunched ? (
-          <Portal title='Squelize'>
+          <Portal title='Sequelize'>
             <ConvertToSqlBtn handleSqlLaunch={handleSqlLaunch} />
           </Portal>
         ) : null}

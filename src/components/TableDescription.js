@@ -75,33 +75,40 @@ export const TableInfo = ({ df }) => {
   const [showHide, toggleShowHide] = useState(false)
   const [descDf, setDescDf] = useState(null)
 
-  useEffect(() => {
-    const fn = async () => {
-      try {
-        let ddf = await df.describe().T;
-        setDescDf(ddf)
-      } catch (e) {
-        console.error("describe error", e)
-      }
+  const loadDescription = async () => {
+    try {
+      let ddf = await df.describe().T;
+      setDescDf(ddf)
+    } catch (e) {
+      console.error("describe error", e)
+    }
+  }
+
+  const handleShowHide = async () => {
+    let prev = showHide;
+
+    // if its false, then we need to prepare
+    // before showing
+    if (!prev) {
+      await loadDescription()
     }
 
-    fn()
-
-  }, [df])
+    toggleShowHide(!prev)
+  }
 
   const renderToggle = () => {
     if (!showHide) {
       return <ChevronDoubleDownIcon
         width={16}
         style={{ cursor: 'pointer' }}
-        onClick={() => toggleShowHide(!showHide)}
+        onClick={handleShowHide}
       />
     }
 
     return <ChevronDoubleUpIcon
       width={16}
       style={{ cursor: 'pointer' }}
-      onClick={() => toggleShowHide(!showHide)}
+      onClick={handleShowHide}
     />
   }
 

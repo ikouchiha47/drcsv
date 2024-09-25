@@ -80,9 +80,6 @@
   font-size: 24px;
 }
 
-.Defaults h3 {
-  color: #000;
-}
 
 .Static .List li {
   background-color: #693ccc;
@@ -117,8 +114,16 @@
 }
 
 .Defaults {
-  background-color: white;
+  background-color: #5d57bf;
   color: black;
+  width: max-content;
+  margin-top: 32px;
+  padding: 16px 32px;
+  min-width: 480px;
+}
+
+.Defaults h3 {
+  margin-bottom: 16px;
 }
 
 .upload-card {
