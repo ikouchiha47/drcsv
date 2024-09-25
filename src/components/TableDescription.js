@@ -133,7 +133,7 @@ export const TableInfo = ({ df }) => {
   }
 
   return (
-    <section className="Table-info margin-b-xl">
+    <section className="Table-info" style={{ marginBottom: '32px' }}>
       <header className="flex flex-row" style={{ gap: '16px', alignItems: 'center', marginBottom: '16px' }}>
         <h3>Info</h3>
         {renderToggle()}

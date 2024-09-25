@@ -48,7 +48,6 @@ function DefaultValueForm({ df, onUpdateDF }) {
       }
     }
 
-    console.log("herrerer", newDf.columns, newDf.values)
     onUpdateDF(newDf);
   };
 

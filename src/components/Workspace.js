@@ -230,6 +230,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
 
         {showAdvCtrl ? <AdvancedCtrl df={df} handleSanitizer={sanitizeData} /> : null}
         <ActionError errors={errors} />
+        <hr className="separator" />
         {df && <TableInfo df={df} />}
         <hr className="separator" />
         {sqlState.state !== SqlLoaderStates.SUCCESS ? renderWithoutSql() : null}
