@@ -1,5 +1,14 @@
 import React, { useState } from "react";
 
+export const PortalTypes = Object.freeze({
+  GROUP_BY: 'group_by',
+  AGGREGATOR: 'aggregator',
+  FILTERS: 'filters',
+  SEQUELIZE: 'sequelize',
+  ADVANCED: 'advanced',
+  DELIMITER: 'delimiter',
+})
+
 function Portal({ title, handleClick, noToggle, children }) {
   const [showHide, toggleShowHide] = useState(false)
 

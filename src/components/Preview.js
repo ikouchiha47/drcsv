@@ -22,7 +22,7 @@ const groupData = (df, filters) => {
   const clausesFound = taggedColumns.filters.length > 0;
 
   const selectedColumns = new Set(taggedColumns.groups.map(col => col.column))
-  let groupedDf = df.dropNa().groupby([...selectedColumns]);
+  let groupedDf = df.groupby([...selectedColumns]);
 
   // console.log("queries", taggedColumns)
 
