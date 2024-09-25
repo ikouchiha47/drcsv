@@ -10,29 +10,48 @@ const groupData = (df, filters) => {
       acc.groups.push(filter)
     } else if (filter.type === 'aggr') {
       acc.aggrs.push(filter)
+    } else if (filter.type === 'filter') {
+      acc.filters.push(filter)
     }
 
     return acc;
-  }, { groups: [], aggrs: [] })
+  }, { groups: [], aggrs: [], filters: [] })
 
 
   const aggrFound = taggedColumns.aggrs.length > 0;
+  const clausesFound = taggedColumns.filters.length > 0;
+
   const selectedColumns = new Set(taggedColumns.groups.map(col => col.column))
   const groupedDf = df.groupby([...selectedColumns]);
 
   // console.log("queries", taggedColumns)
 
-  if (!aggrFound) return groupedDf.apply(g => g);
+  console.log(aggrFound, clausesFound)
 
-  const aggregators = taggedColumns.aggrs.reduce((acc, data) => {
-    let { column, action } = data;
+  if (!(aggrFound && clausesFound)) return groupedDf.apply(g => g);
 
-    acc[column] = action;
-    return acc;
-  }, {})
+  if (aggrFound) {
+    const aggregators = taggedColumns.aggrs.reduce((acc, data) => {
+      let { column, action } = data;
 
+      acc[column] = action;
+      return acc;
+    }, {})
 
-  return groupedDf.agg(aggregators);
+    groupedDf = groupedDf.agg(aggregators)
+  }
+
+  if (clausesFound) {
+    taggedColumns.filters.forEach(data => {
+      let { column, action, clause } = data;
+
+      // _df.loc({ rows: _df['column'].gt(value)})
+      // _df.loc({ rows: _df['column'][operation](value)})
+      groupedDf = groupedDf.loc({ rows: groupedDf[column][action](clause) })
+    })
+  }
+
+  return groupedDf;
 }
 
 const Preview = ({ df, fileName, filters }) => {

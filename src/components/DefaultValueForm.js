@@ -82,14 +82,14 @@ export function DefaultTypeForm({ df, updateTypes }) {
   const dtypes = Array.zip(df.columns, df.dtypes)
 
   useEffect(() => {
-    // const dtypes = Array.zip(df.columns, df.dtypes)
+    const dtypes = Array.zip(df.columns, df.dtypes)
     const initialTypes = new Map(dtypes);
 
     setDefaultTypes(Object.fromEntries(initialTypes.entries()));
   }, [df])
 
   const handleInputChange = (e, column) => {
-    if (defaultTypes[column] == e.target.value) return;
+    if (defaultTypes[column] === e.target.value) return;
 
     setDefaultTypes({
       ...defaultTypes,

@@ -6,8 +6,15 @@ import Portal from "./Portal";
 
 import 'handsontable/dist/handsontable.full.css';
 import '../Analysis.css';
+import Filters from "./Filters";
 
 const AggregateColumns = ['sum', 'max', 'min', 'cumsum', 'count'].sort();
+
+const filterHeaderStyle = {
+  marginBottom: '16px',
+  fontSize: '20px',
+  fontWeight: 700,
+}
 
 const Delimiter = ({ handleDelimiter, classNames }) => {
   const inputRef = useRef(null);
@@ -25,7 +32,7 @@ const Delimiter = ({ handleDelimiter, classNames }) => {
 
   return (
     <section className={[...classNames].join(' ')} style={{ gap: '16px' }}>
-      <input ref={inputRef} type="text" placeholder="Enter table name" id="tableName" />
+      <input ref={inputRef} type="text" placeholder="Update Seperator" id="tableName" />
       <button type="button" onClick={handleSubmit} className="Button Btn-blue">Apply</button>
     </section>
   )
@@ -116,7 +123,8 @@ function GroupSelector({
 
   return (
     <>
-      <Portal title='Group By'>
+      <Portal title='Group'>
+        <h4 style={filterHeaderStyle}>Group By</h4>
         <Select
           isClearable
           defaultValue={null}
@@ -130,6 +138,7 @@ function GroupSelector({
       </Portal>
 
       <Portal title='Aggregator'>
+        <h4 style={filterHeaderStyle}>Aggreate Records By</h4>
         <div className="flex flex-row aggregations">
           <Select
             isClearable
@@ -168,6 +177,7 @@ const Toolbar = ({
   handleDataClean,
   handleAdvancedControls,
   handleDelimiterChange,
+  handleWhereClauses,
   sqlLaunched,
 }) => {
   if (!df) return null;
@@ -187,6 +197,10 @@ const Toolbar = ({
           handleFilter={handleFilter}
           handleClear={handleClear}
         />
+
+        <Portal title='Filters'>
+          <Filters df={df} handleUpdateClauses={handleWhereClauses} />
+        </Portal>
 
         {!sqlLaunched ? (
           <Portal title='Sequelize'>

@@ -26,6 +26,7 @@ const Filter = {
   type: null,
   column: null,
   action: null,
+  clause: null,
 }
 
 const hasUnmatchedColumns = (err) => {
@@ -171,6 +172,23 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
     }
   }
 
+  // [ { type: 'filter', action: 'gt/lt', column: '', clause: <T>} ]
+  const handleWhereClauses = ({ column, action, clause }) => {
+    const filter = {
+      ...Filter,
+      type: 'filter',
+      column: column,
+      action: action,
+      clause: clause,
+    };
+    const key = toFilterKey(filter);
+
+    if (uniqueFilters.has(key)) return;
+
+    setUniqueFilters((new Set([key])).union(uniqueFilters))
+    setFilters(filters.concat(filter))
+  }
+
   const renderWithoutSql = () => {
     return (
       <Preview df={df} fileName={file.name} filters={filters} />
@@ -235,16 +253,29 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
             handleDataClean={handleDataClean}
             handleAdvancedControls={showAdvancedControls}
             handleDelimiterChange={handleDelimiterChange}
+            handleWhereClauses={handleWhereClauses}
             sqlLaunched={sqlState.state === SqlLoaderStates.SUCCESS}
           />) : null}
 
         {filters.length ? <GroupFilters filters={filters} removeFilter={handleClear} /> : null}
+        {filters.length ? (
+          <button
+            type="button"
+            className="Button Btn-blue"
+            style={{ marginBottom: '16px' }}
+            onClick={() => handleClear('all')}
+          >
+            Clear All
+          </button>
+        ) : null}
 
         {showAdvCtrl ? <AdvancedCtrl df={df} handleSanitizer={sanitizeData} /> : null}
         <ActionError errors={errors} />
+
         <hr className="separator" />
         {df && <TableInfo df={df} />}
         <hr className="separator" />
+
         {sqlState.state !== SqlLoaderStates.SUCCESS ? renderWithoutSql() : null}
         {sqlState.state !== SqlLoaderStates.FAILED ? renderWithSql() : null}
       </section>

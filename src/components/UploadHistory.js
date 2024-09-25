@@ -18,7 +18,7 @@ function RenderFileHistory({ files, df, selectFile, currentFile }) {
             <TableCellsIcon width={24} />
             <span style={{ display: 'inline-block', marginLeft: '8px' }}>{name}</span>
           </p>
-          {currentFile && currentFile.name == file.name ? <TableInfoList df={df} /> : null}
+          {currentFile && currentFile.name === file.name ? <TableInfoList df={df} /> : null}
         </li>
       )
     })

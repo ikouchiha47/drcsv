@@ -1,5 +1,5 @@
 import { ChevronDoubleDownIcon, ChevronDoubleUpIcon } from "@heroicons/react/24/outline";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ScrollableDataTable } from "./DataTable";
 
 const tableStyles = {
