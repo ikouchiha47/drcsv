@@ -22,13 +22,13 @@ const groupData = (df, filters) => {
   const clausesFound = taggedColumns.filters.length > 0;
 
   const selectedColumns = new Set(taggedColumns.groups.map(col => col.column))
-  const groupedDf = df.groupby([...selectedColumns]);
+  let groupedDf = df.dropNa().groupby([...selectedColumns]);
 
   // console.log("queries", taggedColumns)
 
-  console.log(aggrFound, clausesFound)
+  console.log("tg", taggedColumns, aggrFound, clausesFound)
 
-  if (!(aggrFound && clausesFound)) return groupedDf.apply(g => g);
+  if (!aggrFound && !clausesFound) return groupedDf.apply(g => g);
 
   if (aggrFound) {
     const aggregators = taggedColumns.aggrs.reduce((acc, data) => {
