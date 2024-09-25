@@ -32,4 +32,8 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 
 ### Screenshot
 
-![alt screenshot](./screenshot.png)
+![alt screenshot](./shots/Sep25::071509.png)
+
+![alt screenshot](./shots/Sep25::071015.png)
+
+![alt screenshot](./shots/Sep25::071126.png)
