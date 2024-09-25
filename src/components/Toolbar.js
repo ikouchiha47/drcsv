@@ -9,6 +9,28 @@ import '../Analysis.css';
 
 const AggregateColumns = ['sum', 'max', 'min', 'cumsum', 'count'].sort();
 
+const Delimiter = ({ handleDelimiter, classNames }) => {
+  const inputRef = useRef(null);
+
+  const handleSubmit = () => {
+    let value = inputRef.current.value;
+    if (!value) return;
+
+    handleDelimiter(value);
+  }
+
+  let defaultClasses = new Set(['flex', 'flex-row']);
+  if (!classNames) classNames = defaultClasses;
+  else classNames = defaultClasses.union(classNames);
+
+  return (
+    <section className={[...classNames].join(' ')} style={{ gap: '16px' }}>
+      <input ref={inputRef} type="text" placeholder="Enter table name" id="tableName" />
+      <button type="button" onClick={handleSubmit} className="Button Btn-blue">Apply</button>
+    </section>
+  )
+};
+
 function GroupSelector({
   columns,
   handleGroupBy,
@@ -145,6 +167,7 @@ const Toolbar = ({
   handleSqlLaunch,
   handleDataClean,
   handleAdvancedControls,
+  handleDelimiterChange,
   sqlLaunched,
 }) => {
   if (!df) return null;
@@ -153,6 +176,10 @@ const Toolbar = ({
     <section className="toolbar-wrapper margin-b-xl">
       <h3>Action Center</h3>
       <div className="flex flex-row toolbar">
+        <Portal title='Change Delimiter'>
+          <Delimiter handleDelimiter={handleDelimiterChange} />
+        </Portal>
+
         <GroupSelector
           columns={df.columns}
           handleGroupBy={handleGroupBy}
@@ -160,11 +187,13 @@ const Toolbar = ({
           handleFilter={handleFilter}
           handleClear={handleClear}
         />
+
         {!sqlLaunched ? (
           <Portal title='Sequelize'>
             <ConvertToSqlBtn handleSqlLaunch={handleSqlLaunch} />
           </Portal>
         ) : null}
+
         <Portal title='Clean Data' handleClick={handleDataClean} />
         <Portal title='Advanced' handleClick={handleAdvancedControls} />
       </div>

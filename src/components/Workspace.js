@@ -161,6 +161,16 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
     )
   }
 
+  const handleDelimiterChange = async (delimiter) => {
+    try {
+      let dframe = await loadData(file, { delimiter: delimiter })
+      setDf(dframe)
+      setOrigDf(dframe)
+    } catch (e) {
+      console.error("delimiter change failed", e)
+    }
+  }
+
   const renderWithoutSql = () => {
     return (
       <Preview df={df} fileName={file.name} filters={filters} />
@@ -214,17 +224,19 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
         handleSelectFile={handleSelectFile}
       />
       <section className="workspace" style={{ minWidth: '84%' }}>
-        {sqlState.state !== SqlLoaderStates.SUCCESS ? (<Toolbar
-          df={df}
-          handleGroupBy={handleGroupBy}
-          handleAggregator={handleAggregator}
-          handleFilter={handleFilter}
-          handleClear={handleClear}
-          handleSqlLaunch={handleSqlLaunch}
-          handleDataClean={handleDataClean}
-          handleAdvancedControls={showAdvancedControls}
-          sqlLaunched={sqlState.state === SqlLoaderStates.SUCCESS}
-        />) : null}
+        {sqlState.state !== SqlLoaderStates.SUCCESS ? (
+          <Toolbar
+            df={df}
+            handleGroupBy={handleGroupBy}
+            handleAggregator={handleAggregator}
+            handleFilter={handleFilter}
+            handleClear={handleClear}
+            handleSqlLaunch={handleSqlLaunch}
+            handleDataClean={handleDataClean}
+            handleAdvancedControls={showAdvancedControls}
+            handleDelimiterChange={handleDelimiterChange}
+            sqlLaunched={sqlState.state === SqlLoaderStates.SUCCESS}
+          />) : null}
 
         {filters.length ? <GroupFilters filters={filters} removeFilter={handleClear} /> : null}
 
