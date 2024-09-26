@@ -80,10 +80,13 @@ const handleMessage = async function(e) {
     try {
       let result = sqlite.exec(query);
       self.postMessage(
-        SqlLoaderStates.RESULT,
-        { data: result }
+        new Message(
+          SqlLoaderStates.RESULT,
+          { data: result }
+        )
       )
     } catch (e) {
+      console.log(`failed to execute ${e}`);
       self.postMessage(new Message(SqlLoaderStates.RESULT, { errors: [e.message] }))
     }
 

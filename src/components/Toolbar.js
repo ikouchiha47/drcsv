@@ -175,6 +175,11 @@ const Toolbar = ({
     else setActivePortal(targetPortal)
   }
 
+  const onHandleLaunch = (data) => {
+    _setActivePortal(null);
+    handleSqlLaunch(data);
+  }
+
   return (
     <section className="toolbar-wrapper margin-b-xl">
       <h3>Action Center</h3>
@@ -208,9 +213,16 @@ const Toolbar = ({
         </DumbPortal>
 
         {!sqlLaunched ? (
-          <Portal title='Sequelize'>
-            <ConvertToSqlBtn handleSqlLaunch={handleSqlLaunch} />
-          </Portal>
+          <DumbPortal title='Sequelize'
+            handleClick={() => _setActivePortal(PortalTypes.SEQUELIZE)}
+            showHide={activePortal === PortalTypes.SEQUELIZE}
+          >
+            <h4 style={filterHeaderStyle}>Table Name</h4>
+            <ConvertToSqlBtn
+              classNames={['margin-b-s']}
+              handleSqlLaunch={onHandleLaunch} />
+            <em style={{ fontWeight: 700, color: '#fff' }}>Recommended: Fix Headers before</em>
+          </DumbPortal>
         ) : null}
 
         <Portal title='Clean Data' handleClick={handleDataClean} />

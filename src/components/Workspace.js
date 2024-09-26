@@ -42,7 +42,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
   const [df, setDf] = useState(null);
   const [origDf, setOrigDf] = useState(null);
 
-  const [sqlState, setSqlState] = useState({ state: null, table: null });
+  const [sqlState, setSqlState] = useState({ status: null, table: null });
 
   const [filters, setFilters] = useState([]);
   const [uniqueFilters, setUniqueFilters] = useState(new Set())
@@ -159,8 +159,13 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
     return (
       <>
         <div className='Table-info'>
-          <p>Table Name: <b>{sqlState.table}</b></p>
-          <button type="button" onClick={() => { setSqlState({ state: null, table: sqlState.table }) }}>Switch Back</button>
+          <p style={{ fontSize: '28px' }}>Table: <b>{sqlState.table}</b></p>
+          <button type="button"
+            className="Button Btn-yellow"
+            onClick={() => { setSqlState({ status: null, table: sqlState.table }) }}
+          >
+            Switch Back
+          </button>
         </div>
 
         <SqlArena
@@ -201,6 +206,17 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
   }
 
   const renderWithoutSql = () => {
+    let shouldRender = [
+      SqlLoaderStates.LOADING,
+      SqlLoaderStates.FAILED
+    ].includes(sqlState.status);
+
+    if (sqlState.status === null) {
+      shouldRender = true
+    }
+
+    if (!shouldRender) return null;
+
     return (
       <Preview df={df} fileName={file.name} filters={filters} />
     );
@@ -243,6 +259,8 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
     }
 
   }
+
+  console.log("sqltrace", sqlState);
 
   return (
     <>
@@ -288,8 +306,8 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
         {df && <TableInfo df={df} />}
         <hr className="separator" />
 
-        {sqlState.state !== SqlLoaderStates.SUCCESS ? renderWithoutSql() : null}
-        {sqlState.state !== SqlLoaderStates.FAILED ? renderWithSql() : null}
+        {renderWithoutSql()}
+        {sqlState.status !== SqlLoaderStates.FAILED ? renderWithSql() : null}
       </section>
     </>
   );

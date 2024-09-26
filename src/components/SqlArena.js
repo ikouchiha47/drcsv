@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollableDataTable } from './DataTable';
 import * as dfd from 'danfojs';
 
+import { ScrollableDataTable } from './DataTable';
+import { DescriptionTable } from './TableDescription';
 import Notifier from '../utils/notifications';
-import { DBEvents, DuckDB, SQLite } from '../utils/dbs';
+
+import { DBEvents } from '../utils/dbs';
 import { toDF } from '../utils/batcher';
 
 import 'handsontable/dist/handsontable.full.css';
+import '../Home.css';
 import '../SQLComponent.css';
+
 import { SqlLoaderStates } from '../utils/constants';
-import { DescriptionTable } from './TableDescription';
 
 const worker = new Worker(new URL('../workers/sqlite.worker.js', import.meta.url), { type: "module" });
 
@@ -46,7 +49,6 @@ const SqlArena = ({ df, tableName, launched, handleSqlState }) => {
       }
 
       if (!worker) return;
-      ;
 
       if (warns.length) {
         console.warn(warns.join('\n'))
@@ -55,12 +57,15 @@ const SqlArena = ({ df, tableName, launched, handleSqlState }) => {
       if (status === SqlLoaderStates.CREATED) {
         worker.postMessage({ action: DBEvents.SEED, tableName: tableName, df: dfd.toJSON(df, { format: 'row' }) })
         setDataLoaded({ status: SqlLoaderStates.SEEDING, message: 'Importing Data' })
+        handleSqlState({ status: SqlLoaderStates.SEEDING, table: tableName })
 
         return;
       }
 
       if (status === SqlLoaderStates.SEEDED) {
         setDataLoaded({ status: SqlLoaderStates.SUCCESS, message: `Imported ${data} records` })
+        handleSqlState({ status: SqlLoaderStates.SUCCESS, table: tableName })
+
         notifier.send('Success', `Imported ${data} records to ${tableName}`)
         return
       }
@@ -69,6 +74,7 @@ const SqlArena = ({ df, tableName, launched, handleSqlState }) => {
         setDataLoaded({ status: SqlLoaderStates.SUCCESS, message: '' })
 
         console.log(data, "result")
+
         if (!data || (data && !data.length)) {
           setErrors(errors)
           setColumns([])
@@ -79,12 +85,17 @@ const SqlArena = ({ df, tableName, launched, handleSqlState }) => {
         const resultColumns = data[0].columns;
         const resultValues = data[0].values;
 
+        console.log("cols", resultColumns, resultValues)
+
         setColumns(resultColumns);
         setData(resultValues);
+
+        return;
       }
 
       if (status === SqlLoaderStates.FAILED) {
         setDataLoaded({ status: SqlLoaderStates.FAILED, message: errors.join('\n') })
+        handleSqlState({ status: SqlLoaderStates.FAILED, table: tableName })
         return;
       }
     }
@@ -152,39 +163,48 @@ const SqlArena = ({ df, tableName, launched, handleSqlState }) => {
 
   const renderStatus = (response, errors) => {
     console.log(response.status, "response status")
-    if (response.status !== SqlLoaderStates.SUCCESS) return null;
+
+    if (response.status === SqlLoaderStates.FAILED) return null;
+    if (response.status === SqlLoaderStates.SUCCESS) return null;
     if (errors.length) return renderErrors();
-    return <p>{response.message}</p>
+
+    return <p style={{ fontWeight: 600, fontSize: '24px' }}>{response.message}</p>
   }
 
   if (!df) return null;
 
-  console.log("load status", dataLoadStatus, data.length, columns.length)
+  console.log("sqlarenatrace", dataLoadStatus, data.length)
 
   return (
     <>
       <hr className='separator' />
       <section className="margin-b-xl">
         {/* Query Textarea */}
-        <div className='editor-wrapper flex flex-row'>
+        <div className='editor-wrapper flex flex-row margin-b-m'>
           {render()}
+          {/*
           <section
             className="table-description"
             style={{
               height: 'max-content',
               padding: '16px',
-              flexShrink: 0
+              flexShrink: 0,
+              maxHeight: '240px',
+              overflowY: 'scroll',
             }}
           >
             {dataLoadStatus.status === SqlLoaderStates.SUCCESS ? <DescriptionTable df={df} /> : null}
-          </section>
+          </section> 
+          */}
         </div>
         {/* Results Table */}
-        <h3 className='Table-header'>Results</h3>
         {renderStatus(dataLoadStatus, errors)}
-        {data.length > 0 && df && (
-          <ScrollableDataTable df={toDF(columns, data)} classNames={['query-result']} />
-        )}
+        {data.length > 0 ? (
+          <>
+            <h3 className='Table-header'>Results</h3>
+            <ScrollableDataTable df={toDF(columns, data)} classNames={['query-result']} />
+          </>
+        ) : null}
 
       </section>
     </>

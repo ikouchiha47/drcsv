@@ -31,6 +31,11 @@
   color: #eee;
 }
 
+.Btn-yellow {
+  background-color: yellow;
+  color: #000;
+}
+
 .Sidebar {
   width: 16%;
   max-width: 640px;
@@ -45,6 +50,14 @@
 
 .margin-b-xl {
   margin-bottom: 56px;
+}
+
+.margin-b-m {
+  margin-bottom: 24px;
+}
+
+.margin-b-s {
+  margin-bottom: 16px;
 }
 
 .Upload-section {

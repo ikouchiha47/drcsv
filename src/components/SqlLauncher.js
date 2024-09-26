@@ -18,11 +18,11 @@ const ConvertToSqlBtn = ({ handleSqlLaunch, classNames }) => {
 
   let defaultClasses = new Set(['flex', 'flex-row']);
   if (!classNames) classNames = defaultClasses;
-  else classNames = defaultClasses.union(classNames);
+  else classNames = defaultClasses.union(new Set(classNames));
 
   return (
     <section className={[...classNames].join(' ')} style={{ gap: '16px' }}>
-      <input ref={tableRef} type="text" placeholder="Enter table name" id="tableName" />
+      <input ref={tableRef} type="text" placeholder="Enter table name" id="tableName" style={{ padding: '4px' }} />
       <button type="button" onClick={handleSubmit} className="Button Btn-blue">Load Data</button>
     </section>
   )

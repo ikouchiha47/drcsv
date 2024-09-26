@@ -2,6 +2,14 @@
   padding-left: 32px;
 }
 
+.Table-info {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  align-items: flex-end;
+  font-size: 18px;
+}
+
 .query-playground {
   display: block;
   width: 100%;
