@@ -173,7 +173,7 @@ const SqlArena = ({ df, tableName, launched, handleSqlState }) => {
 
   if (!df) return null;
 
-  console.log("sqlarenatrace", dataLoadStatus, data.length)
+  // console.log("sqlarenatrace", dataLoadStatus, data.length)
 
   return (
     <>

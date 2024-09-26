@@ -2,7 +2,7 @@
   padding-left: 32px;
 }
 
-.Table-info {
+.Table-name-header {
   display: flex;
   flex-direction: row;
   gap: 24px;

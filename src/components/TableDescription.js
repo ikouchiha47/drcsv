@@ -72,7 +72,7 @@ export const TableInfoList = ({ df }) => {
 }
 
 export const TableInfo = ({ df }) => {
-  const [showHide, toggleShowHide] = useState(false)
+  const [showHide, toggleShowHide] = useState(true)
 
   const handleShowHide = () => {
     toggleShowHide(!showHide)
@@ -120,7 +120,7 @@ export const TableInfo = ({ df }) => {
 
   return (
     <section className="Table-info" style={{ marginBottom: '32px' }}>
-      <header className="flex flex-row" style={{ gap: '16px', alignItems: 'center', marginBottom: '16px' }}>
+      <header className="flex flex-row" style={{ gap: '16px', alignItems: 'center', marginBottom: '32px' }}>
         <h3>Info</h3>
         {renderToggle()}
       </header>

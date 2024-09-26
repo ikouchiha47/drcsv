@@ -147,7 +147,7 @@ export class SQLite {
 
     const columns = this._getColumns(df);
     const totalRows = df.shape[0];
-    const generator = batchDf(df, 500, totalRows);
+    const generator = batchDf(df, 1000, totalRows);
 
     console.log("inserting data")
 

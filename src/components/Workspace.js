@@ -158,7 +158,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
 
     return (
       <>
-        <div className='Table-info'>
+        <header className='Table-name-header'>
           <p style={{ fontSize: '28px' }}>Table: <b>{sqlState.table}</b></p>
           <button type="button"
             className="Button Btn-yellow"
@@ -166,7 +166,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
           >
             Switch Back
           </button>
-        </div>
+        </header>
 
         <SqlArena
           df={df}
@@ -254,13 +254,11 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
         newDf = newDf.asType(col, typ)
       })
 
-      // console.log("old", df.dtypes, "new", newDf.dtypes)
       setDf(newDf);
     }
-
   }
 
-  console.log("sqltrace", sqlState);
+  // console.log("sqltrace", sqlState);
 
   return (
     <>
