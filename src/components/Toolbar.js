@@ -59,9 +59,11 @@ function GroupTool({ columns, handleGroupBy }) {
   const columnRef = useRef(null);
 
   useEffect(() => {
+    let currentCol = columnRef.current;
+
     return () => {
       console.log("unmount selector");
-      columnRef.current && columnRef.current.setValue(null)
+      currentCol && currentCol.setValue(null)
     }
 
   }, [columns, columnRef])
@@ -91,10 +93,14 @@ function AggregatorTool({ columns, handleAggregator, isActive }) {
   const actionRef = useRef(null);
 
   useEffect(() => {
+    let currAggr = aggrRef.current;
+    let currAction = actionRef.current;
+
     return () => {
       console.log("unmount selector");
-      aggrRef.current && aggrRef.current.setValue(null)
-      actionRef.current && actionRef.current.setValue(null);
+
+      currAggr && currAggr.setValue(null)
+      currAction && currAction.setValue(null);
     }
 
   }, [columns, aggrRef, actionRef])
@@ -155,6 +161,7 @@ const Toolbar = ({
   handleAdvancedControls,
   handleDelimiterChange,
   handleWhereClauses,
+  handleFixHeaders,
   sqlLaunched,
 }) => {
   const [activePortal, setActivePortal] = useState(null)
@@ -178,14 +185,6 @@ const Toolbar = ({
         >
           <Delimiter handleDelimiter={handleDelimiterChange} />
         </DumbPortal>
-
-        {/*<GroupSelector
-          columns={df.columns}
-          handleGroupBy={handleGroupBy}
-          handleAggregator={handleAggregator}
-          handleFilter={handleFilter}
-          handleClear={handleClear}
-        />*/}
 
         <DumbPortal title='Group'
           handleClick={() => _setActivePortal(PortalTypes.GROUP_BY)}
@@ -216,6 +215,7 @@ const Toolbar = ({
 
         <Portal title='Clean Data' handleClick={handleDataClean} />
         <Portal title='Advanced' handleClick={handleAdvancedControls} />
+        <Portal title='Fix Headers' handleClick={handleFixHeaders} />
       </div>
     </section>
   )

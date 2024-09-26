@@ -1,10 +1,5 @@
 import React, { useRef } from "react";
-
-export const SqlLoaderStates = {
-  LOADING: 'loading',
-  SUCCESS: 'success',
-  FAILED: 'failed'
-}
+import { SqlLoaderStates } from "../utils/constants";
 
 // const SqlState = {
 //   state: null,

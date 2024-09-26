@@ -13,6 +13,28 @@ const isValidTime = (value) => {
   return timePattern.test(value);
 }
 
+const reservedKeywords = new Set([
+  "select", "from", "table",
+  "insert", "into",
+  "where", "case",
+  "having",
+]);
+
+export function sanitizeHeader(header) {
+  let sanitized = header
+    .trim()
+    .replace(/\s+/g, '_')
+    .replace(/[^a-zA-Z0-9_]/g, '')
+    .replace(/^[0-9]/, '_$&')
+    .toLowerCase();
+
+  if (reservedKeywords.has(sanitized)) {
+    sanitized = sanitized + '_col';  // Append '_col' if it's a reserved keyword
+  }
+
+  return sanitized;
+}
+
 // Add support for Date
 function mapToSqlType(dtype) {
   switch (dtype) {
@@ -40,6 +62,7 @@ function mapToDuckType(dtype) {
     case 'float64':
       return 'FLOAT';
     case 'bool':
+    case 'boolean':
       return 'BOOLEAN';
     case 'string':
       return 'VARCHAR';
@@ -47,6 +70,15 @@ function mapToDuckType(dtype) {
       return 'VARCHAR';
   }
 }
+
+export const DBEvents = Object.freeze({
+  INIT: 'init',
+  SEED: 'seed',
+  EXEC: 'exec',
+  RUN: 'run',
+  ERROR: 'error',
+  SUCCESS: 'success',
+})
 
 export class SQLite {
   constructor() {
@@ -79,6 +111,14 @@ export class SQLite {
     return 'TEXT'
   }
 
+  _hasDB() {
+    if (this.db) return true;
+
+    throw new Error("DBError", {
+      message: 'Db not initialized'
+    })
+  }
+
   _getColumnDefs(df) {
     let defaultColumns = [['id', 'INTEGER', 'PRIMARY KEY AUTOINCREMENT']];
 
@@ -93,6 +133,8 @@ export class SQLite {
   }
 
   async createTable(tableName, df) {
+    this._hasDB();
+
     const columns = this._getColumnDefs(df);
     const stmt = `CREATE TABLE IF NOT EXISTS ${tableName} (\n${columns.map(frags => frags.join(' ').trim()).join(', ').trim()}\n);`
 
@@ -101,9 +143,13 @@ export class SQLite {
   }
 
   async insertData(tableName, df) {
+    this._hasDB()
+
     const columns = this._getColumns(df);
     const totalRows = df.shape[0];
     const generator = batchDf(df, 500, totalRows);
+
+    console.log("inserting data")
 
     for (const batch of generator) {
       const insertSQL = `INSERT INTO ${tableName} (${columns.join(',')}) VALUES `;
@@ -125,24 +171,32 @@ export class SQLite {
     }
 
     console.log(`Inserted ${totalRows} records into ${tableName}`);
+
+    return totalRows;
   }
 
   exec(query) {
+    this._hasDB();
+
     return this.db.exec(query, this.config)
   }
 
   async loadCSV(tableName, file, df) {
     await this.createTable(tableName, df);
-    await this.insertData(tableName, df);
+    const totalRows = await this.insertData(tableName, df);
+
     console.log('Data inserted into SQLite table:', tableName);
+
+    return totalRows
   }
 }
 
 
 export class DuckDB {
-  constructor() {
+  constructor(delimiter) {
     this.db = null;
     this.conn = null;
+    this.delimiter = delimiter || ','
   }
 
   async init() {
@@ -183,7 +237,17 @@ export class DuckDB {
     return 'VARCHAR'
   }
 
+  _hasDB() {
+    if (this.db) return true;
+
+    throw new Error("DBError", {
+      message: 'Db not initialized'
+    })
+  }
+
   exec(query) {
+    this._hasDB()
+
     return this.db.exec(query, this.config)
   }
 
@@ -207,13 +271,24 @@ export class DuckDB {
       name: tableName,
       detect: false,
       headers: true,
-      delimiter: ',',
+      delimiter: this.delimiter,
       columns: colTypes,
     }
   }
 
+  async _count(tableName) {
+    const query = `SELECT COUNT(1) AS total FROM ${tableName}`;
+    const result = await this.con.query(query);
+
+    console.log(result, "duck");
+
+    const count = result.get('total')[0];
+    return count
+  }
+
   async loadCSV(tableName, file, df) {
-    await this.db.importCSVFromPath(file.name, this.createImportQuery(df, tableName));
+    await this.db.insertCSVFromPath(file.name, this.createImportQuery(df, tableName));
     console.log('Data inserted into DuckDB table:', tableName);
+    return 0;
   }
 }

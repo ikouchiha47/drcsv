@@ -4,7 +4,7 @@ export function* batchDf(df, batchSize = 500, totalRows) {
   for (let start = 0; start < totalRows; start += batchSize) {
     let end = Math.min(start + batchSize, totalRows);
 
-    yield df.iloc({ rows: [`${start}:${end}`] }).drop({ columns: ['id'] });
+    yield df.iloc({ rows: [`${start}:${end}`] }) // .drop({ columns: ['id'] });
   }
 }
 

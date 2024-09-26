@@ -87,3 +87,10 @@ th {
   margin: 32px auto;
   width: 100%;
 }
+
+.alert {
+  background: #911b91;
+  width: max-content;
+  padding: 8px 12px;
+  font-weight: 700;
+}

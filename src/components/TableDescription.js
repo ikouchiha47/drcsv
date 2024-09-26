@@ -1,6 +1,6 @@
 import { ChevronDoubleDownIcon, ChevronDoubleUpIcon } from "@heroicons/react/24/outline";
 import React, { useState } from "react";
-import { ScrollableDataTable } from "./DataTable";
+import { sanitizeHeader } from "../utils/dbs";
 
 const tableStyles = {
   width: '100%',
@@ -30,7 +30,7 @@ export const DescriptionTable = ({ df, tableWidth }) => {
   tableWidth ||= '100%';
 
   return (
-    <table style={{ ...tableStyles, width: tableWidth }}>
+    <table style={{ ...tableStyles, width: tableWidth, overflowX: true }}>
       <thead>
         <tr>
           {columns.map((col, index) => (
@@ -73,27 +73,9 @@ export const TableInfoList = ({ df }) => {
 
 export const TableInfo = ({ df }) => {
   const [showHide, toggleShowHide] = useState(false)
-  const [descDf, setDescDf] = useState(null)
 
-  const loadDescription = async () => {
-    try {
-      let ddf = await df.describe().T;
-      setDescDf(ddf)
-    } catch (e) {
-      console.error("describe error", e)
-    }
-  }
-
-  const handleShowHide = async () => {
-    let prev = showHide;
-
-    // if its false, then we need to prepare
-    // before showing
-    if (!prev) {
-      await loadDescription()
-    }
-
-    toggleShowHide(!prev)
+  const handleShowHide = () => {
+    toggleShowHide(!showHide)
   }
 
   const renderToggle = () => {
@@ -117,6 +99,9 @@ export const TableInfo = ({ df }) => {
     if (!df) return null;
 
     const shape = df.shape;
+    const columns = df.columns;
+
+    let sanitizedCols = new Set(columns.map(sanitizeHeader))
 
     return (
       <>
@@ -126,7 +111,8 @@ export const TableInfo = ({ df }) => {
             <p><b>Columns:</b> {shape[1]}</p>
           </section>
 
-          {descDf && <ScrollableDataTable df={descDf} />}
+          {sanitizedCols.difference(new Set(columns)) ? <p className="alert">Column Names Need Fixup</p> : null}
+          {/*descDf && <ScrollableDataTable df={descDf} />*/}
         </div>
       </>
     );

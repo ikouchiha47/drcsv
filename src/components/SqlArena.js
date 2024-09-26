@@ -1,115 +1,127 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollableDataTable } from './DataTable';
+import * as dfd from 'danfojs';
 
 import Notifier from '../utils/notifications';
-import { DuckDB, SQLite } from '../utils/dbs';
+import { DBEvents, DuckDB, SQLite } from '../utils/dbs';
 import { toDF } from '../utils/batcher';
 
 import 'handsontable/dist/handsontable.full.css';
 import '../SQLComponent.css';
-import { SqlLoaderStates } from './SqlLauncher';
+import { SqlLoaderStates } from '../utils/constants';
 import { DescriptionTable } from './TableDescription';
 
+const worker = new Worker(new URL('../workers/sqlite.worker.js', import.meta.url), { type: "module" });
 
-const sqlite = new SQLite();
-const duckdb = new DuckDB();
+// const sqlite = new SQLite();
+// const duckdb = new DuckDB();
 
-let _ = duckdb;
+const notifier = new Notifier();
+await notifier.init();
 
 const SqlArena = ({ df, tableName, launched, handleSqlState }) => {
-  const [db, setDb] = useState(null);
   const [query, setQuery] = useState('');
+
   const [data, setData] = useState([]);
   const [columns, setColumns] = useState([]);
-  const [notifier, setNotifier] = useState(null);
+  const [errors, setErrors] = useState([]);
 
-  const [dataLoadStatus, setDataLoaded] = useState(SqlLoaderStates.LOADING)
+  let initalDbStatus = { status: SqlLoaderStates.LOADING, message: 'Creating Database' }
+  const [dataLoadStatus, setDataLoaded] = useState(initalDbStatus)
 
-  const loadSqlJs = async () => {
-    const _db = await sqlite.init()
-    setDb(_db);
-  };
-
-  const initNotifer = async () => {
-    let _notifier = new Notifier();
-    await _notifier.init();
-
-    setNotifier(_notifier);
-  }
 
   useEffect(() => {
-    const setup = async () => {
-      await initNotifer();
-      await loadSqlJs();
-    }
+    const handleMessage = (e) => {
+      // console.log("handling", e)
 
-    setup();
-  }, [launched]);
+      const {
+        status,
+        data,
+        errors,
+        warns,
+      } = e.data;
 
-  useEffect(() => {
-    const $loadSQLTable = async () => {  // $ signifies it throws error
-      if (!db || !df) return false;
-      await db.loadCSV(tableName, null, df)
-    };
+      if (!tableName || !df) {
+        return;
+      }
 
+      if (!worker) return;
+      ;
 
-    if (db) {
-      console.log("importing data")
-      $loadSQLTable().then(() => {
-        notifier.send('Success', `Imported to table: ${tableName}`);
+      if (warns.length) {
+        console.warn(warns.join('\n'))
+      }
 
-        setDataLoaded(SqlLoaderStates.SUCCESS)
+      if (status === SqlLoaderStates.CREATED) {
+        worker.postMessage({ action: DBEvents.SEED, tableName: tableName, df: dfd.toJSON(df, { format: 'row' }) })
+        setDataLoaded({ status: SqlLoaderStates.SEEDING, message: 'Importing Data' })
 
-        let head = df.head(100);
-        setColumns(df.columns);
-        setData(head.values);
+        return;
+      }
 
-        handleSqlState({ state: SqlLoaderStates.SUCCESS, table: tableName })
+      if (status === SqlLoaderStates.SEEDED) {
+        setDataLoaded({ status: SqlLoaderStates.SUCCESS, message: `Imported ${data} records` })
+        notifier.send('Success', `Imported ${data} records to ${tableName}`)
+        return
+      }
 
-      }).catch(error => {
-        notifier.send('Failure', `Failed to build table`);
-        console.error("db:import:error", error)
+      if (status === SqlLoaderStates.RESULT) {
+        setDataLoaded({ status: SqlLoaderStates.SUCCESS, message: '' })
 
-        setDataLoaded(SqlLoaderStates.FAILED)
-        handleSqlState({ table: tableName, state: SqlLoaderStates.FAILED })
-      });
-    }
-  }, [db, df, notifier, tableName])
+        console.log(data, "result")
+        if (!data || (data && !data.length)) {
+          setErrors(errors)
+          setColumns([])
+          setData([])
+          return;
+        }
 
-  // Handle SQL query execution
-  const handleQueryExecution = () => {
-    if (!db || !query) return;
-
-    try {
-      const results = db.exec(query);  // Execute SQL query
-
-      if (results.length > 0) {
-        const resultColumns = results[0].columns;
-        const resultValues = results[0].values;
+        const resultColumns = data[0].columns;
+        const resultValues = data[0].values;
 
         setColumns(resultColumns);
         setData(resultValues);
-      } else {
-        setColumns([]);
-        setData([]);
       }
-    } catch (err) {
-      console.error('SQL Query Error:', err);
-      notifier.send('Failure', `Failed to execute query: ${query}`)
+
+      if (status === SqlLoaderStates.FAILED) {
+        setDataLoaded({ status: SqlLoaderStates.FAILED, message: errors.join('\n') })
+        return;
+      }
     }
-  };
+
+    const setup = async () => {
+      console.log("setting up")
+
+      worker.onmessage = handleMessage
+      worker.postMessage({ action: DBEvents.INIT })
+    }
+
+    setup()
+
+    return () => {
+      console.log("deregistered");
+      worker.onmessage = null;
+    }
+  }, [launched, df, tableName])
+
+
+  const handleQueryExecution = () => {
+    if (!worker || !query) return;
+
+    worker.postMessage({
+      action: DBEvents.EXEC,
+      tableName: tableName,
+      query: query,
+    })
+  }
 
 
   const render = () => {
-    if (dataLoadStatus === SqlLoaderStates.FAILED) {
+    if (dataLoadStatus.status === SqlLoaderStates.FAILED) {
       return <p className='error'>Failed to load data to db</p>
     }
 
-    if (dataLoadStatus === SqlLoaderStates.LOADING) {
-      return <p className='info'>Loading Records into database</p>
-    }
-
-    if (dataLoadStatus === SqlLoaderStates.SUCCESS) {
+    if (dataLoadStatus.status === SqlLoaderStates.SUCCESS) {
       return (
         <section className='query-editor margin-b-xl' style={{ flex: 1 }}>
           <textarea
@@ -126,7 +138,28 @@ const SqlArena = ({ df, tableName, launched, handleSqlState }) => {
     return null;
   }
 
+  const renderErrors = (errors) => {
+    if (!errors.length) return null;
+
+    return (
+      <ul className='Table-errors'>
+        {errors.map((err, idx) => {
+          return <li key={`table-errors-${idx}`}>{err}</li>
+        })}
+      </ul>
+    )
+  }
+
+  const renderStatus = (response, errors) => {
+    console.log(response.status, "response status")
+    if (response.status !== SqlLoaderStates.SUCCESS) return null;
+    if (errors.length) return renderErrors();
+    return <p>{response.message}</p>
+  }
+
   if (!df) return null;
+
+  console.log("load status", dataLoadStatus, data.length, columns.length)
 
   return (
     <>
@@ -143,14 +176,16 @@ const SqlArena = ({ df, tableName, launched, handleSqlState }) => {
               flexShrink: 0
             }}
           >
-            {dataLoadStatus === SqlLoaderStates.SUCCESS ? <DescriptionTable df={df} /> : null}
+            {dataLoadStatus.status === SqlLoaderStates.SUCCESS ? <DescriptionTable df={df} /> : null}
           </section>
         </div>
         {/* Results Table */}
         <h3 className='Table-header'>Results</h3>
-        {data.length > 0 && db && (
+        {renderStatus(dataLoadStatus, errors)}
+        {data.length > 0 && df && (
           <ScrollableDataTable df={toDF(columns, data)} classNames={['query-result']} />
         )}
+
       </section>
     </>
   );

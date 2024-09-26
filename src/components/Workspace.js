@@ -3,7 +3,7 @@ import * as dfd from 'danfojs';
 
 import Toolbar from "./Toolbar";
 import Preview from "./Preview";
-import { SqlLoaderStates } from "./SqlLauncher";
+import { SqlLoaderStates } from "../utils/constants";
 import SqlArena from "./SqlArena";
 import GroupFilters from "./Grouping";
 
@@ -12,14 +12,15 @@ import AdvancedCtrl from "./AdvancedCtrls";
 import { TableInfo } from "./TableDescription";
 import SideDeck from "./SideDeck";
 import { ActionError } from "./Errors";
+import { sanitizeHeader } from "../utils/dbs";
 
 async function loadData(file, options) {
   const df = await dfd.readCSV(file, options);
-  const id = Array.from({ length: df.shape[0] }, (_, i) => i);
+  // const id = Array.from({ length: df.shape[0] }, (_, i) => i);
 
-  return df.
-    addColumn('id', id).
-    rename(df.columns.reduce((acc, col) => ({ ...acc, [col]: col.trim() }), {}))
+  // return df.
+  // addColumn('id', id).
+  return df.rename(df.columns.reduce((acc, col) => ({ ...acc, [col]: col.trim() }), {}))
 }
 
 const Filter = {
@@ -29,9 +30,9 @@ const Filter = {
   clause: null,
 }
 
-const hasUnmatchedColumns = (err) => {
-  return err && err.includes('DtypeError') && err.includes('array of length')
-}
+// const hasUnmatchedColumns = (err) => {
+//   return err && err.includes('DtypeError') && err.includes('array of length')
+// }
 
 const toFilterKey = (filter) => {
   return [filter.type, filter.column, filter.action].filter(v => v).join('_')
@@ -99,6 +100,16 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
 
   const handleFilter = () => { }
 
+  const handleFixHeaders = () => {
+    let renamed = df.columns.reduce((acc, col) => {
+      acc[col] = sanitizeHeader(col)
+      return acc;
+    }, {})
+
+    let newDf = df.rename(renamed)
+    setDf(newDf)
+  }
+
   const handleClear = (filter) => {
     if (filter === "all") {
       setUniqueFilters(new Set())
@@ -109,7 +120,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
     if (typeof filter !== "object") return;
 
     const key = toFilterKey(filter);
-    const updatedFilters = filters.filter(f => toFilterKey(f) != key)
+    const updatedFilters = filters.filter(f => toFilterKey(f) !== key)
 
     let newSet = new Set(uniqueFilters)
     newSet.delete(key)
@@ -254,6 +265,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
             handleAdvancedControls={showAdvancedControls}
             handleDelimiterChange={handleDelimiterChange}
             handleWhereClauses={handleWhereClauses}
+            handleFixHeaders={handleFixHeaders}
             sqlLaunched={sqlState.state === SqlLoaderStates.SUCCESS}
           />) : null}
 

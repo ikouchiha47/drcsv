@@ -11,7 +11,6 @@ import './Home.css';
 // import SQLComponent from './SQLComponent';
 
 import { FileUpload } from './components/FileUpload';
-import SideDeck from './components/SideDeck';
 import WorkSpace from './components/Workspace';
 
 Array.zip = (src, dst) => {
