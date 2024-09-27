@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as dfd from 'danfojs';
+import * as Papa from 'papaparse';
 
 import Toolbar from "./Toolbar";
 import Preview from "./Preview";
@@ -8,13 +9,55 @@ import SqlArena from "./SqlArena";
 import DuckArena from "./DuckArena";
 import GroupFilters from "./Grouping";
 
-import '../stylesheets/Toolbar.css';
 import AdvancedCtrl from "./AdvancedCtrls";
 import { TableInfo } from "./TableDescription";
 import SideDeck from "./SideDeck";
 import { ActionError } from "./Errors";
-import { sanitizeHeader } from "../utils/dbs";
 import CSVAnalyzer from "./Analyzer";
+
+import '../stylesheets/Toolbar.css';
+
+async function load(file, delimiter, signal, preview) {
+  preview ||= 0;
+
+  return new Promise((resolve, reject) => {
+    Papa.parse(file, {
+      worker: preview == 0,
+      header: true,
+      skipEmptyLines: true,
+      preview: preview,
+      delimiter: delimiter,
+      // chunk: (_, parser) => {
+      //   console.log(signal.signal, "s")
+      // },
+      complete: function(results, _file) {
+        let isAborted = signal && signal.signal.aborted;
+
+        if (isAborted) {
+          console.log('cancelled for', _file && file._name);
+          // reject(new Error('Aborted'))
+          return
+        };
+
+        if (!results) {
+          reject(new Error('EmptyResults'))
+          return;
+        }
+
+        let df = new dfd.DataFrame(results.data)
+        resolve(df);
+      },
+      error: function(err) {
+        if (signal && signal.signal.aborted) {
+          console.error('load', err, 'aborted')
+          return;
+        }
+
+        reject(err);
+      }
+    })
+  })
+}
 
 async function loadData(file, options) {
   const df = await dfd.readCSV(file, options);
@@ -32,10 +75,6 @@ const Filter = {
   clause: null,
 }
 
-// const hasUnmatchedColumns = (err) => {
-//   return err && err.includes('DtypeError') && err.includes('array of length')
-// }
-
 const toFilterKey = (filter) => {
   return [filter.type, filter.column, filter.action].filter(v => v).join('_')
 }
@@ -46,6 +85,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
   const [df, setDf] = useState(null);
   const [origDf, setOrigDf] = useState(null);
 
+  const [loadPreview, setPreviewLoaded] = useState(false);
 
   const [sqlState, setSqlState] = useState({ ...initialSqlState });
 
@@ -60,20 +100,36 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
   const [delimiter, setDelimiter] = useState(',');
   const [doAnalyse, toggleAnalyse] = useState(false);
 
+
   useEffect(() => {
-    const loadAndSet = async (_file) => {
-      let dframe = await loadData(_file)
+    if (!file) return;
 
-      window._df = dframe;
+    const abortCtrl = new AbortController();
 
-      setDf(dframe);
-      setOrigDf(dframe);
+    const loadPreview = async (_file) => {
+      console.log("initial load", _file.name);
+      try {
+        let dframe = await load(_file, delimiter, abortCtrl, 1000);
+
+        setDf(dframe)
+        setOrigDf(dframe);
+        setPreviewLoaded(true)
+      } catch (err) {
+        console.error(err);
+        console.log(`Something went wrong, Please reload the page and lose your work. Because, ${err.message}`)
+      }
     }
 
-
-    loadAndSet(file)
+    loadPreview(file);
 
     return () => {
+      console.log("unmount");
+
+      if (abortCtrl) {
+        console.log("aborting", file, "file");
+        abortCtrl.abort();
+      }
+
       setDf(null)
       setOrigDf(null)
       setFilters([])
@@ -81,11 +137,47 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
       setSqlState({ ...initialSqlState })
       toggleAnalyse(false)
       setDelimiter(',')
-
       setOpsHistory([]);
     }
 
-  }, [file]);
+  }, [file, delimiter]);
+
+  useEffect(() => {
+    if (!file) return;
+
+    const abortCtrl = new AbortController();
+
+    const loadRest = async (_file) => {
+      if (!loadPreview) return;
+
+      console.log("getting rest", _file.name)
+      try {
+        let dframe = await load(_file, delimiter, abortCtrl);
+        console.log("got rest", _file.name)
+
+        setDf(dframe)
+        setOrigDf(dframe);
+      } catch (err) {
+        console.error(`Load rest failed`)
+
+        alert(`Something went wrong, If you have more than 1000 records, you are seeing partial data. Because, ${err.message}`)
+      }
+    }
+
+    console.log("preview changed", loadPreview)
+    loadRest(file);
+
+    return () => {
+      console.log("unmount rest");
+
+      if (abortCtrl) {
+        console.log("more aborting", file, "ffile")
+        abortCtrl.abort()
+      }
+      setPreviewLoaded(false);
+    }
+
+  }, [loadPreview, delimiter])
 
   const handleGroupBy = (event) => {
     // console.log(event, "group by")
