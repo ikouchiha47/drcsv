@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import * as dfd from 'danfojs';
 
 import { ScrollableDataTable } from './DataTable';
 import Notifier from '../utils/notifications';
 
-import { DBEvents } from '../utils/dbs';
+import { DuckDB } from '../utils/dbs';
 import { toDF } from '../utils/batcher';
 
 import 'handsontable/dist/handsontable.full.css';
@@ -13,12 +12,13 @@ import '../SQLComponent.css';
 
 import { SqlLoaderStates } from '../utils/constants';
 
-const worker = new Worker(new URL('../workers/sqlite.worker.js', import.meta.url), { type: "module" });
+
+const duckdb = new DuckDB();
 
 const notifier = new Notifier();
 // await notifier.init();
 
-const SqlArena = ({ df, tableName, launched, handleSqlState }) => {
+const DuckArena = ({ df, file, tableName, launched, handleSqlState }) => {
   const [query, setQuery] = useState('');
 
   const [data, setData] = useState([]);
@@ -28,101 +28,51 @@ const SqlArena = ({ df, tableName, launched, handleSqlState }) => {
   let initalDbStatus = { status: SqlLoaderStates.LOADING, message: 'Creating Database' }
   const [dataLoadStatus, setDataLoaded] = useState(initalDbStatus)
 
-
   useEffect(() => {
-    const handleMessage = (e) => {
-      // console.log("handling", e)
-      const {
-        status,
-        data,
-        errors,
-        warns,
-      } = e.data;
+    if (!launched) return;
 
-      if (!tableName || !df) {
-        return;
-      }
+    setDataLoaded({ status: SqlLoaderStates.SEEDING, message: 'Importing Data' });
 
-      if (!worker) return;
+    const handleSetup = async () => {
+      try {
+        console.log("handling");
 
-      if (warns.length) {
-        console.warn(warns.join('\n'))
-      }
+        await notifier.init();
+        await duckdb.init();
+        console.log("loading csv");
 
-      if (status === SqlLoaderStates.CREATED) {
-        worker.postMessage({
-          action: DBEvents.SEED,
-          tableName: tableName,
-          df: dfd.toJSON(df, { format: 'row' })
-        })
+        let totalRows = await duckdb.loadCSV(tableName, file, df);
 
-        setDataLoaded({ status: SqlLoaderStates.SEEDING, message: 'Importing Data' })
-        handleSqlState({ status: SqlLoaderStates.SEEDING, table: tableName })
-
-        return;
-      }
-
-      if (status === SqlLoaderStates.SEEDED) {
-        setDataLoaded({ status: SqlLoaderStates.SUCCESS, message: `Imported ${data} records` })
+        setDataLoaded({ status: SqlLoaderStates.SUCCESS, message: `Imported ${totalRows} records` });
         handleSqlState({ status: SqlLoaderStates.SUCCESS, table: tableName })
-
-        notifier.send('Success', `Imported ${data} records to ${tableName}`)
-        return
-      }
-
-      if (status === SqlLoaderStates.RESULT) {
-        setDataLoaded({ status: SqlLoaderStates.SUCCESS, message: '' })
-
-        if (!data || (data && !data.length)) {
-          setErrors(errors)
-          setColumns([])
-          setData([])
-          return;
-        }
-
-        const resultColumns = data[0].columns;
-        const resultValues = data[0].values;
-
-        setColumns(resultColumns);
-        setData(resultValues);
-
-        return;
-      }
-
-      if (status === SqlLoaderStates.FAILED) {
-        setDataLoaded({ status: SqlLoaderStates.FAILED, message: errors.join('\n') })
-        // setErrors(errors)
+      } catch (e) {
+        console.log(e)
+        setDataLoaded({ status: SqlLoaderStates.FAILED, message: `Failed to import data ${e.message}` });
         handleSqlState({ status: SqlLoaderStates.FAILED, table: tableName })
-        return;
       }
     }
 
-    const setup = async () => {
-      console.log("setting up")
+    handleSetup()
 
-      await notifier.init();
+  }, [launched, df, file, tableName, handleSqlState])
 
-      worker.onmessage = handleMessage
-      worker.postMessage({ action: DBEvents.INIT })
+
+  const handleQueryExecution = async () => {
+    if (!query) return;
+
+    try {
+      let results = await duckdb.exec(query);
+      console.log("results", results);
+
+      if (results.columns && results.values) {
+        setColumns(results.columns)
+        setData(results.values)
+      }
+    } catch (err) {
+      setErrors([err])
+      setColumns([])
+      setData([])
     }
-
-    setup()
-
-    return () => {
-      console.log("deregistered");
-      worker.onmessage = null;
-    }
-  }, [launched, df, tableName])
-
-
-  const handleQueryExecution = () => {
-    if (!worker || !query) return;
-
-    worker.postMessage({
-      action: DBEvents.EXEC,
-      tableName: tableName,
-      query: query,
-    })
   }
 
 
@@ -161,7 +111,7 @@ const SqlArena = ({ df, tableName, launched, handleSqlState }) => {
   }
 
   const renderStatus = (response, errors) => {
-    console.log(response.status, "response status")
+    // console.log(response.status, "response status")
 
     if (response.status === SqlLoaderStates.FAILED) return null;
     if (response.status === SqlLoaderStates.SUCCESS) return null;
@@ -196,4 +146,4 @@ const SqlArena = ({ df, tableName, launched, handleSqlState }) => {
   );
 };
 
-export default SqlArena;
+export default DuckArena;

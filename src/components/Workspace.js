@@ -4,7 +4,8 @@ import * as dfd from 'danfojs';
 import Toolbar from "./Toolbar";
 import Preview from "./Preview";
 import { SqlLoaderStates } from "../utils/constants";
-import SqlArena from "./SqlArena";
+// import SqlArena from "./SqlArena";
+import DuckArena from "./DuckArena";
 import GroupFilters from "./Grouping";
 
 import '../stylesheets/Toolbar.css';
@@ -153,31 +154,6 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
     toggleAdvCtrl(next)
   }
 
-  const renderWithSql = () => {
-    if (sqlState.state === null) return;
-
-    return (
-      <>
-        <header className='Table-name-header'>
-          <p style={{ fontSize: '28px' }}>Table: <b>{sqlState.table}</b></p>
-          <button type="button"
-            className="Button Btn-yellow"
-            onClick={() => { setSqlState({ status: null, table: sqlState.table }) }}
-          >
-            Switch Back
-          </button>
-        </header>
-
-        <SqlArena
-          df={df}
-          tableName={sqlState.table}
-          launched={sqlState.state}
-          handleSqlState={handleSqlLaunch}
-        />
-      </>
-    )
-  }
-
   const handleDelimiterChange = async (delimiter) => {
     try {
       let dframe = await loadData(file, { delimiter: delimiter })
@@ -203,6 +179,41 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
 
     setUniqueFilters((new Set([key])).union(uniqueFilters))
     setFilters(filters.concat(filter))
+  }
+
+  const renderWithSql = () => {
+    if (sqlState.status === null) return null;
+
+    let shouldHide = [SqlLoaderStates.FAILED, SqlLoaderStates.LOADING].includes(sqlState.status);
+    if (shouldHide) return null;
+
+    return (
+      <>
+        <header className='Table-name-header'>
+          <p style={{ fontSize: '28px' }}>Table: <b>{sqlState.table}</b></p>
+          <button type="button"
+            className="Button Btn-yellow"
+            onClick={() => { setSqlState({ status: null, table: sqlState.table }) }}
+          >
+            Switch Back
+          </button>
+        </header>
+
+        {/*<SqlArena
+          df={df}
+          tableName={sqlState.table}
+          launched={sqlState.state}
+          handleSqlState={handleSqlLaunch}
+        />*/}
+        <DuckArena
+          df={df}
+          file={file}
+          tableName={sqlState.table}
+          launched={sqlState.state}
+          handleSqlState={handleSqlLaunch}
+        />
+      </>
+    )
   }
 
   const renderWithoutSql = () => {
@@ -305,7 +316,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
         <hr className="separator" />
 
         {renderWithoutSql()}
-        {sqlState.status !== SqlLoaderStates.FAILED ? renderWithSql() : null}
+        {renderWithSql()}
       </section>
     </>
   );

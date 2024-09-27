@@ -55,9 +55,9 @@ function mapToSqlType(dtype) {
 function mapToDuckType(dtype) {
   switch (dtype) {
     case 'int32':
-      return 'INTEGER';
+      return 'INTEGER'
     case 'int64':
-      return 'BIGINT';
+      return 'BIGINT'
     case 'float32':
     case 'float64':
       return 'FLOAT';
@@ -65,9 +65,9 @@ function mapToDuckType(dtype) {
     case 'boolean':
       return 'BOOLEAN';
     case 'string':
-      return 'VARCHAR';
+      return 'VARCHAR'
     default:
-      return 'VARCHAR';
+      return 'BLOB';
   }
 }
 
@@ -223,6 +223,9 @@ export class DuckDB {
 
     this.db = db;
     this.conn = await db.connect();
+
+    console.log("connected");
+
     return this;
   }
 
@@ -232,30 +235,83 @@ export class DuckDB {
     const isDate = sample.every(isValidDate)
     const isTime = sample.every(isValidTime)
 
-    if (isDate) return 'DATE'
-    if (isTime) return 'TIME'
-    return 'VARCHAR'
+    if (isDate) return 'TIME'
+    if (isTime) return 'TIMESTAMP'
+    return 'BLOB'
   }
 
   _hasDB() {
-    if (this.db) return true;
+    if (this.db && this.conn) return true;
 
     throw new Error("DBError", {
       message: 'Db not initialized'
     })
   }
 
-  exec(query) {
-    this._hasDB()
+  _getColumnDefs(df) {
+    // let defaultColumns = [['id', 'INTEGER', "PRIMARY KEY DEFAULT nextval('seq_id')"]];
+    let defaultColumns = []
 
-    return this.db.exec(query, this.config)
+    let defs = df.columns.map((column, idx) => {
+      let colType = mapToDuckType(df.dtypes[idx]);
+      if (colType === 'BLOB') colType = this._overrideDefFields(df, idx);
+
+      return [column.toLowerCase(), colType, 'DEFAULT NULL']
+    }).filter(col => col && col[0] !== 'id').concat(defaultColumns);
+
+    return defs
   }
 
-  // NOTE: this could also be done with CREATE TABLE and COPY
-  // to emulate primary key in duckdb, we do;
-  // CREATE SEQUENCE seq_id START 1;
-  // CREATE TABLE tbl (id INTEGER DEFAULT nextval('seq_id'), s VARCHAR);
-  // For now, we are directly saving it from csv file, without df values.
+  async createTable(tableName, df) {
+    this._hasDB();
+
+    const columns = this._getColumnDefs(df);
+    const stmt = `CREATE SEQUENCE seq_id START 1; CREATE TABLE IF NOT EXISTS ${tableName} (\n${columns.map(frags => frags.join(' ').trim()).join(', ').trim()}\n);`
+
+    console.log("create", stmt);
+
+    await this.exec(stmt, true);
+    return true;
+  }
+
+  async insertData(tableName, fileName) {
+    this._hasDB();
+
+    // let stmt = `SELECT * FROM read_csv('${fileName}', name='${tableName}', delim='${this.delimiter}', header=true, columns=${JSON.stringify(colDefs)})`
+    let stmt = `COPY ${tableName} FROM '${fileName}' (FORMAT CSV, DELIMITER '${this.delimiter}', HEADER)`
+    console.log("insert", stmt);
+
+    await this.exec(stmt, true)
+    return true
+  }
+
+  async exec(query, writeMode) {
+    this._hasDB()
+
+    let result = await this.conn.query(query)
+    if (writeMode) {
+      return result
+    }
+
+    // const columns = result.schema.fields.map(field => field.name); // Extract column names
+    const parsedResult = result.toArray().map(v => v.toJSON());
+    const columns = Object.keys(parsedResult[0])
+
+    const data = {
+      columns: columns,
+      values: parsedResult.map(result => Object.values(result).map(value => {
+        if (typeof value === 'bigint') {
+          return Number(value);
+        }
+        return value;
+      }))
+    }
+
+    console.log("ducky", data);
+
+    return data
+  }
+
   createImportQuery(df, tableName) {
     const colTypes = df.columns.reduce((acc, column, idx) => {
       let col = column.toLowerCase();
@@ -278,7 +334,7 @@ export class DuckDB {
 
   async _count(tableName) {
     const query = `SELECT COUNT(1) AS total FROM ${tableName}`;
-    const result = await this.con.query(query);
+    const result = await this.conn.query(query);
 
     console.log(result, "duck");
 
@@ -287,8 +343,28 @@ export class DuckDB {
   }
 
   async loadCSV(tableName, file, df) {
-    await this.db.insertCSVFromPath(file.name, this.createImportQuery(df, tableName));
-    console.log('Data inserted into DuckDB table:', tableName);
+    // await this.conn.insertCSVFromPath(file.name, this.createImportQuery(df, tableName));
+
+    let reader = new FileReader();
+
+    reader.onload = async (e) => {
+      const csvContent = e.target.result;
+
+      console.log(csvContent);
+
+      await this.db.registerFileText(file.name, csvContent);
+
+      // const opts = this.createImportQuery(df, tableName)
+      // console.log(opts, "opts")
+
+      await this.createTable(tableName, df);
+      await this.insertData(tableName, file.name);
+
+      console.log('Data inserted into DuckDB table:', tableName);
+    }
+
+    reader.readAsText(file)
+
     return 0;
   }
 }
