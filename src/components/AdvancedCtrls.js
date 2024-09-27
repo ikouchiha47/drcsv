@@ -5,7 +5,7 @@ import Portal, { DumbPortal } from "./Portal";
 const isDefaultValueForm = (formID) => formID === 'default_values';
 const isDefaultTypeForm = (formID) => formID === 'default_types';
 
-function AdvancedCtrl({ df, handleSanitizer }) {
+function AdvancedCtrl({ df, defaults, handleSanitizer }) {
   const [activeForm, setActiveForm] = useState('');
 
   const removeHeaders = (_, _prev, next) => {
@@ -29,11 +29,11 @@ function AdvancedCtrl({ df, handleSanitizer }) {
     })
   }
 
-  const handleUpdateTypes = (types) => {
+  const handleUpdateTypes = (data) => {
     return handleSanitizer({
       action: 'update_df_types',
       isOn: activeForm === 'default_types',
-      data: types,
+      data: data,
     })
   }
 
@@ -58,7 +58,12 @@ function AdvancedCtrl({ df, handleSanitizer }) {
       </div>
 
       {df && isDefaultTypeForm(activeForm) ? <DefaultTypeForm df={df} updateTypes={handleUpdateTypes} /> : null}
-      {df && isDefaultValueForm(activeForm) ? <DefaultValueForm df={df} onUpdateDF={handleUpdateDf} /> : null}
+      {df && isDefaultValueForm(activeForm) ? (
+        <DefaultValueForm
+          df={df}
+          defaults={defaults}
+          onUpdateDF={handleUpdateDf} />
+      ) : null}
     </section>
   );
 }

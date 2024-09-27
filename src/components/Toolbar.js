@@ -162,6 +162,7 @@ const Toolbar = ({
   handleDelimiterChange,
   handleWhereClauses,
   handleFixHeaders,
+  handleAnalyseData,
   sqlLaunched,
 }) => {
   const [activePortal, setActivePortal] = useState(null)
@@ -184,6 +185,11 @@ const Toolbar = ({
     <section className="toolbar-wrapper margin-b-xl">
       <h3>Action Center</h3>
       <div className="flex flex-row toolbar">
+
+        <Portal title='Fix Headers' handleClick={handleFixHeaders} />
+        <Portal title='Clean Data' handleClick={handleDataClean} />
+        <Portal title='Analyse Full' handleClick={handleAnalyseData} />
+
         <DumbPortal title='Change Delimiter'
           handleClick={() => _setActivePortal(PortalTypes.DELIMITER)}
           showHide={activePortal === PortalTypes.DELIMITER}
@@ -225,9 +231,7 @@ const Toolbar = ({
           </DumbPortal>
         ) : null}
 
-        <Portal title='Clean Data' handleClick={handleDataClean} />
         <Portal title='Advanced' handleClick={handleAdvancedControls} />
-        <Portal title='Fix Headers' handleClick={handleFixHeaders} />
       </div>
     </section>
   )

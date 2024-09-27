@@ -13,7 +13,10 @@ import '../SQLComponent.css';
 
 import { SqlLoaderStates } from '../utils/constants';
 
-const worker = new Worker(new URL('../workers/sqlite.worker.js', import.meta.url), { type: "module" });
+const worker = new Worker(
+  new URL('../workers/sqlite.worker.js', import.meta.url),
+  { type: "module" }
+);
 
 const notifier = new Notifier();
 // await notifier.init();

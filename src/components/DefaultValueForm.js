@@ -27,8 +27,8 @@ function mapDTypeToJS(dtype, value) {
   }
 }
 
-function DefaultValueForm({ df, onUpdateDF }) {
-  const [defaultValues, setDefaultValues] = useState({});
+function DefaultValueForm({ df, defaults, onUpdateDF }) {
+  const [defaultValues, setDefaultValues] = useState(defaults);
 
   const handleInputChange = (e, column) => {
     setDefaultValues({
@@ -40,7 +40,7 @@ function DefaultValueForm({ df, onUpdateDF }) {
   const dtypeMap = new Map(Array.zip(df.columns, df.dtypes))
 
   const handleApplyDefaults = () => {
-    let newDf = df.copy();
+    let newDf = df;
 
     for (let column in defaultValues) {
       if (defaultValues[column]) {
@@ -48,8 +48,10 @@ function DefaultValueForm({ df, onUpdateDF }) {
       }
     }
 
-    onUpdateDF(newDf);
+    onUpdateDF({ df: newDf, defaults: defaultValues });
   };
+
+  if (!df) return null;
 
   return (
     <section className='Defaults'>

@@ -1,10 +1,9 @@
+/* eslint-disable */
 import { SqlLoaderStates } from '../utils/constants';
 import { SQLite, DBEvents } from '../utils/dbs';
 import * as dfd from 'danfojs';
 
-/* eslint-disable */
-
-console.log("loading webworker")
+console.log("loading sqliteworker")
 
 const sqlite = new SQLite();
 

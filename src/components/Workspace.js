@@ -14,6 +14,7 @@ import { TableInfo } from "./TableDescription";
 import SideDeck from "./SideDeck";
 import { ActionError } from "./Errors";
 import { sanitizeHeader } from "../utils/dbs";
+import CSVAnalyzer from "./Analyzer";
 
 async function loadData(file, options) {
   const df = await dfd.readCSV(file, options);
@@ -39,20 +40,25 @@ const toFilterKey = (filter) => {
   return [filter.type, filter.column, filter.action].filter(v => v).join('_')
 }
 
+const initialSqlState = { status: null, table: null };
+
 const WorkSpace = ({ files, file, handleSelectFile }) => {
   const [df, setDf] = useState(null);
   const [origDf, setOrigDf] = useState(null);
 
-  const initialSqlState = { status: null, table: null };
 
-  const [sqlState, setSqlState] = useState(initialSqlState);
+  const [sqlState, setSqlState] = useState({ ...initialSqlState });
 
   const [filters, setFilters] = useState([]);
   const [uniqueFilters, setUniqueFilters] = useState(new Set())
   const [showAdvCtrl, toggleAdvCtrl] = useState(false)
   const [errors, setErrors] = useState([])
 
+  const [defaultValues, setDefaultValues] = useState({})
   const [opsHistory, setOpsHistory] = useState([]);
+
+  const [delimiter, setDelimiter] = useState(',');
+  const [doAnalyse, toggleAnalyse] = useState(false);
 
   useEffect(() => {
     const loadAndSet = async (_file) => {
@@ -64,6 +70,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
       setOrigDf(dframe);
     }
 
+
     loadAndSet(file)
 
     return () => {
@@ -71,7 +78,9 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
       setOrigDf(null)
       setFilters([])
       setUniqueFilters(new Set())
-      setSqlState(initialSqlState)
+      setSqlState({ ...initialSqlState })
+      toggleAnalyse(false)
+      setDelimiter(',')
 
       setOpsHistory([]);
     }
@@ -128,13 +137,22 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
 
   const handleFilter = () => { }
 
-  const handleFixHeaders = () => {
-    let renamed = df.columns.reduce((acc, col) => {
-      acc[col] = sanitizeHeader(col)
+  const hasColumnsChanged = () => {
+    return ((new Set(origDf.columns)).difference(new Set(df.columns))).size > 0
+  }
+
+  const handleFixHeaders = (_, _prev, next) => {
+    if (!hasColumnsChanged()) return;
+
+    let _df = !next ? origDf : df;
+
+    let renamed = _df.columns.reduce((acc, col) => {
+      acc[col] = col;
       return acc;
     }, {})
 
-    let newDf = df.rename(renamed)
+
+    let newDf = _df.rename(renamed)
     setDf(newDf)
 
     setOpsHistory(opsHistory.concat(
@@ -199,7 +217,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
       let prevTypes = new Set(origDf.dtypes);
       let newTypes = new Set(df.dtypes);
 
-      if (newTypes.difference(prevTypes).size == 0) {
+      if (newTypes.difference(prevTypes).size === 0) {
         origDf && setDf(origDf)
         return;
       }
@@ -239,9 +257,13 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
     toggleAdvCtrl(next)
   }
 
-  const handleDelimiterChange = async (delimiter) => {
+  const handleDelimiterChange = async (_delimiter) => {
+    if (_delimiter === delimiter) return;
+
     try {
-      let dframe = await loadData(file, { delimiter: delimiter })
+      let dframe = await loadData(file, { delimiter: _delimiter });
+
+      setDelimiter(_delimiter)
       setDf(dframe)
       setOrigDf(dframe)
     } catch (e) {
@@ -264,6 +286,10 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
 
     setUniqueFilters((new Set([key])).union(uniqueFilters))
     setFilters(filters.concat(filter))
+  }
+
+  const handleAnalyseData = (_, _prev, next) => {
+    toggleAnalyse(next)
   }
 
   const renderWithSql = () => {
@@ -311,12 +337,15 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
       shouldRender = true
     }
 
-    console.log(shouldRender, sqlState, "wsql")
+    // console.log(shouldRender, sqlState, "wsql")
 
     if (!shouldRender) return null;
 
     return (
-      <Preview df={df} fileName={file.name} filters={filters} />
+      <>
+        <Preview df={df} fileName={file.name} filters={filters} />
+        {doAnalyse ? <CSVAnalyzer df={df} show={doAnalyse} delimiter={delimiter} /> : null}
+      </>
     );
   }
 
@@ -337,7 +366,12 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
     if (action === 'update_df_values') {
       if (!(isOn && event.data)) return setDf(origDf);
 
-      setDf(event.data)
+      const { df, defaults } = event.data;
+
+      if (df && defaults) {
+        setDf(df)
+        setDefaultValues(defaults)
+      }
 
       return
     }
@@ -383,6 +417,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
             handleDelimiterChange={handleDelimiterChange}
             handleWhereClauses={handleWhereClauses}
             handleFixHeaders={handleFixHeaders}
+            handleAnalyseData={handleAnalyseData}
             sqlLaunched={sqlState.status === SqlLoaderStates.SUCCESS}
           />) : null}
 
@@ -398,7 +433,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
           </button>
         ) : null}
 
-        {showAdvCtrl ? <AdvancedCtrl df={df} handleSanitizer={sanitizeData} /> : null}
+        {showAdvCtrl ? <AdvancedCtrl df={df} defaults={defaultValues} handleSanitizer={sanitizeData} /> : null}
         <ActionError errors={errors} />
 
         <hr className="separator" />
