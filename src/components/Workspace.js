@@ -43,7 +43,9 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
   const [df, setDf] = useState(null);
   const [origDf, setOrigDf] = useState(null);
 
-  const [sqlState, setSqlState] = useState({ status: null, table: null });
+  const initialSqlState = { status: null, table: null };
+
+  const [sqlState, setSqlState] = useState(initialSqlState);
 
   const [filters, setFilters] = useState([]);
   const [uniqueFilters, setUniqueFilters] = useState(new Set())
@@ -67,6 +69,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
       setOrigDf(null)
       setFilters([])
       setUniqueFilters(new Set())
+      setSqlState(initialSqlState)
     }
 
   }, [file]);
@@ -150,7 +153,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
     }
   }
 
-  const showAdvancedControls = (_, prev, next) => {
+  const showAdvancedControls = (_, _prev, next) => {
     toggleAdvCtrl(next)
   }
 
@@ -293,7 +296,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
             handleDelimiterChange={handleDelimiterChange}
             handleWhereClauses={handleWhereClauses}
             handleFixHeaders={handleFixHeaders}
-            sqlLaunched={sqlState.state === SqlLoaderStates.SUCCESS}
+            sqlLaunched={sqlState.status === SqlLoaderStates.SUCCESS}
           />) : null}
 
         {filters.length ? <GroupFilters filters={filters} removeFilter={handleClear} /> : null}

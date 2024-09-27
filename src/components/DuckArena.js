@@ -54,6 +54,14 @@ const DuckArena = ({ df, file, tableName, launched, handleSqlState }) => {
 
     handleSetup()
 
+    return () => {
+      setErrors([])
+      setData([])
+      setColumns([])
+      setQuery('')
+      // setDataLoaded(initalDbStatus);
+    }
+
   }, [launched, df, file, tableName, handleSqlState])
 
 
