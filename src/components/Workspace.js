@@ -202,19 +202,19 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
           </button>
         </header>
 
-        {/*<SqlArena
+        <SqlArena
           df={df}
           tableName={sqlState.table}
           launched={sqlState.state}
           handleSqlState={handleSqlLaunch}
-        />*/}
-        <DuckArena
+        />
+        {/*<DuckArena
           df={df}
           file={file}
           tableName={sqlState.table}
           launched={sqlState.state}
           handleSqlState={handleSqlLaunch}
-        />
+        />*/}
       </>
     )
   }
