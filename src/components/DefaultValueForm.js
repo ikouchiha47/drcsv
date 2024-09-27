@@ -127,7 +127,7 @@ export function DefaultTypeForm({ df, updateTypes }) {
         <button type="button" className="Submit-button" onClick={handleApplyDefaults}>
           Apply
         </button>
-        <em>*Rows missing value in target columns will be dropped*</em>
+        {/*<em>*Rows missing value in target columns will be dropped*</em>*/}
       </form>
     </section>
   );

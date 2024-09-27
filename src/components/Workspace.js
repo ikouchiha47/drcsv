@@ -4,7 +4,7 @@ import * as dfd from 'danfojs';
 import Toolbar from "./Toolbar";
 import Preview from "./Preview";
 import { SqlLoaderStates } from "../utils/constants";
-// import SqlArena from "./SqlArena";
+import SqlArena from "./SqlArena";
 import DuckArena from "./DuckArena";
 import GroupFilters from "./Grouping";
 
@@ -52,6 +52,8 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
   const [showAdvCtrl, toggleAdvCtrl] = useState(false)
   const [errors, setErrors] = useState([])
 
+  const [opsHistory, setOpsHistory] = useState([]);
+
   useEffect(() => {
     const loadAndSet = async (_file) => {
       let dframe = await loadData(_file)
@@ -70,6 +72,8 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
       setFilters([])
       setUniqueFilters(new Set())
       setSqlState(initialSqlState)
+
+      setOpsHistory([]);
     }
 
   }, [file]);
@@ -88,6 +92,16 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
 
     setUniqueFilters((new Set([key])).union(uniqueFilters))
     setFilters(filters.concat(filter))
+
+    setOpsHistory(opsHistory.concat(
+      {
+        op: 'update::filter', data: {
+          type: 'group',
+          filterIdx: [key],
+          filter: [filter],
+        }
+      }
+    ))
   }
 
   const handleAggregator = (aggrBy, aggrFn) => {
@@ -100,6 +114,16 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
 
     setUniqueFilters((new Set([key])).union(uniqueFilters))
     setFilters(filters.concat(filter))
+
+    setOpsHistory(opsHistory.concat(
+      {
+        op: 'update::filter', data: {
+          type: 'aggr',
+          filterIdx: [key],
+          filter: [filter],
+        }
+      }
+    ))
   }
 
   const handleFilter = () => { }
@@ -112,12 +136,24 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
 
     let newDf = df.rename(renamed)
     setDf(newDf)
+
+    setOpsHistory(opsHistory.concat(
+      {
+        op: 'fix::headers', data: {
+          columns: renamed,
+        }
+      }
+    ))
   }
 
   const handleClear = (filter) => {
     if (filter === "all") {
       setUniqueFilters(new Set())
       setFilters([])
+
+      setOpsHistory(opsHistory.concat(
+        { op: 'clear::filter' }
+      ))
       return
     }
 
@@ -131,6 +167,15 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
 
     setUniqueFilters(newSet)
     setFilters(updatedFilters);
+
+    setOpsHistory(opsHistory.concat(
+      {
+        op: 'delete::filter', data: {
+          filterIdx: [key],
+          filter: filter,
+        }
+      }
+    ))
   }
 
   const handleSqlLaunch = (launchData) => {
@@ -138,16 +183,53 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
     if (!launchData.table) return;
 
     setSqlState(launchData);
+    setOpsHistory(opsHistory.concat(
+      { op: 'action::sqllaunch', data: { table: launchData.table } }
+    ))
   }
 
+  // For reseting cleaned data
+  // skip for operations:
+  // - updated types
+  // - updated values
   const handleDataClean = (_, _prev, next) => {
     if (!next) {
-      origDf && setDf(origDf)
+      // for now handle manually
+      // later check from ops history
+      let prevTypes = new Set(origDf.dtypes);
+      let newTypes = new Set(df.dtypes);
+
+      if (newTypes.difference(prevTypes).size == 0) {
+        origDf && setDf(origDf)
+        return;
+      }
+
+      // otherwise, apply the operations on original df
+      // in this case, its only type update.
+      // we need to explicitly handle null values
+      // for numbers its NaN
+      // but for string, its still null, so it will
+      // error out, converting null to string.
+      let newDf = origDf;
+
+      Array.zip(df.columns, df.dtypes).forEach(([col, typ]) => {
+        try {
+          let d = newDf.asType(col, typ)
+          newDf = d;
+        } catch (e) {
+          console.error(`${col} has null values, and cannot converted back to ${typ}`)
+        }
+      })
+
+      setDf(newDf);
       return;
     }
 
     try {
       setDf(df.dropNa())
+      setOpsHistory(opsHistory.concat({
+        op: 'action::cleandata',
+      }))
     } catch (e) {
       setErrors(errors.concat({ action: 'dropNa', error: e.message }))
     }
@@ -229,6 +311,8 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
       shouldRender = true
     }
 
+    console.log(shouldRender, sqlState, "wsql")
+
     if (!shouldRender) return null;
 
     return (
@@ -259,15 +343,18 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
     }
 
     if (action === 'update_df_types') {
+      console.log(isOn, event);
+
       if (!(isOn && event.data)) return setDf(origDf);
 
       let types = event.data;
-      let newDf = df.dropNa();
+      let newDf = df;
 
       Object.entries(types).forEach(([col, typ]) => {
         newDf = newDf.asType(col, typ)
       })
 
+      // newDf.dropNa()
       setDf(newDf);
     }
   }

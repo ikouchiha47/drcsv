@@ -37,6 +37,8 @@ function AdvancedCtrl({ df, handleSanitizer }) {
     })
   }
 
+  if (!df) return null;
+
   return (
     <section className="advanced-ctrl margin-b-xl">
       <div className="flex flex-row" style={{ gap: '16px' }}>
