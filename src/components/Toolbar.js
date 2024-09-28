@@ -42,17 +42,53 @@ const Delimiter = ({ handleDelimiter, classNames }) => {
     handleDelimiter(value);
   }
 
-  let defaultClasses = new Set(['flex', 'flex-row']);
+  let defaultClasses = new Set(['flex', 'flex-col']);
   if (!classNames) classNames = defaultClasses;
   else classNames = defaultClasses.union(classNames);
 
   return (
     <section className={[...classNames].join(' ')} style={{ gap: '16px' }}>
-      <input ref={inputRef} type="text" placeholder="Update Seperator" id="tableName" />
-      <button type="button" onClick={handleSubmit} className="Button Btn-blue">Apply</button>
+      <h4 style={filterHeaderStyle}>New Delimieter</h4>
+      <section className="flex flex-row" style={{ gap: '16px' }}>
+        <input ref={inputRef} type="text" placeholder="Update seperator, defaults to ," id="tableName" />
+        <button type="button" onClick={handleSubmit} className="Button Btn-blue">Apply</button>
+      </section>
     </section>
   )
 };
+
+export const SelectPortalBox = ({ handleChange, classNames, title, columns }) => {
+  const inputRef = useRef(null);
+
+  const handleSubmit = () => {
+    let value = inputRef.current.getValue()[0];
+    if (!value) return;
+
+
+    handleChange(value.value);
+  }
+
+  let defaultClasses = new Set(['flex', 'flex-col']);
+
+  if (!classNames) classNames = defaultClasses;
+  else classNames = defaultClasses.union(classNames);
+
+  return (
+    <section className={[...classNames].join(' ')} style={{ gap: '16px' }}>
+      <h4 style={filterHeaderStyle}>{title}</h4>
+
+      <section className="flex flex-row" style={{ gap: '16px' }}>
+        <Select
+          ref={inputRef}
+          hideSelectedOptions={true}
+          options={columns}
+          styles={selectStyle}
+        />
+        <button type="button" onClick={handleSubmit} className="Button Btn-blue">Apply</button>
+      </section>
+    </section>
+  )
+}
 
 function GroupTool({ columns, handleGroupBy }) {
   const groupColumns = columns.map(col => ({ value: col, label: col }));
@@ -162,6 +198,8 @@ const Toolbar = ({
   handleWhereClauses,
   handleFixHeaders,
   handleAnalyseData,
+  handleDropColumn,
+  handleReset,
   sqlLaunched,
 }) => {
   const [activePortal, setActivePortal] = useState(null)
@@ -188,12 +226,25 @@ const Toolbar = ({
         <Portal title='Fix Headers' handleClick={handleFixHeaders} />
         <Portal title='Clean Data' handleClick={handleDataClean} />
         <Portal title='Analyse Full' handleClick={handleAnalyseData} />
+        <Portal title='Reset' handleClick={handleReset} />
 
         <DumbPortal title='Change Delimiter'
           handleClick={() => _setActivePortal(PortalTypes.DELIMITER)}
           showHide={activePortal === PortalTypes.DELIMITER}
         >
           <Delimiter handleDelimiter={handleDelimiterChange} />
+        </DumbPortal>
+
+        <DumbPortal title='Drop Column'
+          handleClick={() => _setActivePortal(PortalTypes.DROP_COLUMN)}
+          showHide={activePortal === PortalTypes.DROP_COLUMN}
+        >
+          <SelectPortalBox
+            id='dropColumn'
+            title='Delete extra columns'
+            columns={df.columns.map(col => ({ label: col, value: col }))}
+            handleChange={handleDropColumn} />
+
         </DumbPortal>
 
         <DumbPortal title='Group'

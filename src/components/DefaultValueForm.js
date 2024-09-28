@@ -147,7 +147,6 @@ export function DefaultTypeForm({ df, updateTypes }) {
                 {column}:
               </label>
               <Select
-                isClearable
                 value={defaultVal}
                 hideSelectedOptions={true}
                 options={availableDTypes}

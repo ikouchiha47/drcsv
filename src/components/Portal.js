@@ -7,6 +7,7 @@ export const PortalTypes = Object.freeze({
   SEQUELIZE: 'sequelize',
   ADVANCED: 'advanced',
   DELIMITER: 'delimiter',
+  DROP_COLUMN: 'drop_column',
 })
 
 function Portal({ title, handleClick, noToggle, children }) {

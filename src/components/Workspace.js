@@ -520,6 +520,28 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
     }
   }
 
+  const handleReset = (_, _prev, next) => {
+    if (!next) return;
+
+    setDf(origDf);
+    setOpsHistory(opsHistory.concat({
+      op: 'reset',
+    }))
+  }
+
+  const handleDropColumn = (column) => {
+    if (!column) return;
+    if (df.columns.findIndex(col => col === column) < 0) return;
+
+    let newDf = df.drop({ columns: [column] });
+
+    setOpsHistory(opsHistory.concat({
+      op: 'drop::column',
+      data: { column },
+    }))
+    setDf(newDf);
+  }
+
   if (!df) return null;
   // console.log("sqltrace", sqlState);
 
@@ -546,6 +568,8 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
             handleWhereClauses={handleWhereClauses}
             handleFixHeaders={handleFixHeaders}
             handleAnalyseData={handleAnalyseData}
+            handleDropColumn={handleDropColumn}
+            handleReset={handleReset}
             sqlLaunched={sqlState.status === SqlLoaderStates.SUCCESS}
           />) : null}
 
