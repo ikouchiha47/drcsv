@@ -250,3 +250,28 @@ td.hottable-overrides {
 .Table-errors {
   border: 1px solid var(--btn-purple);
 }
+
+.nav-faq-header {
+  font-size: 24px;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-family: 'Manrope';
+}
+
+.glass-button {
+  display: inline-block;
+  padding: 8px 16px;
+  color: #ffffff; 
+  background: rgba(255, 255, 255, 0.1); 
+  border: 1px solid rgba(255, 255, 255, 0.3); 
+  border-radius: 8px;
+  text-align: center;
+  text-decoration: none; 
+  backdrop-filter: blur(10px); 
+  transition: background 0.3s ease, transform 0.3s ease; 
+}
+
+.glass-button:hover {
+  background: rgba(255, 255, 255, 0.2); 
+  transform: scale(1.05); 
+}

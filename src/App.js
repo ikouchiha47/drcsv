@@ -20,6 +20,19 @@ Array.zip = (src, dst) => {
 
 registerAllModules();
 
+function FaqLink() {
+  return (
+    <a
+      className='nav-faq-header glass-button'
+      href='/faq.html'
+      target="__blank"
+      rel="noopener noreferrer"
+    >
+      Faq
+    </a>
+  )
+}
+
 function Header({ handleFileUpload }) {
   return (
     <header className="App-header">
@@ -31,8 +44,10 @@ function Header({ handleFileUpload }) {
       >
         <Logo fillColor='#61dafb' width='200' height='100' />
       </a>
-
-      <FileUpload handleFileUpload={handleFileUpload} wrapperClass='Upload-container' />
+      <nav className='flex flex-row' style={{ gap: '16px' }}>
+        <FaqLink />
+        <FileUpload handleFileUpload={handleFileUpload} wrapperClass='Upload-container' />
+      </nav>
     </header>
   )
 }

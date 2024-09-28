@@ -31,6 +31,7 @@
   font-family: var(--header-font), -apple-system, BlinkMacSystemFont, sans-serif;
   text-decoration: none;
   font-size: 32px;
+  flex: 1;
 }
 
 @keyframes App-logo-spin {
