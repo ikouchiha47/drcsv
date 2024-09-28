@@ -83,6 +83,14 @@ th {
   flex-direction: column;
 }
 
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
 .separator {
   margin: 32px auto;
   width: 100%;

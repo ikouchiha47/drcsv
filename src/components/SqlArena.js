@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import * as dfd from 'danfojs';
+import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+
 
 import { ScrollableDataTable } from './DataTable';
 import Notifier from '../utils/notifications';
@@ -21,7 +23,7 @@ const worker = new Worker(
 const notifier = new Notifier();
 // await notifier.init();
 
-const SqlArena = ({ df, tableName, launched, handleSqlState }) => {
+const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
   const [query, setQuery] = useState('');
 
   const [data, setData] = useState([]);
@@ -187,11 +189,19 @@ const SqlArena = ({ df, tableName, launched, handleSqlState }) => {
         </div>
         {/* Results Table */}
         {renderStatus(dataLoadStatus, errors)}
+
         {data.length > 0 ? (
-          <>
+          <section className='relative'>
             <h3 className='Table-header'>Results</h3>
+            <ArrowDownTrayIcon
+              className="absolute"
+              width={32}
+              title='Export Data'
+              style={{ left: '90vw', top: 0, cursor: 'pointer' }}
+              onClick={() => dfd.toCSV(df, { fileName: file.name, download: true })}
+            />
             <ScrollableDataTable df={toDF(columns, data)} classNames={['query-result']} />
-          </>
+          </section>
         ) : null}
 
       </section>

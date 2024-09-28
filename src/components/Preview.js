@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+import * as dfd from 'danfojs';
+import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+
 import { ScrollableDataTable } from "./DataTable";
 
 const groupData = (df, filters) => {
@@ -25,8 +28,7 @@ const groupData = (df, filters) => {
   let groupedDf = df.groupby([...selectedColumns]);
 
   // console.log("queries", taggedColumns)
-
-  console.log("tg", taggedColumns, aggrFound, clausesFound)
+  // console.log("tg", taggedColumns, aggrFound, clausesFound)
 
   if (!aggrFound && !clausesFound) return groupedDf.apply(g => g);
 
@@ -66,10 +68,17 @@ const Preview = ({ df, fileName, filters }) => {
   if (!df) return null;
 
   return (
-    <section className="preview-table margin-b-xl">
+    <section className="preview-table margin-b-xl relative">
       <header className="flex flex-row">
         <h3>Preview:</h3>
         <em>{fileName}</em>
+        <ArrowDownTrayIcon
+          className="absolute"
+          width={32}
+          title='Export Data'
+          style={{ left: '90vw', top: 0, cursor: 'pointer' }}
+          onClick={() => dfd.toCSV(df, { fileName: fileName, download: true })}
+        />
       </header>
       {gdf && <ScrollableDataTable df={gdf} />}
     </section>

@@ -27,15 +27,11 @@ async function load(file, delimiter, signal, preview) {
       skipEmptyLines: true,
       preview: preview,
       delimiter: delimiter,
-      // chunk: (_, parser) => {
-      //   console.log(signal.signal, "s")
-      // },
       complete: function(results, _file) {
         let isAborted = signal && signal.signal.aborted;
 
         if (isAborted) {
           console.log('cancelled for', _file && file._name);
-          // reject(new Error('Aborted'))
           return
         };
 
@@ -411,6 +407,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
 
         <SqlArena
           df={df}
+          file={file}
           tableName={sqlState.table}
           launched={sqlState.state}
           handleSqlState={handleSqlLaunch}
@@ -435,8 +432,6 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
     if (sqlState.status === null) {
       shouldRender = true
     }
-
-    // console.log(shouldRender, sqlState, "wsql")
 
     if (!shouldRender) return null;
 
