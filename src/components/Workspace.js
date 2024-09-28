@@ -98,7 +98,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
   const [delimiter, setDelimiter] = useState(',');
   const [doAnalyse, toggleAnalyse] = useState(false);
 
-  const currentFile = useRef(null);
+  // const currentFile = useRef(null);
 
   useEffect(() => {
     if (!file) return;

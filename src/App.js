@@ -13,6 +13,7 @@ import './Home.css';
 import { FileUpload } from './components/FileUpload';
 import WorkSpace from './components/Workspace';
 import Logo from './Logo';
+import HeroSection from './components/HeroSection';
 
 Array.zip = (src, dst) => {
   return src.map((item, i) => [item, dst[i]])
@@ -38,8 +39,7 @@ function Header({ handleFileUpload }) {
     <header className="App-header">
       <a
         className="App-link"
-        href="https://reactjs.org"
-        target="_blank"
+        href="http://localhost:3000"
         rel="noopener noreferrer"
       >
         <Logo fillColor='#61dafb' width='200' height='100' />
@@ -53,6 +53,7 @@ function Header({ handleFileUpload }) {
 }
 
 function App() {
+  const [isLoaded, setLoaded] = useState(false);
   const [file, setFile] = useState(null);
   const [files, updateFiles] = useState(new Map());
 
@@ -72,6 +73,10 @@ function App() {
     })
 
     setFile(files[0]);
+
+    if (!isLoaded) {
+      setLoaded(true)
+    }
   }
 
   const onFileSelected = (file) => {
@@ -110,7 +115,8 @@ function App() {
     <div className="App">
       <Header handleFileUpload={onFileUpload} />
       <section className='App-container'>
-        {file && (
+        {!isLoaded ? <HeroSection /> : null}
+        {isLoaded && file && (
           <WorkSpace
             files={files}
             handleSelectFile={onFileSelected}

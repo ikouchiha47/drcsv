@@ -1,6 +1,6 @@
 .App-container {
   display: flex;
-  min-height: 100svh;
+  height: calc(100vh - 8vh - 64px);
 }
 
 .Button {
