@@ -126,6 +126,12 @@
   padding: 0 16px 16px;
 }
 
+.Section-header {
+  font-size: 32px;
+  font-family: 'Archivo';
+  font-weight: 800;
+}
+
 .Defaults {
   background-color: #5d57bf;
   color: black;
@@ -210,4 +216,22 @@ input[type="file"] {
   align-items: baseline;
   gap: 16px; 
   margin-bottom: 16px;
+}
+
+.shape {
+  font-size: 20px;
+}
+
+.hottable-overrides {
+    font-size: 18px;
+    font-family: 'IBM Plex Mono';
+}
+
+td.hottable-overrides {
+    padding: 10px 8px !important;
+}
+
+.handsontable span.colHeader {
+  font-size: 24px;
+  font-weight: bold;
 }

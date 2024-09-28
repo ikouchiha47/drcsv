@@ -70,13 +70,13 @@ const Preview = ({ df, fileName, filters }) => {
   return (
     <section className="preview-table margin-b-xl relative">
       <header className="flex flex-row">
-        <h3>Preview:</h3>
+        <h3 className="Section-header">Preview:</h3>
         <em>{fileName}</em>
         <ArrowDownTrayIcon
           className="absolute"
           width={32}
           title='Export Data'
-          style={{ left: '90vw', top: 0, cursor: 'pointer' }}
+          style={{ left: '80vw', top: 0, cursor: 'pointer' }}
           onClick={() => dfd.toCSV(df, { fileName: fileName, download: true })}
         />
       </header>

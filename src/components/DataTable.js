@@ -111,6 +111,7 @@ export const ScrollableDataTable = ({ df, classNames }) => {
               height={'auto'}
               width='100%'
               contextMenu={true}
+              className='hottable-overrides'
               hiddenColumns={{ columns: [columns.findIndex(col => col.title === 'id')] }}
               columnSorting={true}
             />

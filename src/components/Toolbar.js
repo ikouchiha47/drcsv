@@ -183,7 +183,7 @@ const Toolbar = ({
 
   return (
     <section className="toolbar-wrapper margin-b-xl">
-      <h3>Action Center</h3>
+      <h3 className="Section-header">Action Center</h3>
       <div className="flex flex-row toolbar">
 
         <Portal title='Fix Headers' handleClick={handleFixHeaders} />

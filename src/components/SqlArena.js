@@ -192,7 +192,7 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
 
         {data.length > 0 ? (
           <section className='relative'>
-            <h3 className='Table-header'>Results</h3>
+            <h3 className='Section-header'>Results</h3>
             <ArrowDownTrayIcon
               className="absolute"
               width={32}

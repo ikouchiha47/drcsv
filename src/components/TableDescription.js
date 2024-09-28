@@ -107,11 +107,11 @@ export const TableInfo = ({ df }) => {
       <>
         <div className="flex flex-col" style={{ gap: '16px' }}>
           <section className="shape">
-            <p><b>Rows:</b> {shape[0]}</p>
+            <p><b>Records:</b> {shape[0]}</p>
             <p><b>Columns:</b> {shape[1]}</p>
           </section>
 
-          {sanitizedCols.difference(new Set(columns)) ? <p className="alert">Column Names Need Fixup</p> : null}
+          {sanitizedCols.difference(new Set(columns)) ? <p className="alert">Header Names Need Fixup</p> : null}
           {/*descDf && <ScrollableDataTable df={descDf} />*/}
         </div>
       </>
@@ -121,7 +121,7 @@ export const TableInfo = ({ df }) => {
   return (
     <section className="Table-info" style={{ marginBottom: '32px' }}>
       <header className="flex flex-row" style={{ gap: '16px', alignItems: 'center', marginBottom: '32px' }}>
-        <h3>Info</h3>
+        <h3 className="Section-header">Info</h3>
         {renderToggle()}
       </header>
       {renderInfo()}
