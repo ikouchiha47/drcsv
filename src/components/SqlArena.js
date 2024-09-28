@@ -96,7 +96,7 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
 
       if (status === SqlLoaderStates.FAILED) {
         setDataLoaded({ status: SqlLoaderStates.FAILED, message: errors.join('\n') })
-        // setErrors(errors)
+        setErrors(errors.concat('Maybe Fix Headers first'))
         handleSqlState({ status: SqlLoaderStates.FAILED, table: tableName })
         return;
       }

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as dfd from 'danfojs';
 import * as Papa from 'papaparse';
 
@@ -23,7 +23,7 @@ async function load(file, delimiter, signal, preview) {
 
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
-      worker: preview == 0,
+      worker: preview === 0,
       header: true,
       skipEmptyLines: true,
       preview: preview,
@@ -150,6 +150,9 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
 
     const loadRest = async (_file) => {
       if (!loadPreview) return;
+      if (!df) return;
+
+      const size = df.size;
 
       console.log("getting rest", _file.name)
       try {
@@ -158,7 +161,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
 
         setLoadedFull(true)
 
-        if (df.size === dframe.size) {
+        if (size === dframe.size) {
           // no more data was loaded, skip state update
           return;
         }
@@ -192,7 +195,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
       setLoadedFull(false);
     }
 
-  }, [loadPreview, file, delimiter])
+  }, [loadPreview, df, file, delimiter])
 
   const handleGroupBy = (event) => {
     // console.log(event, "group by")

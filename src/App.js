@@ -65,7 +65,7 @@ function App() {
   const onRemoveFile = (selectedFile) => {
     let nFiles = files.length;
 
-    if (nFiles == 1 && selectedFile.name == file.name) { // this is the last file, so happily unload everything
+    if (nFiles === 1 && selectedFile.name === file.name) { // this is the last file, so happily unload everything
       setFile(null)
       updateFiles(new Map());
 
