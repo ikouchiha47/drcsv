@@ -191,17 +191,18 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
         {renderStatus(dataLoadStatus, errors)}
 
         {data.length > 0 ? (
-          <section className='relative'>
-            <h3 className='Section-header'>Results</h3>
-            <ArrowDownTrayIcon
-              className="absolute"
-              width={32}
-              title='Export Data'
-              style={{ left: '90vw', top: 0, cursor: 'pointer' }}
-              onClick={() => dfd.toCSV(df, { fileName: file.name, download: true })}
-            />
+          <>
+            <header className='flex flex-row' style={{ gap: '24px' }}>
+              <h3 className='Section-header'>Results</h3>
+              <ArrowDownTrayIcon
+                width={32}
+                title='Export Data'
+                style={{ cursor: 'pointer' }}
+                onClick={() => dfd.toCSV(df, { fileName: file.name, download: true })}
+              />
+            </header>
             <ScrollableDataTable df={toDF(columns, data)} classNames={['query-result']} />
-          </section>
+          </>
         ) : null}
 
       </section>

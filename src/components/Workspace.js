@@ -16,6 +16,7 @@ import { ActionError } from "./Errors";
 import CSVAnalyzer from "./Analyzer";
 
 import '../stylesheets/Toolbar.css';
+import { sanitizeHeader } from "../utils/dbs";
 
 async function load(file, delimiter, signal, preview) {
   preview ||= 0;
@@ -237,17 +238,25 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
   }
 
   const handleFixHeaders = (_, _prev, next) => {
-    if (!hasColumnsChanged()) return;
+    console.log("next", next);
 
-    let _df = !next ? origDf : df;
+    let renamed = null;
 
-    let renamed = _df.columns.reduce((acc, col) => {
-      acc[col] = col;
-      return acc;
-    }, {})
+    if (next) {
+      renamed = df.columns.reduce((acc, col) => {
+        acc[col] = sanitizeHeader(col);
+        return acc;
+      }, {})
+    } else {
+      renamed = origDf.columns.reduce((acc, col) => {
+        acc[sanitizeHeader(col)] = col;
+        return acc;
+      }, {})
+    }
 
+    if (!renamed) return;
 
-    let newDf = _df.rename(renamed)
+    let newDf = df.rename(renamed)
     setDf(newDf)
 
     setOpsHistory(opsHistory.concat(

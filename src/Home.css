@@ -234,4 +234,6 @@ td.hottable-overrides {
 .handsontable span.colHeader {
   font-size: 24px;
   font-weight: bold;
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
