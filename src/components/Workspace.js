@@ -81,7 +81,7 @@ const toFilterKey = (filter) => {
 
 const initialSqlState = { status: null, table: null };
 
-const WorkSpace = ({ files, file, handleSelectFile }) => {
+const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
   const [df, setDf] = useState(null);
   const [origDf, setOrigDf] = useState(null);
 
@@ -99,7 +99,6 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
 
   const [delimiter, setDelimiter] = useState(',');
   const [doAnalyse, toggleAnalyse] = useState(false);
-
 
   useEffect(() => {
     if (!file) return;
@@ -177,7 +176,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
       setPreviewLoaded(false);
     }
 
-  }, [loadPreview, delimiter])
+  }, [loadPreview, file, delimiter])
 
   const handleGroupBy = (event) => {
     // console.log(event, "group by")
@@ -485,6 +484,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
     }
   }
 
+  if (!df) return null;
   // console.log("sqltrace", sqlState);
 
   return (
@@ -494,6 +494,7 @@ const WorkSpace = ({ files, file, handleSelectFile }) => {
         files={files}
         currentFile={file}
         handleSelectFile={handleSelectFile}
+        handleRemoveFile={handleRemoveFile}
       />
       <section className="workspace" style={{ minWidth: '84%' }}>
         {sqlState.state !== SqlLoaderStates.SUCCESS ? (

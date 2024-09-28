@@ -62,6 +62,34 @@ function App() {
     setFile(file);
   }
 
+  const onRemoveFile = (selectedFile) => {
+    let nFiles = files.length;
+
+    if (nFiles == 1 && selectedFile.name == file.name) { // this is the last file, so happily unload everything
+      setFile(null)
+      updateFiles(new Map());
+
+      return;
+    }
+
+    console.log(file.name, "now file");
+
+    let newFileList = new Map(files);
+    newFileList.delete(selectedFile.name);
+
+    let nextFile = Array.from(newFileList.keys())[0];
+    console.log("new file", newFileList.get(nextFile))
+
+    updateFiles(newFileList)
+    // setFile(newFileList.get(nextFile))
+
+    //TODO: fix this later
+    // setFile doesn't update the WorkSpace
+    setTimeout(() => {
+      setFile(newFileList.get(nextFile))
+    }, 0)
+  }
+
   return (
     <div className="App">
       <Header handleFileUpload={onFileUpload} />
@@ -70,6 +98,7 @@ function App() {
           <WorkSpace
             files={files}
             handleSelectFile={onFileSelected}
+            handleRemoveFile={onRemoveFile}
             file={file} />
         )}
       </section>

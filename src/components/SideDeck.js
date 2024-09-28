@@ -3,7 +3,7 @@ import UploadHistory from './UploadHistory';
 
 import '../Home.css';
 
-const SideDeck = ({ files, df, currentFile, handleSelectFile }) => {
+const SideDeck = ({ files, df, currentFile, handleSelectFile, handleRemoveFile }) => {
   return (
     <div className='Sidebar'>
       <UploadHistory
@@ -11,6 +11,7 @@ const SideDeck = ({ files, df, currentFile, handleSelectFile }) => {
         df={df}
         currentFile={currentFile}
         handleSelectFile={handleSelectFile}
+        handleRemoveFile={handleRemoveFile}
       />
     </div>
   );
