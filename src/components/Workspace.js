@@ -143,6 +143,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
 
   useEffect(() => {
     if (!file) return;
+    if (!loadPreview) return;
 
     const abortCtrl = new AbortController();
 
