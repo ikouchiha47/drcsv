@@ -56,7 +56,7 @@ const groupData = (df, filters) => {
   return groupedDf;
 }
 
-const Preview = ({ df, fileName, filters }) => {
+const Preview = ({ df, fileName, filters, loadedFull, loadedPreview }) => {
   const [gdf, setAggregatedDf] = useState(df);
 
   useEffect(() => {
@@ -65,13 +65,31 @@ const Preview = ({ df, fileName, filters }) => {
     }
   }, [df, filters])
 
-  if (!df) return null;
+
+  const renderFileLoadStatus = () => {
+    if (loadedPreview && loadedFull) {
+      return <span className="text-green text-bold">Full Dataset Loaded</span>
+    };
+
+    if (!loadedPreview && !loadedFull) {
+      return <span className="text-blue text-bold">Loading Dataset</span>
+    }
+
+    if (loadedPreview) {
+      return <span className="text-yellow text-bold">Showing Preview, Yet to load all data. Please wait..</span>
+    }
+
+    return null;
+  }
 
   return (
     <section className="preview-table margin-b-xl relative">
       <header className="flex flex-row">
         <h3 className="Section-header">Preview:</h3>
-        <em>{fileName}</em>
+        <p style={{ width: '320px', overflow: 'hidden', whiteSpace: 'nowrap', cursor: 'pointer' }}>
+          <em style={{ maxWidth: '100%', textOverflow: 'ellipsis', overflow: 'hidden' }} title={fileName}>{fileName}</em>
+        </p>
+        {renderFileLoadStatus()}
         <ArrowDownTrayIcon
           className="absolute"
           width={32}

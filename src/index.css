@@ -9,6 +9,7 @@
 
   --btn-blue: #0087ff;
   --btn-green: #7ff551;
+  --btn-yellow: #ffff66;
 
   --theme-a-header-font: 'Archivo';
   --theme-a-body-font: 'Manrope';
@@ -101,4 +102,20 @@ th {
   width: max-content;
   padding: 8px 12px;
   font-weight: 700;
+}
+
+.text-green {
+  color: var(--btn-green);
+}
+
+.text-yellow {
+  color: var(--btn-yellow);
+}
+
+.text-blue {
+  color: var(--btn-blue);
+}
+
+.text-bold {
+  font-weight: bold;
 }

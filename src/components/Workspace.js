@@ -83,6 +83,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
   const [origDf, setOrigDf] = useState(null);
 
   const [loadPreview, setPreviewLoaded] = useState(false);
+  const [loadFull, setLoadedFull] = useState(false);
 
   const [sqlState, setSqlState] = useState({ ...initialSqlState });
 
@@ -125,7 +126,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
       console.log("unmount");
 
       if (abortCtrl) {
-        console.log("aborting", file, "file");
+        console.log("aborting", file && file.name, "file");
         abortCtrl.abort();
       }
 
@@ -155,7 +156,15 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
         let dframe = await load(_file, delimiter, abortCtrl);
         console.log("got rest", _file.name)
 
+        setLoadedFull(true)
+
+        if (df.size === dframe.size) {
+          // no more data was loaded, skip state update
+          return;
+        }
+
         window._df = dframe;
+
         setDf(dframe)
         setOrigDf(dframe);
 
@@ -178,7 +187,9 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
         console.log("more aborting", file && file.name, "ffile")
         abortCtrl.abort()
       }
+
       setPreviewLoaded(false);
+      setLoadedFull(false);
     }
 
   }, [loadPreview, file, delimiter])
@@ -233,9 +244,9 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
 
   const handleFilter = () => { }
 
-  const hasColumnsChanged = () => {
-    return ((new Set(origDf.columns)).difference(new Set(df.columns))).size > 0
-  }
+  // const hasColumnsChanged = () => {
+  //   return ((new Set(origDf.columns)).difference(new Set(df.columns))).size > 0
+  // }
 
   const handleFixHeaders = (_, _prev, next) => {
     console.log("next", next);
@@ -446,7 +457,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
 
     return (
       <>
-        <Preview df={df} fileName={file.name} filters={filters} />
+        <Preview df={df} fileName={file.name} filters={filters} loadedFull={loadFull} loadedPreview={loadPreview} />
         {doAnalyse ? <CSVAnalyzer df={df} show={doAnalyse} delimiter={delimiter} /> : null}
       </>
     );

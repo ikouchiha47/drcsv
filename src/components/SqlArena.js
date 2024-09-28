@@ -166,8 +166,7 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
   }
 
   const renderStatus = (response, errors) => {
-    console.log(response.status, "response status")
-
+    // console.log(response.status, "response status")
     if (response.status === SqlLoaderStates.FAILED) return null;
     if (response.status === SqlLoaderStates.SUCCESS) return null;
     if (errors.length) return renderErrors();
