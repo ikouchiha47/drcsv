@@ -529,15 +529,18 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
     }))
   }
 
-  const handleDropColumn = (column) => {
-    if (!column) return;
-    if (df.columns.findIndex(col => col === column) < 0) return;
+  const handleDropColumns = (columns) => {
+    if (!columns) return;
+    if (!columns.length) return;
 
-    let newDf = df.drop({ columns: [column] });
+    let dropCols = Array.from((new Set(columns)).intersection(new Set(df.columns)))
+    if (!dropCols.length) return;
+
+    let newDf = df.drop({ columns: dropCols });
 
     setOpsHistory(opsHistory.concat({
       op: 'drop::column',
-      data: { column },
+      data: { columns },
     }))
     setDf(newDf);
   }
@@ -568,7 +571,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
             handleWhereClauses={handleWhereClauses}
             handleFixHeaders={handleFixHeaders}
             handleAnalyseData={handleAnalyseData}
-            handleDropColumn={handleDropColumn}
+            handleDropColumns={handleDropColumns}
             handleReset={handleReset}
             sqlLaunched={sqlState.status === SqlLoaderStates.SUCCESS}
           />) : null}

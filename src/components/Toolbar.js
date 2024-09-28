@@ -57,15 +57,17 @@ const Delimiter = ({ handleDelimiter, classNames }) => {
   )
 };
 
-export const SelectPortalBox = ({ handleChange, classNames, title, columns }) => {
+export const SelectPortalBox = ({ handleChange, classNames, title, columns, isMulti }) => {
   const inputRef = useRef(null);
 
   const handleSubmit = () => {
-    let value = inputRef.current.getValue()[0];
-    if (!value) return;
+    let options = inputRef.current.getValue();
+
+    if (!options) return;
+    if (!options.length) return;
 
 
-    handleChange(value.value);
+    handleChange(options.map(option => option.value));
   }
 
   let defaultClasses = new Set(['flex', 'flex-col']);
@@ -79,6 +81,8 @@ export const SelectPortalBox = ({ handleChange, classNames, title, columns }) =>
 
       <section className="flex flex-row" style={{ gap: '16px' }}>
         <Select
+          isClearable
+          isMulti={isMulti || false}
           ref={inputRef}
           hideSelectedOptions={true}
           options={columns}
@@ -198,7 +202,7 @@ const Toolbar = ({
   handleWhereClauses,
   handleFixHeaders,
   handleAnalyseData,
-  handleDropColumn,
+  handleDropColumns,
   handleReset,
   sqlLaunched,
 }) => {
@@ -226,7 +230,7 @@ const Toolbar = ({
         <Portal title='Fix Headers' handleClick={handleFixHeaders} />
         <Portal title='Clean Data' handleClick={handleDataClean} />
         <Portal title='Analyse Full' handleClick={handleAnalyseData} />
-        <Portal title='Reset' handleClick={handleReset} />
+        <Portal title='Reset!' handleClick={handleReset} />
 
         <DumbPortal title='Change Delimiter'
           handleClick={() => _setActivePortal(PortalTypes.DELIMITER)}
@@ -235,15 +239,16 @@ const Toolbar = ({
           <Delimiter handleDelimiter={handleDelimiterChange} />
         </DumbPortal>
 
-        <DumbPortal title='Drop Column'
+        <DumbPortal title='Drop Column!'
           handleClick={() => _setActivePortal(PortalTypes.DROP_COLUMN)}
           showHide={activePortal === PortalTypes.DROP_COLUMN}
         >
           <SelectPortalBox
             id='dropColumn'
             title='Delete extra columns'
+            isMulti={true}
             columns={df.columns.map(col => ({ label: col, value: col }))}
-            handleChange={handleDropColumn} />
+            handleChange={handleDropColumns} />
 
         </DumbPortal>
 
@@ -283,6 +288,9 @@ const Toolbar = ({
 
         <Portal title='Advanced' handleClick={handleAdvancedControls} />
       </div>
+      <p className="caption">
+        <span style={{ fontSize: '18px', fontFamily: 'Archivo' }}>!</span>&nbsp;<em style={{ color: 'var(--btn-yellow)' }}>operations invalidate previous operations</em>
+      </p>
     </section>
   )
 
