@@ -60,7 +60,7 @@ export const TableInfoList = ({ df }) => {
     <ul className="sidebar-table-info">
       {tinfos.map((tinfo, key) => {
         return (
-          <li key={`tinfo-list-${key}`} className="flex flex-row" style={{ justifyContent: 'space-between', border: 0 }}>
+          <li key={`tinfo-list-${key}`} className="flex flex-row" style={{ gap: '16px', width: 'max-content', justifyContent: 'space-between', border: 0 }}>
             <b>{tinfo[0]}</b>
             <span>{tinfo[1]}</span>
           </li>

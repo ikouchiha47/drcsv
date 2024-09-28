@@ -67,6 +67,8 @@ const Preview = ({ df, fileName, filters, loadedFull, loadedPreview }) => {
 
 
   const renderFileLoadStatus = () => {
+    console.log("fileload status", loadedPreview, loadedFull);
+
     if (loadedPreview && loadedFull) {
       return <span className="text-green text-bold">Full Dataset Loaded</span>
     };

@@ -246,3 +246,7 @@ td.hottable-overrides {
   background: #b036c688;
   border-radius: 8px;
 }
+
+.Table-errors {
+  border: 1px solid var(--btn-purple);
+}

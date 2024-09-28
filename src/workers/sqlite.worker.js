@@ -46,7 +46,7 @@ const handleMessage = async function(e) {
 
   if (action === DBEvents.SEED) {
     df = new dfd.DataFrame(df);
-    console.log(df, df.columns);
+    // console.log(df, df.columns);
 
     try {
       let totalRecords = await sqlite.loadCSV(tableName, null, df);

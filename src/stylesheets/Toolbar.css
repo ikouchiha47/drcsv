@@ -8,6 +8,7 @@
   margin-bottom: 16px;
   font-size: 16px;
   color: #ccc;
+  flex-wrap: wrap;
 }
 
 .aggregations {
@@ -22,6 +23,7 @@
 
 .portal {
   position: relative;
+  min-width: max-content;
 }
 
 .portal h3 {

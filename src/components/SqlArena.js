@@ -28,9 +28,9 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
 
   const [data, setData] = useState([]);
   const [columns, setColumns] = useState([]);
-  const [errors, setErrors] = useState([]);
+  const [errorsResult, setErrors] = useState([]);
 
-  let initalDbStatus = { status: SqlLoaderStates.LOADING, message: 'Creating Database' }
+  let initalDbStatus = { status: SqlLoaderStates.LOADING, message: 'Creating Database', table: tableName }
   const [dataLoadStatus, setDataLoaded] = useState(initalDbStatus)
 
 
@@ -54,6 +54,8 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
         console.warn(warns.join('\n'))
       }
 
+      console.log('status', status)
+
       if (status === SqlLoaderStates.CREATED) {
         worker.postMessage({
           action: DBEvents.SEED,
@@ -68,6 +70,7 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
       }
 
       if (status === SqlLoaderStates.SEEDED) {
+        setErrors([])
         setDataLoaded({ status: SqlLoaderStates.SUCCESS, message: `Imported ${data} records` })
         handleSqlState({ status: SqlLoaderStates.SUCCESS, table: tableName })
 
@@ -78,16 +81,17 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
       if (status === SqlLoaderStates.RESULT) {
         setDataLoaded({ status: SqlLoaderStates.SUCCESS, message: '' })
 
-        if (!data || (data && !data.length)) {
-          setErrors(errors)
-          setColumns([])
-          setData([])
-          return;
+        let resultColumns = [];
+        let resultValues = [[]];
+        let resultErrors = ['No results found'];
+
+        if (data && data.length) {
+          resultColumns = data[0].columns;
+          resultValues = data[0].values;
+          resultErrors = [];
         }
 
-        const resultColumns = data[0].columns;
-        const resultValues = data[0].values;
-
+        setErrors(resultErrors);
         setColumns(resultColumns);
         setData(resultValues);
 
@@ -95,9 +99,13 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
       }
 
       if (status === SqlLoaderStates.FAILED) {
-        setDataLoaded({ status: SqlLoaderStates.FAILED, message: errors.join('\n') })
-        setErrors(errors.concat('Maybe Fix Headers first'))
-        handleSqlState({ status: SqlLoaderStates.FAILED, table: tableName })
+        let allErrs = Array.from(new Set([...errorsResult, ...errors, 'Maybe Fix Headers first']))
+
+        setDataLoaded({ status: SqlLoaderStates.FAILED, message: allErrs.join('\n') })
+        setErrors(allErrs)
+
+        // console.log("errors", allErrs.join('\n'))
+        handleSqlState({ status: SqlLoaderStates.SUCCESS, table: tableName })
         return;
       }
     }
@@ -115,9 +123,14 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
 
     return () => {
       console.log("deregistered");
+
+      setErrors([]);
+      setColumns([]);
+      setData([]);
+
       worker.onmessage = null;
     }
-  }, [launched, df, tableName])
+  }, [launched, df, tableName,])
 
 
   const handleQueryExecution = () => {
@@ -132,9 +145,9 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
 
 
   const render = () => {
-    if (dataLoadStatus.status === SqlLoaderStates.FAILED) {
-      return <p className='error'>{dataLoadStatus.message}</p>
-    }
+    // if (dataLoadStatus.status === SqlLoaderStates.FAILED) {
+    //   return <p className='error'>{dataLoadStatus.message}</p>
+    // }
 
     if (dataLoadStatus.status === SqlLoaderStates.SUCCESS) {
       return (
@@ -157,7 +170,7 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
     if (!errors.length) return null;
 
     return (
-      <ul className='Table-errors'>
+      <ul className='Table-errors List'>
         {errors.map((err, idx) => {
           return <li key={`table-errors-${idx}`}>{err}</li>
         })}
@@ -165,11 +178,13 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
     )
   }
 
-  const renderStatus = (response, errors) => {
-    // console.log(response.status, "response status")
-    if (response.status === SqlLoaderStates.FAILED) return null;
+  const renderStatus = () => {
+    const response = dataLoadStatus;
+
+    console.log(response.status, "response status")
+
     if (response.status === SqlLoaderStates.SUCCESS) return null;
-    if (errors.length) return renderErrors();
+    if (errorsResult.length) return renderErrors(errorsResult);
 
     return <p style={{ fontWeight: 600, fontSize: '24px' }}>{response.message}</p>
   }
@@ -187,7 +202,7 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
           {render()}
         </div>
         {/* Results Table */}
-        {renderStatus(dataLoadStatus, errors)}
+        {renderStatus()}
 
         {data.length > 0 ? (
           <>

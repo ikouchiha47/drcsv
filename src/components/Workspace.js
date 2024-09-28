@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as dfd from 'danfojs';
 import * as Papa from 'papaparse';
 
@@ -98,6 +98,8 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
   const [delimiter, setDelimiter] = useState(',');
   const [doAnalyse, toggleAnalyse] = useState(false);
 
+  const currentFile = useRef(null);
+
   useEffect(() => {
     if (!file) return;
 
@@ -105,6 +107,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
 
     const loadPreview = async (_file) => {
       console.log("initial load", _file.name);
+
       try {
         let dframe = await load(_file, delimiter, abortCtrl, 1000);
 
@@ -155,6 +158,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
       const size = df.size;
 
       console.log("getting rest", _file.name)
+
       try {
         let dframe = await load(_file, delimiter, abortCtrl);
         console.log("got rest", _file.name)
@@ -192,11 +196,11 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
         abortCtrl.abort()
       }
 
-      setPreviewLoaded(false);
-      setLoadedFull(false);
+      // if (loadPreview) setPreviewLoaded(false);
+      // if (loadFull) setLoadedFull(false);
     }
 
-  }, [loadPreview, df, file, delimiter])
+  }, [loadPreview, loadFull, df, file, delimiter])
 
   const handleGroupBy = (event) => {
     // console.log(event, "group by")
