@@ -45,7 +45,7 @@ function Header({ handleFileUpload }) {
         <Logo fillColor='#61dafb' width='200' height='100' />
       </a>
       <nav className='flex flex-row' style={{ gap: '16px' }}>
-        <FaqLink />
+        {/*<FaqLink />*/}
         <FileUpload handleFileUpload={handleFileUpload} wrapperClass='Upload-container' />
       </nav>
     </header>

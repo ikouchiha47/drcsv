@@ -9,14 +9,14 @@
 }
 
 .banner {
-    position: relative;
-    padding: 164px;
-    text-align: center;
-    background: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
-    border-radius: 10px;
-    backdrop-filter: blur(10px); /* Glass effect */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    max-width: 600px; /* Limit width for better aesthetics */
+  position: relative;
+  padding: 164px;
+  text-align: center;
+  border-radius: 10px;
+  max-width: 600px; 
+  background: rgba(0, 0, 0, 0.24);
+  box-shadow: 0 4px 20px rgba(178, 172, 172, 0.5);
+  border: 1px solid rgba(178, 172, 172, 0.5);
 }
 
 .banner h1 {
