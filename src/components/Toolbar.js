@@ -154,7 +154,6 @@ const Toolbar = ({
   df,
   handleGroupBy,
   handleAggregator,
-  handleFilter,
   handleClear,
   handleSqlLaunch,
   handleDataClean,

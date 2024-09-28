@@ -242,7 +242,6 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
     ))
   }
 
-  const handleFilter = () => { }
 
   // const hasColumnsChanged = () => {
   //   return ((new Set(origDf.columns)).difference(new Set(df.columns))).size > 0
@@ -280,17 +279,18 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
   }
 
   const handleClear = (filter) => {
+    if (typeof filter !== "object" || typeof filter !== "string") return;
+
+    setOpsHistory(opsHistory.concat(
+      { op: 'clear::filter', data: { filter } }
+    ))
+
     if (filter === "all") {
       setUniqueFilters(new Set())
       setFilters([])
 
-      setOpsHistory(opsHistory.concat(
-        { op: 'clear::filter' }
-      ))
       return
     }
-
-    if (typeof filter !== "object") return;
 
     const key = toFilterKey(filter);
     const updatedFilters = filters.filter(f => toFilterKey(f) !== key)
@@ -381,6 +381,9 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
       setDelimiter(_delimiter)
       setDf(dframe)
       setOrigDf(dframe)
+      setOpsHistory(opsHistory.concat({
+        op: 'delimiter', data: { delimiter: _delimiter }
+      }))
     } catch (e) {
       console.error("delimiter change failed", e)
     }
@@ -401,6 +404,9 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
 
     setUniqueFilters((new Set([key])).union(uniqueFilters))
     setFilters(filters.concat(filter))
+    setOpsHistory(opsHistory.concat({
+      op: 'where::clause', data: { filter }
+    }))
   }
 
   const handleAnalyseData = (_, _prev, next) => {
@@ -468,6 +474,10 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
 
     let { action, isOn } = event;
 
+    setOpsHistory(opsHistory.concat({
+      op: "sanitize", data: event
+    }))
+
     if (action === 'remove_header') {
       if (!isOn) return setDf(origDf);
 
@@ -525,7 +535,6 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
             df={df}
             handleGroupBy={handleGroupBy}
             handleAggregator={handleAggregator}
-            handleFilter={handleFilter}
             handleClear={handleClear}
             handleSqlLaunch={handleSqlLaunch}
             handleDataClean={handleDataClean}

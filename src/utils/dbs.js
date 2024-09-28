@@ -144,16 +144,8 @@ export class SQLite {
     this.db.run(stmt, this.config);
   }
 
-  async insertData(tableName, df) {
-    this._hasDB()
-
-    const columns = this._getColumns(df);
-    const totalRows = df.shape[0];
-    const generator = batchDf(df, 1000, totalRows);
-
-    console.log("inserting data")
-
-    for (const batch of generator) {
+  async insertBatch(tableName, columns, batch) {
+    return new Promise((resolve, reject) => {
       const insertSQL = `INSERT INTO ${tableName} (${columns.join(',')}) VALUES `;
 
       const values = batch.values.map(row => {
@@ -170,9 +162,45 @@ export class SQLite {
 
       stmt.run(flatValues);
       stmt.free();
+      resolve({ success: true })
+    })
+  }
+
+  async insertData(tableName, df) {
+    this._hasDB()
+
+    const columns = this._getColumns(df);
+    const totalRows = df.shape[0];
+    const generator = batchDf(df, 1000, totalRows);
+
+    console.log("inserting data")
+
+    let resolvers = [];
+
+    for (const batch of generator) {
+      // const insertSQL = `INSERT INTO ${tableName} (${columns.join(',')}) VALUES `;
+      //
+      // const values = batch.values.map(row => {
+      //   const placeholders = row.map(() => '?').join(', ');
+      //   return `(${placeholders})`;
+      // }).join(', ');
+      //
+      // const sql = insertSQL + values;
+      //
+      // console.log("insert", batch.shape, batch.values.length);
+      //
+      // const stmt = this.db.prepare(sql);
+      // const flatValues = batch.values.flat();
+      //
+      // stmt.run(flatValues);
+      // stmt.free();
+      resolvers.push(this.insertBatch(tableName, columns, batch));
     }
 
     console.log(`Inserted ${totalRows} records into ${tableName}`);
+    let results = await Promise.allSettled(resolvers)
+
+    console.log("results of insert", results);
 
     return totalRows;
   }
