@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Select from "react-select";
 
 import '../Form.css';
 
@@ -7,6 +8,7 @@ const availableDTypes = [
   { value: 'float32', label: 'float32' },
   { value: 'boolean', label: 'boolean' },
   { value: 'string', label: 'string' },
+  { value: 'datetime', label: 'datetime' },
 ];
 
 function mapDTypeToJS(dtype, value) {
@@ -25,6 +27,22 @@ function mapDTypeToJS(dtype, value) {
     default:
       return JSON.stringify(value);
   }
+}
+
+const selectStyle = {
+  option: provided => ({
+    ...provided,
+    color: 'black'
+  }),
+  control: provided => ({
+    ...provided,
+    color: 'black'
+  }),
+  singleValue: provided => ({
+    ...provided,
+    color: 'black'
+  }),
+  menu: base => ({ ...base, zIndex: 999 }),
 }
 
 function DefaultValueForm({ df, defaults, onUpdateDF }) {
@@ -81,7 +99,6 @@ export function DefaultTypeForm({ df, updateTypes }) {
   const [defaultTypes, setDefaultTypes] = useState({});
   const [updatedTypes, setUpdatedTypes] = useState({});
 
-  const dtypes = Array.zip(df.columns, df.dtypes)
 
   useEffect(() => {
     const dtypes = Array.zip(df.columns, df.dtypes)
@@ -91,16 +108,16 @@ export function DefaultTypeForm({ df, updateTypes }) {
   }, [df])
 
   const handleInputChange = (e, column) => {
-    if (defaultTypes[column] === e.target.value) return;
+    if (defaultTypes[column] === e.value) return;
 
     setDefaultTypes({
       ...defaultTypes,
-      [column]: e.target.value,
+      [column]: e.value,
     });
 
     setUpdatedTypes({
       ...updatedTypes,
-      [column]: e.target.value,
+      [column]: e.value,
     })
 
   };
@@ -109,23 +126,37 @@ export function DefaultTypeForm({ df, updateTypes }) {
     updateTypes(updatedTypes);
   };
 
+  if (!df) return null;
+
+  const dtypes = Array.zip(df.columns, df.dtypes)
+
   return (
     <section className='Defaults'>
       <h3>Set Default Types</h3>
       <form className='Form' id='default-value-form'>
-        {dtypes.map(([column, typ], idx) => (
-          <div key={idx} className="Form-row">
-            <label className='Form-label'>
-              {column}:
-            </label>
-            <input
-              type="text"
-              value={defaultTypes[column] || ''}
-              className="Form-input"
-              onChange={(e) => handleInputChange(e, column)}
-            />
-          </div>
-        ))}
+        {dtypes.map(([column, typ], idx) => {
+          let defaultTyp = defaultTypes[column] || null;
+          let defaultVal = null;
+          if (defaultTyp) {
+            defaultVal = { label: defaultTyp, value: defaultTyp }
+          }
+
+          return (
+            <div key={idx} className="Form-row">
+              <label className='Form-label'>
+                {column}:
+              </label>
+              <Select
+                isClearable
+                value={defaultVal}
+                hideSelectedOptions={true}
+                options={availableDTypes}
+                styles={selectStyle}
+                onChange={(e) => handleInputChange(e, column)}
+              />
+            </div>
+          )
+        })}
         <button type="button" className="Submit-button" onClick={handleApplyDefaults}>
           Apply
         </button>

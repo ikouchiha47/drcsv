@@ -46,6 +46,8 @@ function mapToSqlType(dtype) {
       return 'REAL';
     case 'bool':
       return 'BOOLEAN';
+    case 'datetime':
+      return 'DATETIME';
     case 'object':
     default:
       return 'TEXT';

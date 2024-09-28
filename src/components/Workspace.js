@@ -110,9 +110,12 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
       try {
         let dframe = await load(_file, delimiter, abortCtrl, 1000);
 
+        window._df = dframe;
+
         setDf(dframe)
-        setOrigDf(dframe);
-        setPreviewLoaded(true)
+        setOrigDf(dframe)
+        setPreviewLoaded(true);
+
       } catch (err) {
         console.error(err);
         console.log(`Something went wrong, Please reload the page and lose your work. Because, ${err.message}`)
@@ -155,8 +158,12 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
         let dframe = await load(_file, delimiter, abortCtrl);
         console.log("got rest", _file.name)
 
+        window._df = dframe;
         setDf(dframe)
         setOrigDf(dframe);
+
+        //TODO: apply the opsHistory till now
+
       } catch (err) {
         console.error(`Load rest failed`)
 
@@ -171,7 +178,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
       console.log("unmount rest");
 
       if (abortCtrl) {
-        console.log("more aborting", file, "ffile")
+        console.log("more aborting", file && file.name, "ffile")
         abortCtrl.abort()
       }
       setPreviewLoaded(false);
