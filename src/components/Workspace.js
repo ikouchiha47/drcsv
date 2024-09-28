@@ -163,6 +163,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
 
         if (size === dframe.size) {
           // no more data was loaded, skip state update
+          console.log("no extra data");
           return;
         }
 

@@ -12,6 +12,7 @@ import './Home.css';
 
 import { FileUpload } from './components/FileUpload';
 import WorkSpace from './components/Workspace';
+import Logo from './Logo';
 
 Array.zip = (src, dst) => {
   return src.map((item, i) => [item, dst[i]])
@@ -28,7 +29,7 @@ function Header({ handleFileUpload }) {
         target="_blank"
         rel="noopener noreferrer"
       >
-        dr.csv
+        <Logo fillColor='#61dafb' width='200' height='100' />
       </a>
 
       <FileUpload handleFileUpload={handleFileUpload} wrapperClass='Upload-container' />
