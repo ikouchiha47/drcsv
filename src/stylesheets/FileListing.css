@@ -48,3 +48,8 @@
   margin-top: 16px;
   border-left: 1px solid var(--border-color);
 }
+
+.sidebar-table-info.hide {
+  height: 0;
+  overflow: hidden;
+}

@@ -1,7 +1,7 @@
 import React from 'react';
 import UploadHistory from './UploadHistory';
 
-import '../Home.css';
+// import '../Home.css';
 
 const SideDeck = ({ files, df, currentFile, handleSelectFile, handleRemoveFile }) => {
   return (

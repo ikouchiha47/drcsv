@@ -1,5 +1,5 @@
 import { ChevronDoubleDownIcon, ChevronDoubleUpIcon } from "@heroicons/react/24/outline";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { sanitizeHeader } from "../utils/dbs";
 
 const tableStyles = {
@@ -51,13 +51,13 @@ export const DescriptionTable = ({ df, tableWidth }) => {
   )
 };
 
-export const TableInfoList = ({ df }) => {
+export const TableInfoList = ({ df, isActive }) => {
   if (!df) return;
 
   const tinfos = Array.zip(df.columns, df.dtypes);
 
   return (
-    <ul className="sidebar-table-info">
+    <ul className={!isActive ? 'sidebar-table-info hide' : 'sidebar-table-info'}>
       {tinfos.map((tinfo, key) => {
         return (
           <li key={`tinfo-list-${key}`} className="flex flex-row" style={{ gap: '16px', width: 'max-content', justifyContent: 'space-between', border: 0 }}>
