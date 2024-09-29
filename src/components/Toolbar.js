@@ -4,6 +4,7 @@ import Select from 'react-select';
 import ConvertToSqlBtn from "./SqlLauncher";
 import Portal, { DumbPortal, PortalTypes } from "./Portal";
 
+import { selectStyle } from "../styles/react-select-style";
 import 'handsontable/dist/handsontable.full.css';
 import '../Analysis.css';
 import Filters from "./Filters";
@@ -14,22 +15,6 @@ const filterHeaderStyle = {
   marginBottom: '16px',
   fontSize: '20px',
   fontWeight: 700,
-}
-
-const selectStyle = {
-  option: provided => ({
-    ...provided,
-    color: 'black'
-  }),
-  control: provided => ({
-    ...provided,
-    color: 'black'
-  }),
-  singleValue: provided => ({
-    ...provided,
-    color: 'black'
-  }),
-  menu: base => ({ ...base, zIndex: 999 }),
 }
 
 const Delimiter = ({ handleDelimiter, classNames }) => {

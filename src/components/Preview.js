@@ -25,12 +25,30 @@ const groupData = (df, filters) => {
   const clausesFound = taggedColumns.filters.length > 0;
 
   const selectedColumns = new Set(taggedColumns.groups.map(col => col.column))
+
+  let filteredDf = df;
+  // Apply filters first.
+  if (clausesFound) {
+    taggedColumns.filters.forEach(data => {
+      let { column, action, clause } = data;
+
+      // _df.loc({ rows: _df['column'].gt(value)})
+      // _df.loc({ rows: _df['column'][operation](value)})
+      filteredDf = filteredDf.loc({ rows: filteredDf[column][action](clause) })
+    })
+  }
+  // BHARATIYA JANATA PARTY
+  // ALL INDIA TRINAMOOL CONGRESS
+
+  console.log("aggr",
+    selectedColumns,
+    taggedColumns,
+    !aggrFound,
+    !clausesFound);
+
+  if (filteredDf.size === 0) return filteredDf;
+
   let groupedDf = df.groupby([...selectedColumns]);
-
-  // console.log("queries", taggedColumns)
-  // console.log("tg", taggedColumns, aggrFound, clausesFound)
-
-  if (!aggrFound && !clausesFound) return groupedDf.apply(g => g);
 
   if (aggrFound) {
     const aggregators = taggedColumns.aggrs.reduce((acc, data) => {
@@ -40,20 +58,10 @@ const groupData = (df, filters) => {
       return acc;
     }, {})
 
-    groupedDf = groupedDf.agg(aggregators)
+    return groupedDf.agg(aggregators)
   }
 
-  if (clausesFound) {
-    taggedColumns.filters.forEach(data => {
-      let { column, action, clause } = data;
-
-      // _df.loc({ rows: _df['column'].gt(value)})
-      // _df.loc({ rows: _df['column'][operation](value)})
-      groupedDf = groupedDf.loc({ rows: groupedDf[column][action](clause) })
-    })
-  }
-
-  return groupedDf;
+  return groupedDf.apply(g => g)
 }
 
 const Preview = ({ df, fileName, filters, loadedFull, loadedPreview }) => {
@@ -100,7 +108,7 @@ const Preview = ({ df, fileName, filters, loadedFull, loadedPreview }) => {
           onClick={() => dfd.toCSV(df, { fileName: fileName, download: true })}
         />
       </header>
-      {gdf && <ScrollableDataTable df={gdf} />}
+      {gdf && gdf.size > 0 ? <ScrollableDataTable df={gdf} /> : <p style={{ fontSize: '20px', color: 'var(--btn-yellow)' }}>No results Found</p>}
     </section>
   )
 }

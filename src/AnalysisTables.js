@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { HotTable } from '@handsontable/react';
 import Select from 'react-select';
 
+import { selectStyle } from './styles/react-select-style';
 import 'handsontable/dist/handsontable.full.css';
 import './Analysis.css';
 import './Home.css';
@@ -151,7 +152,7 @@ function GroupSelector({ columns, onSelect, onClear }) {
         options={groupColumns}
         hideSelectedOptions={true}
         placeholder="Group By"
-        styles={{ menu: base => ({ ...base, zIndex: 999 }) }}
+        styles={selectStyle}
       />
       <h3>Aggregate By</h3>
       <Select
@@ -161,7 +162,7 @@ function GroupSelector({ columns, onSelect, onClear }) {
         options={aggrColumns}
         hideSelectedOptions={true}
         placeholder="Aggregate By"
-        styles={{ menu: base => ({ ...base, zIndex: 999 }) }}
+        styles={selectStyle}
       />
       <h3>Aggregator</h3>
       <Select
@@ -171,7 +172,7 @@ function GroupSelector({ columns, onSelect, onClear }) {
         options={actions}
         hideSelectedOptions={true}
         placeholder="Aggregate By"
-        styles={{ menu: base => ({ ...base, zIndex: 999 }) }}
+        styles={selectStyle}
       />
       <button className='Button Btn-blue' onClick={handleSelect}>Apply</button>
       <button onClick={onClear} className='Button Btn-blue'>Clear</button>

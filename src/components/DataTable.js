@@ -43,6 +43,8 @@ export const ScrollableDataTable = ({ df, classNames }) => {
     loadData();
   }, [df]);
 
+  console.log("table", df.size);
+
   let columns = df.columns.map(name => ({ data: name, title: name }));
   const totalRows = df.shape[0];
 

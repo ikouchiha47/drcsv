@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
 
+import { selectStyle } from "../styles/react-select-style";
 import '../Form.css';
 
 const availableDTypes = [
@@ -29,21 +30,6 @@ function mapDTypeToJS(dtype, value) {
   }
 }
 
-const selectStyle = {
-  option: provided => ({
-    ...provided,
-    color: 'black'
-  }),
-  control: provided => ({
-    ...provided,
-    color: 'black'
-  }),
-  singleValue: provided => ({
-    ...provided,
-    color: 'black'
-  }),
-  menu: base => ({ ...base, zIndex: 999 }),
-}
 
 function DefaultValueForm({ df, defaults, onUpdateDF }) {
   const [defaultValues, setDefaultValues] = useState(defaults);

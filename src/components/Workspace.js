@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as dfd from 'danfojs';
 import * as Papa from 'papaparse';
 
@@ -17,6 +17,7 @@ import CSVAnalyzer from "./Analyzer";
 
 import '../stylesheets/Toolbar.css';
 import { sanitizeHeader } from "../utils/dbs";
+import Plotter from "./Plotter";
 
 async function load(file, delimiter, signal, preview) {
   preview ||= 0;
@@ -287,7 +288,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
   }
 
   const handleClear = (filter) => {
-    if (typeof filter !== "object" || typeof filter !== "string") return;
+    if (typeof filter !== "object" && typeof filter !== "string") return;
 
     setOpsHistory(opsHistory.concat(
       { op: 'clear::filter', data: { filter } }
@@ -551,7 +552,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
   }
 
   if (!df) return null;
-  // console.log("sqltrace", sqlState);
+  // console.log("history", JSON.stringify(opsHistory, null, 2))
 
   return (
     <>
@@ -602,6 +603,9 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
 
         {renderWithoutSql()}
         {renderWithSql()}
+        <hr className="separator" />
+
+        {/* <Plotter df={df} /> */}
       </section>
     </>
   );
