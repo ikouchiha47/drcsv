@@ -3,21 +3,19 @@ import * as dfd from 'danfojs';
 import * as Papa from 'papaparse';
 
 import Toolbar from "./Toolbar";
-import Preview from "./Preview";
 import { SqlLoaderStates } from "../utils/constants";
-import SqlArena from "./SqlArena";
-import DuckArena from "./DuckArena";
 import GroupFilters from "./Grouping";
 
 import AdvancedCtrl from "./AdvancedCtrls";
 import { TableInfo } from "./TableDescription";
 import SideDeck from "./SideDeck";
 import { ActionError } from "./Errors";
-import CSVAnalyzer from "./Analyzer";
 
 import '../stylesheets/Toolbar.css';
 import { sanitizeHeader } from "../utils/dbs";
-import Plotter from "./Plotter";
+import { PreviewFrame, SqlFrame } from "./Frames";
+
+window.dfd = dfd;
 
 async function load(file, delimiter, signal, preview) {
   preview ||= 0;
@@ -422,43 +420,16 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
     toggleAnalyse(next)
   }
 
-  const renderWithSql = () => {
-    if (sqlState.status === null) return null;
+  const shouldRenderWithSql = () => {
+    let shouldHide = [
+      SqlLoaderStates.FAILED,
+      SqlLoaderStates.LOADING
+    ].includes(sqlState.status);
 
-    let shouldHide = [SqlLoaderStates.FAILED, SqlLoaderStates.LOADING].includes(sqlState.status);
-    if (shouldHide) return null;
-
-    return (
-      <>
-        <header className='Table-name-header'>
-          <p style={{ fontSize: '28px' }}>Table: <b>{sqlState.table}</b></p>
-          <button type="button"
-            className="Button Btn-yellow"
-            onClick={() => { setSqlState({ status: null, table: sqlState.table }) }}
-          >
-            Switch Back
-          </button>
-        </header>
-
-        <SqlArena
-          df={df}
-          file={file}
-          tableName={sqlState.table}
-          launched={sqlState.state}
-          handleSqlState={handleSqlLaunch}
-        />
-        {/*<DuckArena
-          df={df}
-          file={file}
-          tableName={sqlState.table}
-          launched={sqlState.state}
-          handleSqlState={handleSqlLaunch}
-        />*/}
-      </>
-    )
+    return shouldHide;
   }
 
-  const renderWithoutSql = () => {
+  const shouldRenderWithoutSql = () => {
     let shouldRender = [
       SqlLoaderStates.LOADING,
       SqlLoaderStates.FAILED
@@ -468,14 +439,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
       shouldRender = true
     }
 
-    if (!shouldRender) return null;
-
-    return (
-      <>
-        <Preview df={df} fileName={file.name} filters={filters} loadedFull={loadFull} loadedPreview={loadPreview} />
-        {doAnalyse ? <CSVAnalyzer df={df} show={doAnalyse} delimiter={delimiter} /> : null}
-      </>
-    );
+    return shouldRender
   }
 
   const sanitizeData = async (event) => {
@@ -601,11 +565,27 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
         {df && <TableInfo df={df} />}
         <hr className="separator" />
 
-        {renderWithoutSql()}
-        {renderWithSql()}
-        <hr className="separator" />
-
-        {/* <Plotter df={df} /> */}
+        {shouldRenderWithoutSql() ? (
+          <PreviewFrame
+            df={df}
+            fileName={file.name}
+            filters={filters}
+            delimiter={delimiter}
+            isLoadedFull={loadFull}
+            isPreview={loadPreview}
+            showAnalyzer={doAnalyse}
+          />
+        ) : null}
+        {shouldRenderWithSql() ? (
+          <SqlFrame
+            df={df}
+            file={file}
+            sqlState={sqlState}
+            handleSqlLaunch={handleSqlLaunch}
+            setSqlState={setSqlState}
+          />
+        ) : null}
+        <br />
       </section>
     </>
   );

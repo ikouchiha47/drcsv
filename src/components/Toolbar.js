@@ -215,7 +215,7 @@ const Toolbar = ({
         <Portal title='Fix Headers' handleClick={handleFixHeaders} />
         <Portal title='Clean Data' handleClick={handleDataClean} />
         <Portal title='Analyse Full' handleClick={handleAnalyseData} />
-        <Portal title='Reset!' handleClick={handleReset} />
+        <Portal title='Reset !' handleClick={handleReset} />
 
         <DumbPortal title='Change Delimiter'
           handleClick={() => _setActivePortal(PortalTypes.DELIMITER)}
@@ -224,7 +224,7 @@ const Toolbar = ({
           <Delimiter handleDelimiter={handleDelimiterChange} />
         </DumbPortal>
 
-        <DumbPortal title='Drop Column!'
+        <DumbPortal title='Drop Column !'
           handleClick={() => _setActivePortal(PortalTypes.DROP_COLUMN)}
           showHide={activePortal === PortalTypes.DROP_COLUMN}
         >
