@@ -21,25 +21,12 @@ Array.zip = (src, dst) => {
 
 registerAllModules();
 
-function FaqLink() {
-  return (
-    <a
-      className='nav-faq-header glass-button'
-      href='/faq.html'
-      target="__blank"
-      rel="noopener noreferrer"
-    >
-      Faq
-    </a>
-  )
-}
-
 function Header({ handleFileUpload }) {
   return (
     <header className="App-header">
       <a
         className="App-link"
-        href="http://localhost:3000"
+        href="https://drcsv.onrender.com"
         rel="noopener noreferrer"
       >
         <Logo fillColor='#61dafb' width='200' height='100' />
