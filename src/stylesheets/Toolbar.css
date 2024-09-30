@@ -1,0 +1,63 @@
+.toolbar-wrapper h3 {
+  margin: 16px 0;
+}
+
+.toolbar {
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 16px;
+  color: #ccc;
+  flex-wrap: wrap;
+}
+
+.aggregations {
+  align-items: center;
+  gap: 16px;
+}
+
+.toolbar h3 {
+  margin: 0;
+  padding: 0;
+}
+
+.portal {
+  position: relative;
+  min-width: max-content;
+}
+
+.portal h3 {
+  padding: 8px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.portal h3.active {
+  color: #fff; 
+  background-color: rgb(66, 59, 174);
+}
+
+.portal-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 48px;
+
+  padding: 32px 16px;
+  border: 1px solid var(--border-color);
+  background-color: rgb(66, 59, 174);
+  width: max-content;
+  min-width: 400px;
+  box-shadow: 2px 1px 5px #333;
+  z-index: 999;
+}
+
+.advanced-ctrl {
+  padding: 16px 8px;
+  border: 1px solid var(--border-color);
+}
+
+.advanced-ctrl .portal {
+  width: max-content;
+  font-size: 16px;
+}

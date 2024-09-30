@@ -1,11 +1,15 @@
 # drcsv
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Cleanup, Analyze, Export your CSV documents. Plot your results.
+
+This project is based on vite react template which provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh## Available Scripts
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## Available Scripts
 
 Why Vite? Because fuck create-react-app for consuming 8.9G memory.
 
@@ -23,11 +27,8 @@ You may also see any lint errors in the console.
 
 Builds the app for production mode with .env.production
 
-
 ### Screenshot
 
 ![alt screenshot](./shots/Sep25::071509.png)
-
 ![alt screenshot](./shots/Sep25::071015.png)
-
 ![alt screenshot](./shots/Sep25::071126.png)
