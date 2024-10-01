@@ -142,7 +142,7 @@ const Preview = ({ df, fileName, filters, loadedFull, loadedPreview }) => {
 
       </section>
       <hr className="separator" />
-      {df && df.size > 0 && loadedFull && <Plotter df={gdf} />}
+      {/* df && df.size > 0 && loadedFull && <Plotter df={gdf} /> */}
     </>
   )
 }

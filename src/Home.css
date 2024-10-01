@@ -141,8 +141,20 @@
   min-width: 480px;
 }
 
-.Defaults h3 {
+.Transforms {
+  background-color: #5d57bf;
+  color: black;
+  margin-top: 32px;
+  padding: 16px 32px;
+  min-width: 480px;
+}
+
+.Defaults h3, .Transforms h3 {
   margin-bottom: 16px;
+}
+
+.Transforms .Form-input {
+  width: 320px;
 }
 
 .upload-card {

@@ -55,6 +55,26 @@ async function load(file, delimiter, signal, preview) {
   })
 }
 
+function mapDTypeToJS(dtype, value) {
+  switch (dtype) {
+    case 'int32':
+    case 'int64':
+    case 'float32':
+    case 'float64':
+      return Number(value);
+    case 'bool':
+    case 'boolean':
+      return Boolean(value);
+    case 'string':
+      return String(value)
+    case 'object':
+    case 'datetime':
+      return Date.parse(value)
+    default:
+      return JSON.stringify(value);
+  }
+}
+
 async function loadData(file, options) {
   const df = await dfd.readCSV(file, options);
   // const id = Array.from({ length: df.shape[0] }, (_, i) => i);
@@ -110,10 +130,8 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
       try {
         let dframe = await load(_file, delimiter, abortCtrl, 1000);
 
-        window._df = dframe;
-
         setDf(dframe)
-        setOrigDf(dframe)
+        setOrigDf(dframe.copy())
         setPreviewLoaded(true);
 
       } catch (err) {
@@ -132,14 +150,15 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
         abortCtrl.abort();
       }
 
-      setDf(null)
-      setOrigDf(null)
-      setFilters([])
-      setUniqueFilters(new Set())
-      setSqlState({ ...initialSqlState })
-      toggleAnalyse(false)
-      setDelimiter(',')
-      setOpsHistory([]);
+      // setDf(null)
+      // setOrigDf(null)
+      // setFilters([])
+      // setUniqueFilters(new Set())
+      // setSqlState({ ...initialSqlState })
+      // toggleAnalyse(false)
+      // setDelimiter(',')
+      // setOpsHistory([]);
+      // toggleAdvCtrl(false);
     }
 
   }, [file, delimiter]);
@@ -163,6 +182,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
         console.log("got rest", _file.name)
 
         setLoadedFull(true)
+        toggleAdvCtrl(false);
 
         if (size === dframe.size) {
           // no more data was loaded, skip state update
@@ -170,10 +190,8 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
           return;
         }
 
-        window._df = dframe;
-
         setDf(dframe)
-        setOrigDf(dframe);
+        setOrigDf(dframe.copy());
 
         //TODO: apply the opsHistory till now
 
@@ -199,7 +217,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
       // if (loadFull) setLoadedFull(false);
     }
 
-  }, [loadPreview, loadFull, df, file, delimiter])
+  }, [loadPreview, df, file, delimiter])
 
   const handleGroupBy = (event) => {
     // console.log(event, "group by")
@@ -255,8 +273,6 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
   // }
 
   const handleFixHeaders = (_, _prev, next) => {
-    console.log("next", next);
-
     let renamed = null;
 
     if (next) {
@@ -340,7 +356,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
       let newTypes = new Set(df.dtypes);
 
       if (newTypes.difference(prevTypes).size === 0) {
-        origDf && setDf(origDf)
+        origDf && setDf(origDf.copy())
         return;
       }
 
@@ -376,6 +392,8 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
   }
 
   const showAdvancedControls = (_, _prev, next) => {
+    console.log("toggle", _prev, next);
+
     toggleAdvCtrl(next)
   }
 
@@ -387,7 +405,8 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
 
       setDelimiter(_delimiter)
       setDf(dframe)
-      setOrigDf(dframe)
+      // setOrigDf(dframe.copy())
+
       setOpsHistory(opsHistory.concat({
         op: 'delimiter', data: { delimiter: _delimiter }
       }))
@@ -445,6 +464,11 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
   const sanitizeData = async (event) => {
     if (!event) return;
 
+    console.log("sanitize data ", event);
+
+    window._df = df;
+    window._odf = origDf;
+
     let { action, isOn } = event;
 
     setOpsHistory(opsHistory.concat({
@@ -452,7 +476,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
     }))
 
     if (action === 'remove_header') {
-      if (!isOn) return setDf(origDf);
+      if (!isOn) return setDf(origDf.copy());
 
       let dframe = await loadData(file, { header: false })
       setDf(dframe);
@@ -461,14 +485,30 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
     }
 
     if (action === 'update_df_values') {
-      if (!(isOn && event.data)) return setDf(origDf);
+      if (!(isOn && event.data)) return setDf(origDf.copy());
 
-      const { df, defaults } = event.data;
+      const { defaults } = event.data;
+      if (!(df && defaults)) return;
 
-      if (df && defaults) {
-        setDf(df)
-        setDefaultValues(defaults)
-      }
+      const dtypeMap = new Map(Array.zip(df.columns, df.dtypes))
+      let fillCols = Object.keys(defaultValues);
+      let fillValues = Object.keys(defaultValues).map(column => {
+        console.log(dtypeMap.get(column), "found", column);
+
+        return mapDTypeToJS(dtypeMap.get(column) || 'string', defaultValues[column]);
+      })
+
+      let newDf = df.fillNa(fillValues, { columns: fillCols })
+      console.log("new", fillValues, newDf.values)
+
+      setDf(newDf)
+      setDefaultValues(defaults)
+      // toggleAdvCtrl(false)
+
+      setOpsHistory(opsHistory.concat({
+        op: 'apply::defaultvalues',
+        data: event.data,
+      }))
 
       return
     }
@@ -476,7 +516,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
     if (action === 'update_df_types') {
       console.log(isOn, event);
 
-      if (!(isOn && event.data)) return setDf(origDf);
+      if (!(isOn && event.data)) return setDf(origDf.copy());
 
       let types = event.data;
       let newDf = df;
@@ -487,13 +527,39 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
 
       // newDf.dropNa()
       setDf(newDf);
+      return;
+    }
+
+    if (action === 'apply_transform') {
+      if (!(isOn && event.data)) return setDf(origDf.copy());
+
+      let { column, idx, fn, type, action } = event.data;
+
+      if (action === 'reset') {
+        setDf(origDf.copy())
+        return;
+      }
+
+      let newDf = df.apply((row) => {
+        row[idx] = fn(row[idx])
+        return row;
+      }, { axis: 1 });
+
+      newDf = newDf.asType(column, type)
+      setDf(newDf);
+
+      setOpsHistory(opsHistory.concat({
+        op: 'apply::transform',
+        data: event.data,
+      }))
+      return
     }
   }
 
   const handleReset = (_, _prev, next) => {
     if (!next) return;
 
-    setDf(origDf);
+    setDf(origDf.copy());
     setOpsHistory(opsHistory.concat({
       op: 'reset',
     }))
@@ -515,8 +581,13 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
     setDf(newDf);
   }
 
-  if (!df) return null;
+  if (!(df && origDf)) return null;
+
   // console.log("history", JSON.stringify(opsHistory, null, 2))
+  window._df = df;
+  window._odf = origDf;
+
+  // console.log("diff df and odf", df.values[0], origDf.values[0])
 
   return (
     <>
@@ -558,7 +629,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
           </button>
         ) : null}
 
-        {showAdvCtrl ? <AdvancedCtrl df={df} defaults={defaultValues} handleSanitizer={sanitizeData} /> : null}
+        <AdvancedCtrl df={df} defaults={defaultValues} handleSanitizer={sanitizeData} show={showAdvCtrl} />
         <ActionError errors={errors} />
 
         <hr className="separator" />

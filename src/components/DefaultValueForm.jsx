@@ -3,6 +3,7 @@ import Select from "react-select";
 
 import { selectStyle } from "../styles/react-select-style";
 import '../Form.css';
+import { column } from "mathjs";
 
 const availableDTypes = [
   { value: 'int32', label: 'int32' },
@@ -12,27 +13,11 @@ const availableDTypes = [
   { value: 'datetime', label: 'datetime' },
 ];
 
-function mapDTypeToJS(dtype, value) {
-  switch (dtype) {
-    case 'int32':
-    case 'int64':
-    case 'float32':
-    case 'float64':
-      return Number(value);
-    case 'bool':
-    case 'boolean':
-      return Boolean(value);
-    case 'string':
-      return String(value)
-    case 'object':
-    default:
-      return JSON.stringify(value);
-  }
-}
-
 
 function DefaultValueForm({ df, defaults, onUpdateDF }) {
-  const [defaultValues, setDefaultValues] = useState(defaults);
+  const [defaultValues, setDefaultValues] = useState({});
+
+  console.log("reload", df.columns)
 
   const handleInputChange = (e, column) => {
     setDefaultValues({
@@ -44,15 +29,7 @@ function DefaultValueForm({ df, defaults, onUpdateDF }) {
   const dtypeMap = new Map(Array.zip(df.columns, df.dtypes))
 
   const handleApplyDefaults = () => {
-    let newDf = df;
-
-    for (let column in defaultValues) {
-      if (defaultValues[column]) {
-        newDf[column] = newDf[column].fillNa(mapDTypeToJS(dtypeMap.get(column) || 'string', defaultValues[column]));
-      }
-    }
-
-    onUpdateDF({ df: newDf, defaults: defaultValues });
+    onUpdateDF({ defaults: defaultValues });
   };
 
   if (!df) return null;
@@ -69,6 +46,7 @@ function DefaultValueForm({ df, defaults, onUpdateDF }) {
             <input
               type="text"
               className="Form-input"
+              placeholder={dtypeMap.get(column)}
               onChange={(e) => handleInputChange(e, column)}
             />
           </div>
