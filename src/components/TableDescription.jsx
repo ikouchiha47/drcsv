@@ -127,7 +127,7 @@ export const TableInfo = ({ df }) => {
           </section>
 
           <section className="flex flex-row" style={{ gap: '16px' }}>
-            {sanitizedCols.difference(new Set(columns)) ? <p className="alert">Header Names Need Fixup</p> : null}
+            {sanitizedCols.difference(new Set(columns)).size > 0 ? <p className="alert">Header Names Need Fixup</p> : null}
             {isInConsistent ? null : <p className="alert">Varying data count per row, Crop it</p>}
             {/*descDf && <ScrollableDataTable df={descDf} />*/}
           </section>
