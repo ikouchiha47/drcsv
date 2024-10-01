@@ -3,7 +3,6 @@ import Select from "react-select";
 
 import { selectStyle } from "../styles/react-select-style";
 import '../Form.css';
-import { column } from "mathjs";
 
 const availableDTypes = [
   { value: 'int32', label: 'int32' },
@@ -14,10 +13,10 @@ const availableDTypes = [
 ];
 
 
-function DefaultValueForm({ df, defaults, onUpdateDF }) {
-  const [defaultValues, setDefaultValues] = useState({});
+function DefaultValueForm({ df, defaults, handleUpdateDefaults }) {
+  const [defaultValues, setDefaultValues] = useState(defaults);
 
-  console.log("reload", df.columns)
+  console.log("reload", defaults)
 
   const handleInputChange = (e, column) => {
     setDefaultValues({
@@ -29,7 +28,7 @@ function DefaultValueForm({ df, defaults, onUpdateDF }) {
   const dtypeMap = new Map(Array.zip(df.columns, df.dtypes))
 
   const handleApplyDefaults = () => {
-    onUpdateDF({ defaults: defaultValues });
+    handleUpdateDefaults({ defaults: defaultValues });
   };
 
   if (!df) return null;

@@ -34,6 +34,8 @@ export const SqlFrame = ({
   handleSqlLaunch,
   setSqlState,
 }) => {
+  console.log("loading sql frame");
+
   return (
     <>
       <header className='Table-name-header'>

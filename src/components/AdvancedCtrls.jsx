@@ -8,8 +8,6 @@ const isDefaultTypeForm = (formID) => formID === 'default_types';
 const isApplyTransformForm = (formID) => formID === 'apply_transform';
 
 function AdvancedCtrl({ df, defaults, handleSanitizer, show }) {
-  console.log("defaults", defaults, show);
-
   const [activeForm, setActiveForm] = useState('');
 
   const removeHeaders = (_, _prev, next) => {
@@ -80,7 +78,7 @@ function AdvancedCtrl({ df, defaults, handleSanitizer, show }) {
         <DefaultValueForm
           df={df}
           defaults={defaults}
-          onUpdateDF={handleUpdateDf} />
+          handleUpdateDefaults={handleUpdateDf} />
       ) : null}
       {isApplyTransformForm(activeForm) ? <ApplyTransform df={df} handleApplyTransform={handleApplyTransform} /> : null}
     </section>

@@ -150,15 +150,16 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
         abortCtrl.abort();
       }
 
-      // setDf(null)
-      // setOrigDf(null)
-      // setFilters([])
-      // setUniqueFilters(new Set())
-      // setSqlState({ ...initialSqlState })
-      // toggleAnalyse(false)
-      // setDelimiter(',')
-      // setOpsHistory([]);
-      // toggleAdvCtrl(false);
+      setDf(null)
+      setOrigDf(null)
+      setFilters([])
+      setUniqueFilters(new Set())
+      setSqlState({ ...initialSqlState })
+      toggleAnalyse(false)
+      setDelimiter(',')
+      setOpsHistory([]);
+      toggleAdvCtrl(false);
+      setDefaultValues({});
     }
 
   }, [file, delimiter]);
@@ -217,7 +218,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
       // if (loadFull) setLoadedFull(false);
     }
 
-  }, [loadPreview, df, file, delimiter])
+  }, [loadPreview, origDf, file, delimiter])
 
   const handleGroupBy = (event) => {
     // console.log(event, "group by")
@@ -338,6 +339,8 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
     if (!launchData) return;
     if (!launchData.table) return;
 
+    console.log("sql launch", launchData);
+
     setSqlState(launchData);
     setOpsHistory(opsHistory.concat(
       { op: 'action::sqllaunch', data: { table: launchData.table } }
@@ -391,10 +394,10 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
     }
   }
 
-  const showAdvancedControls = (_, _prev, next) => {
-    console.log("toggle", _prev, next);
+  const showAdvancedControls = (show) => {
+    console.log("toggle", showAdvCtrl, show);
 
-    toggleAdvCtrl(next)
+    toggleAdvCtrl(show)
   }
 
   const handleDelimiterChange = async (_delimiter) => {
@@ -442,15 +445,17 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
   const shouldRenderWithSql = () => {
     let shouldHide = [
       SqlLoaderStates.FAILED,
-      SqlLoaderStates.LOADING
     ].includes(sqlState.status);
 
-    return shouldHide;
+    if (sqlState.status === null) return false;
+
+    console.log("should", !shouldHide)
+
+    return !shouldHide;
   }
 
   const shouldRenderWithoutSql = () => {
     let shouldRender = [
-      SqlLoaderStates.LOADING,
       SqlLoaderStates.FAILED
     ].includes(sqlState.status);
 
@@ -471,9 +476,9 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
 
     let { action, isOn } = event;
 
-    setOpsHistory(opsHistory.concat({
-      op: "sanitize", data: event
-    }))
+    // setOpsHistory(opsHistory.concat({
+    //   op: "sanitize", data: event
+    // }))
 
     if (action === 'remove_header') {
       if (!isOn) return setDf(origDf.copy());
@@ -484,6 +489,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
       return
     }
 
+    // TODO: move to workers
     if (action === 'update_df_values') {
       if (!(isOn && event.data)) return setDf(origDf.copy());
 
@@ -491,19 +497,37 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
       if (!(df && defaults)) return;
 
       const dtypeMap = new Map(Array.zip(df.columns, df.dtypes))
-      let fillCols = Object.keys(defaultValues);
-      let fillValues = Object.keys(defaultValues).map(column => {
-        console.log(dtypeMap.get(column), "found", column);
 
-        return mapDTypeToJS(dtypeMap.get(column) || 'string', defaultValues[column]);
+      const fillCols = Object.keys(defaults);
+      const fillValues = fillCols.map(column => {
+        return mapDTypeToJS(dtypeMap.get(column) || 'string', defaults[column]);
       })
 
+      // console.log(df.values, "1");
+      // these are for NaN and undefined
       let newDf = df.fillNa(fillValues, { columns: fillCols })
-      console.log("new", fillValues, newDf.values)
+      // console.log(newDf.values, "2");
+
+      // fill for empty which are not detected;
+      // index to value mapping
+      const colIdxMap = Object.fromEntries(df.columns.map((col, idx) => [col, idx]))
+      const colTransMap = fillCols.map(col => {
+        return [colIdxMap[col], defaults[col]]
+      })
+
+      // console.log(colIdxMap, colTransMap, "3")
+      newDf = newDf.apply((row) => {
+        colTransMap.forEach(([idx, value]) => {
+          // console.log("row", row[idx], idx, row);
+          if (row[idx] === "") row[idx] = value
+        })
+        return row;
+      }, { axis: 1 })
+
+      // console.log(newDf.values, "4");
 
       setDf(newDf)
       setDefaultValues(defaults)
-      // toggleAdvCtrl(false)
 
       setOpsHistory(opsHistory.concat({
         op: 'apply::defaultvalues',
@@ -554,6 +578,34 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
       }))
       return
     }
+
+    if (action === 'crop_table') {
+      if (!isOn) return setDf(origDf.copy());
+
+      let nColums = df.columns.length;
+
+      let adjustedDf = adjustRows(df, nColums)
+      setDf(adjustedDf);
+
+      setOpsHistory(opsHistory.concat({
+        op: 'crop',
+        data: { length: nColums },
+      }))
+
+    }
+  }
+
+  const adjustRows = (df, targetLength, padValue = null) => {
+    const newData = df.values.map(row => {
+      if (row.length < targetLength) {
+        return [...row, ...Array(targetLength - row.length).fill(padValue)];  // Pad shorter rows
+      } else if (row.length > targetLength) {
+        return row.slice(0, targetLength);  // Truncate longer rows
+      }
+      return row;
+    });
+
+    return new dfd.DataFrame(newData, { columns: df.columns.slice(0, targetLength) });
   }
 
   const handleReset = (_, _prev, next) => {
@@ -588,6 +640,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
   window._odf = origDf;
 
   // console.log("diff df and odf", df.values[0], origDf.values[0])
+  console.log("advc", showAdvCtrl);
 
   return (
     <>
@@ -599,9 +652,10 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
         handleRemoveFile={handleRemoveFile}
       />
       <section className="workspace" style={{ minWidth: '84%' }}>
-        {sqlState.state !== SqlLoaderStates.SUCCESS ? (
+        {shouldRenderWithoutSql() ? (
           <Toolbar
             df={df}
+            origDf={origDf}
             handleGroupBy={handleGroupBy}
             handleAggregator={handleAggregator}
             handleClear={handleClear}
@@ -614,11 +668,12 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
             handleAnalyseData={handleAnalyseData}
             handleDropColumns={handleDropColumns}
             handleReset={handleReset}
+            handleSanitizeData={sanitizeData}
             sqlLaunched={sqlState.status === SqlLoaderStates.SUCCESS}
           />) : null}
 
-        {filters.length ? <GroupFilters filters={filters} removeFilter={handleClear} /> : null}
-        {filters.length ? (
+        {shouldRenderWithoutSql() && filters.length ? <GroupFilters filters={filters} removeFilter={handleClear} /> : null}
+        {shouldRenderWithoutSql() && filters.length ? (
           <button
             type="button"
             className="Button Btn-blue"
@@ -629,8 +684,12 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
           </button>
         ) : null}
 
-        <AdvancedCtrl df={df} defaults={defaultValues} handleSanitizer={sanitizeData} show={showAdvCtrl} />
-        <ActionError errors={errors} />
+        {shouldRenderWithoutSql() ? (
+          <>
+            <AdvancedCtrl df={df} defaults={defaultValues} handleSanitizer={sanitizeData} show={showAdvCtrl} />
+            <ActionError errors={errors} />
+          </>
+        ) : null}
 
         <hr className="separator" />
         {df && <TableInfo df={df} />}

@@ -175,8 +175,45 @@ function AggregatorTool({ columns, handleAggregator, isActive }) {
   );
 }
 
+const CropTable = ({ origDf, handleCropTable }) => {
+  const inputRef = useRef(null);
+  const lengths = origDf.values.map(row => row.length)
+  const [min, max] = lengths.reduce((acc, v) => {
+    let [min, max] = acc;
+
+    return [Math.min(min, v === 0 ? min : v), Math.max(max, v)]
+  }, [Infinity, -Infinity])
+
+
+  const handleSubmit = () => {
+    let { value } = inputRef.current;
+    if (!value) return;
+
+    if (value === 0) return null;
+    if (value > max) return null;
+
+    handleCropTable(value, min, max);
+  }
+
+  return (
+    <>
+      <h4 style={filterHeaderStyle}>Crop Table</h4>
+      <div className="flex flex-row aggregations">
+        <section className="Form-row">
+          <p>Enter Range Between 1 and {max}</p>
+          <input type="number" className="Form-input" ref={inputRef} required />
+          <button type="button" className="Button Btn-blu" onClick={handleSubmit}>
+            Crop
+          </button>
+        </section>
+      </div>
+    </>
+  )
+}
+
 const Toolbar = ({
   df,
+  origDf,
   handleGroupBy,
   handleAggregator,
   handleClear,
@@ -189,22 +226,39 @@ const Toolbar = ({
   handleAnalyseData,
   handleDropColumns,
   handleReset,
+  handleSanitizeData,
   sqlLaunched,
 }) => {
-  const [activePortal, setActivePortal] = useState(null)
+  const [activePortal, setActivePortal] = useState(null);
 
   if (!df) return null;
 
   const columns = df.columns;
 
+  const isActivePortal = (targetPortal) => {
+    return targetPortal === activePortal;
+  }
+
+  // if the same portal is selected, deselect it
   const _setActivePortal = (targetPortal) => {
-    if (targetPortal === activePortal) setActivePortal('');
+    if (isActivePortal(targetPortal)) setActivePortal(null);
     else setActivePortal(targetPortal)
   }
 
   const onHandleLaunch = (data) => {
     _setActivePortal(null);
     handleSqlLaunch(data);
+  }
+
+  const onAdvanceCtrl = (_, _prev, next) => {
+    handleAdvancedControls(next)
+  }
+
+  const handleCropTable = (_, _prev, next) => {
+    handleSanitizeData({
+      action: 'crop_table',
+      isOn: next,
+    })
   }
 
   return (
@@ -214,19 +268,22 @@ const Toolbar = ({
 
         <Portal title='Fix Headers' handleClick={handleFixHeaders} />
         <Portal title='Clean Data' handleClick={handleDataClean} />
+        <Portal title='Crop Table' alt='Crops table to columns length' handleClick={handleCropTable} />
         <Portal title='Analyse Full' handleClick={handleAnalyseData} />
         <Portal title='Reset !' handleClick={handleReset} />
 
         <DumbPortal title='Change Delimiter'
           handleClick={() => _setActivePortal(PortalTypes.DELIMITER)}
-          showHide={activePortal === PortalTypes.DELIMITER}
+          showHide={isActivePortal(PortalTypes.DELIMITER)}
         >
           <Delimiter handleDelimiter={handleDelimiterChange} />
         </DumbPortal>
 
+
+
         <DumbPortal title='Drop Column !'
           handleClick={() => _setActivePortal(PortalTypes.DROP_COLUMN)}
-          showHide={activePortal === PortalTypes.DROP_COLUMN}
+          showHide={isActivePortal(PortalTypes.DROP_COLUMN)}
         >
           <SelectPortalBox
             id='dropColumn'
@@ -239,21 +296,21 @@ const Toolbar = ({
 
         <DumbPortal title='Group'
           handleClick={() => _setActivePortal(PortalTypes.GROUP_BY)}
-          showHide={activePortal === PortalTypes.GROUP_BY}
+          showHide={isActivePortal(PortalTypes.GROUP_BY)}
         >
           <GroupTool columns={columns} handleGroupBy={handleGroupBy} />
         </DumbPortal>
 
         <DumbPortal title='Aggregator'
           handleClick={() => _setActivePortal(PortalTypes.AGGREGATOR)}
-          showHide={activePortal === PortalTypes.AGGREGATOR}
+          showHide={isActivePortal(PortalTypes.AGGREGATOR)}
         >
           <AggregatorTool columns={columns} handleAggregator={handleAggregator} />
         </DumbPortal>
 
         <DumbPortal title='Filters'
           handleClick={() => _setActivePortal(PortalTypes.FILTERS)}
-          showHide={activePortal === PortalTypes.FILTERS}
+          showHide={isActivePortal(PortalTypes.FILTERS)}
         >
           <Filters df={df} handleUpdateClauses={handleWhereClauses} />
         </DumbPortal>
@@ -261,7 +318,7 @@ const Toolbar = ({
         {!sqlLaunched ? (
           <DumbPortal title='Sequelize'
             handleClick={() => _setActivePortal(PortalTypes.SEQUELIZE)}
-            showHide={activePortal === PortalTypes.SEQUELIZE}
+            showHide={isActivePortal(PortalTypes.SEQUELIZE)}
           >
             <h4 style={filterHeaderStyle}>Table Name</h4>
             <ConvertToSqlBtn
@@ -271,7 +328,9 @@ const Toolbar = ({
           </DumbPortal>
         ) : null}
 
-        <Portal title='Advanced' handleClick={handleAdvancedControls} />
+        <Portal title='Advanced'
+          handleClick={onAdvanceCtrl}
+        />
       </div>
       <p className="caption">
         <span style={{ fontSize: '18px', fontFamily: 'Archivo' }}>!</span>&nbsp;<em style={{ color: 'var(--btn-yellow)' }}>operations invalidate previous operations</em>

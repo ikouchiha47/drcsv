@@ -58,7 +58,9 @@ const ApplyTransform = ({ df, handleApplyTransform }) => {
 
       if (!result) return setError(`Invalid operation, result ${result}`);
 
+      setError('');
       handleApplyTransform({ column, idx, action: 'apply', fn: applyFunc, type: dtypemap.get(column) });
+
     } catch (err) {
       console.log(`Failed to apply func, ${fnInput}`, err);
       setError(`Failed to apply func ${err.message}`)
@@ -93,7 +95,7 @@ const ApplyTransform = ({ df, handleApplyTransform }) => {
           </button>
         </div>
       </form>
-      <em style={{ color: '#ddd' }} className='margin-b-m'>This takes a javascript operation as input, for example <code>value.slice(1, -1)</code>, will apply the transformaton and remove the first element from the string.</em>
+      <em style={{ color: '#ddd', display: 'block' }} className='margin-b-m'>This takes a javascript operation as input, for example <code>value.slice(1, -1)</code>, will apply the transformaton and remove the first element from the string.</em>
       <div className='errors' style={{ color: '#24d6f4' }}>
         {error}
       </div>
