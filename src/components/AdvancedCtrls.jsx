@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import DefaultValueForm, { DefaultTypeForm } from "./DefaultValueForm";
 import Portal, { DumbPortal } from "./Portal";
+import ApplyTransform from "./ApplyTransform";
 
 const isDefaultValueForm = (formID) => formID === 'default_values';
 const isDefaultTypeForm = (formID) => formID === 'default_types';
+const isApplyTransformForm = (formID) => formID === 'apply_transform';
 
-function AdvancedCtrl({ df, defaults, handleSanitizer }) {
+function AdvancedCtrl({ df, defaults, handleSanitizer, show }) {
   const [activeForm, setActiveForm] = useState('');
 
   const removeHeaders = (_, _prev, next) => {
@@ -21,11 +23,11 @@ function AdvancedCtrl({ df, defaults, handleSanitizer }) {
     setActiveForm(targetForm);
   }
 
-  const handleUpdateDf = (df) => {
+  const handleUpdateDf = (data) => {
     return handleSanitizer({
       action: 'update_df_values',
       isOn: activeForm === 'default_values',
-      data: df,
+      data,
     })
   }
 
@@ -37,7 +39,16 @@ function AdvancedCtrl({ df, defaults, handleSanitizer }) {
     })
   }
 
+  const handleApplyTransform = (data) => {
+    return handleSanitizer({
+      action: 'apply_transform',
+      isOn: activeForm === 'apply_transform',
+      data: data,
+    })
+  }
+
   if (!df) return null;
+  if (!show) return null;
 
   return (
     <section className="advanced-ctrl margin-b-xl">
@@ -55,15 +66,21 @@ function AdvancedCtrl({ df, defaults, handleSanitizer }) {
           handleClick={() => handleSetActiveForm('default_values')}
           showHide={isDefaultValueForm(activeForm)}
         />
+        <DumbPortal
+          title='Transform Values'
+          handleClick={() => handleSetActiveForm('apply_transform')}
+          showHide={isApplyTransformForm(activeForm)}
+        />
       </div>
 
-      {df && isDefaultTypeForm(activeForm) ? <DefaultTypeForm df={df} updateTypes={handleUpdateTypes} /> : null}
-      {df && isDefaultValueForm(activeForm) ? (
+      {isDefaultTypeForm(activeForm) ? <DefaultTypeForm df={df} updateTypes={handleUpdateTypes} /> : null}
+      {isDefaultValueForm(activeForm) ? (
         <DefaultValueForm
           df={df}
           defaults={defaults}
-          onUpdateDF={handleUpdateDf} />
+          handleUpdateDefaults={handleUpdateDf} />
       ) : null}
+      {isApplyTransformForm(activeForm) ? <ApplyTransform df={df} handleApplyTransform={handleApplyTransform} /> : null}
     </section>
   );
 }

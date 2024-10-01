@@ -1,5 +1,5 @@
 import { ChevronDoubleDownIcon, ChevronDoubleUpIcon } from "@heroicons/react/24/outline";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { sanitizeHeader } from "../utils/dbs";
 
 const tableStyles = {
@@ -73,6 +73,21 @@ export const TableInfoList = ({ df, isActive }) => {
 
 export const TableInfo = ({ df }) => {
   const [showHide, toggleShowHide] = useState(true)
+  const [isInConsistent, setInConsistence] = useState(false);
+
+  // const isTableConsistent = () => {
+  //   let nCols = df.columns.length;
+  //   return df.head(500).values.every(row => row.length === nCols)
+  // }
+
+  useEffect(() => {
+    if (!df) return;
+
+    let nCols = df.columns.length;
+    let isTableConsistent = df.head(500).values.every(row => row.length === nCols)
+    if (isTableConsistent !== isInConsistent) setInConsistence(isTableConsistent);
+
+  }, [df])
 
   const handleShowHide = () => {
     toggleShowHide(!showHide)
@@ -111,8 +126,11 @@ export const TableInfo = ({ df }) => {
             <p><b>Columns:</b> {shape[1]}</p>
           </section>
 
-          {sanitizedCols.difference(new Set(columns)) ? <p className="alert">Header Names Need Fixup</p> : null}
-          {/*descDf && <ScrollableDataTable df={descDf} />*/}
+          <section className="flex flex-row" style={{ gap: '16px' }}>
+            {sanitizedCols.difference(new Set(columns)) ? <p className="alert">Header Names Need Fixup</p> : null}
+            {isInConsistent ? null : <p className="alert">Varying data count per row, Crop it</p>}
+            {/*descDf && <ScrollableDataTable df={descDf} />*/}
+          </section>
         </div>
       </>
     );

@@ -32,13 +32,15 @@ function RenderFileHistory({
 
   const renderFileList = (_files) => {
     let it = Array.from(_files.entries()).map(([name, file], idx) => {
+      console.log(file.name, currentFile.name, "fname");
+
       return (
         <li
           key={`files-${idx + 1}`}
           style={{ border: 0, padding: '8px' }}
           onClick={async () => await handleSelectFile(file)}
         >
-          <p className={currentFile && currentFile.name === idx ? 'sidebar-table-name active' : 'sidebar-table-name'}>
+          <p className={currentFile && currentFile.name === name ? 'sidebar-table-name active' : 'sidebar-table-name'}>
             <TableCellsIcon width={24} onClick={(e) => handleOpenCloseCols(e, idx)} />
             <span style={{ display: 'inline-block', marginLeft: '8px', flex: 1 }}>{name}</span>
             <TrashIcon width={24} onClick={() => handleRemoveFile(file)} />

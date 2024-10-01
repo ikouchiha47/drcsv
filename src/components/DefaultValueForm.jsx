@@ -12,27 +12,11 @@ const availableDTypes = [
   { value: 'datetime', label: 'datetime' },
 ];
 
-function mapDTypeToJS(dtype, value) {
-  switch (dtype) {
-    case 'int32':
-    case 'int64':
-    case 'float32':
-    case 'float64':
-      return Number(value);
-    case 'bool':
-    case 'boolean':
-      return Boolean(value);
-    case 'string':
-      return String(value)
-    case 'object':
-    default:
-      return JSON.stringify(value);
-  }
-}
 
-
-function DefaultValueForm({ df, defaults, onUpdateDF }) {
+function DefaultValueForm({ df, defaults, handleUpdateDefaults }) {
   const [defaultValues, setDefaultValues] = useState(defaults);
+
+  console.log("reload", defaults)
 
   const handleInputChange = (e, column) => {
     setDefaultValues({
@@ -44,15 +28,7 @@ function DefaultValueForm({ df, defaults, onUpdateDF }) {
   const dtypeMap = new Map(Array.zip(df.columns, df.dtypes))
 
   const handleApplyDefaults = () => {
-    let newDf = df;
-
-    for (let column in defaultValues) {
-      if (defaultValues[column]) {
-        newDf[column] = newDf[column].fillNa(mapDTypeToJS(dtypeMap.get(column) || 'string', defaultValues[column]));
-      }
-    }
-
-    onUpdateDF({ df: newDf, defaults: defaultValues });
+    handleUpdateDefaults({ defaults: defaultValues });
   };
 
   if (!df) return null;
@@ -69,6 +45,7 @@ function DefaultValueForm({ df, defaults, onUpdateDF }) {
             <input
               type="text"
               className="Form-input"
+              placeholder={dtypeMap.get(column)}
               onChange={(e) => handleInputChange(e, column)}
             />
           </div>
