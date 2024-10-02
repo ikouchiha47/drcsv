@@ -56,6 +56,18 @@ export const TableInfoList = ({ df, isActive }) => {
 
   const tinfos = Array.zip(df.columns, df.dtypes);
 
+  const handleCopy = (e) => {
+    const textToCopy = e.target.innerText; // Get the innerText of the span
+    navigator.clipboard.writeText(textToCopy) // Use the Clipboard API to copy text
+      .then(() => {
+        alert(`Copied: ${textToCopy}`);
+      })
+      .catch((err) => {
+        console.error("Failed to copy: ", err);
+      });
+  };
+
+
   return (
     <ul className={!isActive ? 'sidebar-table-info hide' : 'sidebar-table-info'}>
       {tinfos.map((tinfo, key) => {
@@ -66,7 +78,7 @@ export const TableInfoList = ({ df, isActive }) => {
             key={`tinfo-list-${key}`}
             className="flex flex-row sidebar-table-info-column"
           >
-            <b>{tinfo[0]}</b>
+            <b onClick={handleCopy}>{tinfo[0]}</b>
             <span>{tinfo[1]}</span>
           </li>
         )
