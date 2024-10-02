@@ -17,6 +17,11 @@ import { PreviewFrame, SqlFrame } from "./Frames";
 
 window.dfd = dfd;
 
+const worker = new Worker(
+  new URL('../workers/analyze.worker.js', import.meta.url),
+  { type: "module" }
+);
+
 async function load(file, delimiter, signal, preview) {
   preview ||= 0;
 
@@ -165,7 +170,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
   }, [file, delimiter]);
 
   useEffect(() => {
-    if (!file) return;
+    if (!origDf) return;
     if (!loadPreview) return;
 
     const abortCtrl = new AbortController();
@@ -218,7 +223,51 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
       // if (loadFull) setLoadedFull(false);
     }
 
-  }, [loadPreview, origDf, file, delimiter])
+  }, [loadPreview, origDf, delimiter])
+
+  useEffect(() => {
+    if (!origDf) return;
+
+    worker.onmessage = (e) => {
+      const { action, data } = e.data;
+
+      console.log("analyzer response", e.data);
+
+      if (action === 'transform::success') {
+        const { columns, values } = data;
+
+        try {
+          if (values.length) {
+            const newDf = new dfd.DataFrame(values, { columns });
+            setDf(newDf);
+            return;
+          }
+        } catch (e) {
+          //TODO: send response back to advancedCtrl
+          console.log('Something went wrong with transforming')
+        }
+
+        return;
+      }
+
+      if (action === 'transform::error') {
+        const { error } = data;
+        console.log(`Transformation error ${error}`)
+
+        return;
+      }
+    }
+
+    worker.onerror = (err) => {
+      console.log(`Error from worker ${err}`)
+    }
+
+    return () => {
+      worker.onmessage = null
+      worker.onerror = null
+    }
+
+  }, [origDf])
 
   const handleGroupBy = (event) => {
     // console.log(event, "group by")
@@ -476,9 +525,6 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
 
     let { action, isOn } = event;
 
-    // setOpsHistory(opsHistory.concat({
-    //   op: "sanitize", data: event
-    // }))
 
     if (action === 'remove_header') {
       if (!isOn) return setDf(origDf.copy());
@@ -557,25 +603,37 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
     if (action === 'apply_transform') {
       if (!(isOn && event.data)) return setDf(origDf.copy());
 
-      let { column, idx, fn, type, action } = event.data;
+      let { column, idx, fnode, type, action } = event.data;
 
       if (action === 'reset') {
         setDf(origDf.copy())
         return;
       }
 
-      let newDf = df.apply((row) => {
-        row[idx] = fn(row[idx])
-        return row;
-      }, { axis: 1 });
+      const fn = new Function(fnode.var, fnode.body);
 
-      newDf = newDf.asType(column, type)
-      setDf(newDf);
+      if (df.shape[0] < 30000) {
+        let newDf = df.apply((row) => {
+          row[idx] = fn(row[idx])
+          return row;
+        }, { axis: 1 });
+
+        newDf = newDf.asType(column, type)
+        setDf(newDf)
+
+      } else {
+        worker.postMessage({
+          action: 'transform::value',
+          df: dfd.toJSON(df, { format: 'row' }),
+          transform: event.data,
+        })
+      }
 
       setOpsHistory(opsHistory.concat({
         op: 'apply::transform',
         data: event.data,
-      }))
+      }));
+
       return
     }
 
@@ -592,6 +650,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
         data: { length: nColums },
       }))
 
+      return
     }
   }
 
@@ -640,7 +699,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
   window._odf = origDf;
 
   // console.log("diff df and odf", df.values[0], origDf.values[0])
-  console.log("advc", showAdvCtrl);
+  // console.log("advc", showAdvCtrl);
 
   return (
     <>

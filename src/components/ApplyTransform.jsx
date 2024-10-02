@@ -50,8 +50,8 @@ const ApplyTransform = ({ df, handleApplyTransform }) => {
     const { value: column, idx } = selectRef.current.getValue()[0];
     const fnInput = inputRef.current.value;
 
-    let columnVal = df[column].values[0];
-    const applyFunc = new Function('value', `return value && (${fnInput})`);
+    const columnVal = df[column].values[0];
+    const applyFunc = new Function('value', `return value && (${fnInput})`)
 
     try {
       let result = validateFn(columnVal, applyFunc, dtypemap.get(column));
@@ -59,7 +59,12 @@ const ApplyTransform = ({ df, handleApplyTransform }) => {
       if (!result) return setError(`Invalid operation, result ${result}`);
 
       setError('');
-      handleApplyTransform({ column, idx, action: 'apply', fn: applyFunc, type: dtypemap.get(column) });
+      handleApplyTransform({
+        column, idx,
+        action: 'apply',
+        fnode: { var: 'value', body: `return value && (${fnInput})` },
+        type: dtypemap.get(column),
+      });
 
     } catch (err) {
       console.log(`Failed to apply func, ${fnInput}`, err);

@@ -12,14 +12,14 @@ function RenderFileHistory({
   handleSelectFile,
   handleRemoveFile,
 }) {
-
   const [activeCol, setActiveColumn] = useState({});
 
   useState(() => {
     if (currentFile && files.size) {
       let idx = Array.from(files.keys()).findIndex(fileName => fileName === currentFile.name);
-
       if (idx < 0) return;
+
+      if (activeCol[idx]) return; // already true?
 
       setActiveColumn({ ...activeCol, [idx]: true });
     }
@@ -30,10 +30,11 @@ function RenderFileHistory({
     setActiveColumn({ ...activeCol, [idx]: !activeCol[idx] });
   }
 
+  //TODO: fix re-rendering unnecesarily
   const renderFileList = (_files) => {
     let it = Array.from(_files.entries()).map(([name, file], idx) => {
-      console.log(file.name, currentFile.name, "fname");
-
+      // console.log(file.name, currentFile.name, "fname");
+      console.log('re-rendering file list')
       return (
         <li
           key={`files-${idx + 1}`}

@@ -4,8 +4,8 @@ import { batchDf } from '../utils/batcher';
 
 console.log("loading analyzer");
 
-const handleMessage = function(e) {
-  const { df, delimiter } = e.data;
+const handleAnalyze = (self, data) => {
+  const { df, delimiter } = data;
   const newDf = new dfd.DataFrame(df);
 
   const origCols = newDf.columns;
@@ -51,7 +51,68 @@ const handleMessage = function(e) {
   })
 
   // Return results
-  self.postMessage({ action: 'column_mismatch', data: { columns, values } });
+  self.postMessage({ action: 'analyze::response', data: { columns, values } });
+}
+
+function handleTransform(self, data) {
+  const { df, transform: { column, idx, fnode, type, action } } = data;
+  const fn = new Function(fnode.var, fnode.body);
+
+  let newDf = new dfd.DataFrame(df);
+
+
+  // const validateFn = (value, fn, expectedType) => {
+  //   let result = fn(value);
+  //   let errMsg = `Failed to convert ${value} to ${expectedType}`
+  //
+  //   try {
+  //     // TODO: mapDTypeToClass is defined in ApplyTransform
+  //     let Klassify = mapDtypeToClass(expectedType);
+  //     if (Klassify === null) {
+  //       throw new Error(errMsg);
+  //     }
+  //
+  //     Klassify(result)
+  //     return true;
+  //   } catch (e) {
+  //     console.log(`Worker error message ${e}`);
+  //     throw new Error(errMsg)
+  //   }
+  // }
+
+  try {
+    // action === 'apply' && validateFn(column, fn, type);
+    if (action !== 'apply') {
+      self.postMessage({ action: 'tranform::error', data: { error: `Invalid action` } })
+      return
+    }
+
+    newDf = newDf.apply((row) => {
+      row[idx] = fn(row[idx])
+      return row;
+    }, { axis: 1 });
+
+    newDf = newDf.asType(column, type)
+    self.postMessage({ action: 'transform::success', data: { columns: newDf.columns, values: newDf.values } })
+
+  } catch (e) {
+    self.postMessage({ action: 'tranform::error', data: { error: e.message } })
+  }
+}
+
+const handleMessage = function(e) {
+  const { action } = e.data;
+
+  console.log(e.data, action, "worker");
+
+  if (action === 'analyze') {
+    handleAnalyze(self, e.data)
+    return;
+  }
+
+  if (action === 'transform::value') {
+    handleTransform(self, e.data)
+  }
 }
 
 self.onmessage = handleMessage;

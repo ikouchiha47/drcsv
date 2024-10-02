@@ -21,7 +21,7 @@ const CSVAnalyzer = ({ df, delimiter, show }) => {
         const { action, data } = e.data;
 
         // console.log("data", data)
-        if (action === 'column_mismatch') {
+        if (action === 'analyzer::response') {
           const { columns, values } = data;
 
           if (values.length) {
@@ -44,7 +44,7 @@ const CSVAnalyzer = ({ df, delimiter, show }) => {
       };
 
 
-      worker.postMessage({ df: dfd.toJSON(df, { format: 'row' }), delimiter });
+      worker.postMessage({ action: 'analyze', df: dfd.toJSON(df, { format: 'row' }), delimiter });
     };
 
     analyzeCSV(df);
