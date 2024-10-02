@@ -22,6 +22,8 @@ const worker = new Worker(
   { type: "module" }
 );
 
+const MAX_ROWS = 27000
+
 const MemoisedSideDeck = React.memo(SideDeck);
 
 async function load(file, delimiter, signal, preview) {
@@ -233,9 +235,21 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
     worker.onmessage = (e) => {
       const { action, data } = e.data;
 
-      console.log("analyzer response", e.data);
+      console.log("analyzer response", e.data, action);
 
-      if (action === 'transform::success') {
+      if (action === 'transform::error') {
+        const { error } = data;
+        console.log(`Transformation error ${error}`)
+
+        return;
+      }
+
+      if ([
+        'transform::success',
+        'croptable::response',
+        'update::dfvalues::response',
+        'update::dfclean::response',
+      ].includes(action)) {
         const { columns, values } = data;
 
         try {
@@ -248,13 +262,6 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
           //TODO: send response back to advancedCtrl
           console.log('Something went wrong with transforming')
         }
-
-        return;
-      }
-
-      if (action === 'transform::error') {
-        const { error } = data;
-        console.log(`Transformation error ${error}`)
 
         return;
       }
@@ -420,6 +427,17 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
       // for numbers its NaN
       // but for string, its still null, so it will
       // error out, converting null to string.
+      if (df.shape[0] > MAX_ROWS) {
+        worker.postMessage({
+          action: 'update::dfclean',
+          columns: df.columns,
+          types: df.types,
+          df: origDf,
+        })
+
+        return;
+      }
+
       let newDf = origDf;
 
       Array.zip(df.columns, df.dtypes).forEach(([col, typ]) => {
@@ -547,30 +565,41 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
         return mapDTypeToJS(dtypeMap.get(column) || 'string', defaults[column]);
       })
 
-      // console.log(df.values, "1");
-      // these are for NaN and undefined
-      let newDf = df.fillNa(fillValues, { columns: fillCols })
-      // console.log(newDf.values, "2");
+      if (df.shape[0] < MAX_ROWS) {
+        // console.log(df.values, "1");
+        // these are for NaN and undefined
+        let newDf = df.fillNa(fillValues, { columns: fillCols })
+        // console.log(newDf.values, "2");
 
-      // fill for empty which are not detected;
-      // index to value mapping
-      const colIdxMap = Object.fromEntries(df.columns.map((col, idx) => [col, idx]))
-      const colTransMap = fillCols.map(col => {
-        return [colIdxMap[col], defaults[col]]
-      })
-
-      // console.log(colIdxMap, colTransMap, "3")
-      newDf = newDf.apply((row) => {
-        colTransMap.forEach(([idx, value]) => {
-          // console.log("row", row[idx], idx, row);
-          if (row[idx] === "") row[idx] = value
+        // fill for empty which are not detected;
+        // index to value mapping
+        const colIdxMap = Object.fromEntries(df.columns.map((col, idx) => [col, idx]))
+        const colTransMap = fillCols.map(col => {
+          return [colIdxMap[col], defaults[col]]
         })
-        return row;
-      }, { axis: 1 })
 
-      // console.log(newDf.values, "4");
+        // console.log(colIdxMap, colTransMap, "3")
+        newDf = newDf.apply((row) => {
+          colTransMap.forEach(([idx, value]) => {
+            // console.log("row", row[idx], idx, row);
+            if (row[idx] === "") row[idx] = value
+          })
+          return row;
+        }, { axis: 1 })
 
-      setDf(newDf)
+        // console.log(newDf.values, "4");
+
+        setDf(newDf)
+      } else {
+        worker.postMessage({
+          action: 'update::dfvalues',
+          df: dfd.toJSON(df, { format: 'row' }),
+          defaults,
+          fillCols,
+          fillValues,
+        })
+      }
+
       setDefaultValues(defaults)
 
       setOpsHistory(opsHistory.concat({
@@ -610,7 +639,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
 
       const fn = new Function(fnode.var, fnode.body);
 
-      if (df.shape[0] < 30000) {
+      if (df.shape[0] < MAX_ROWS) {
         let newDf = df.apply((row) => {
           row[idx] = fn(row[idx])
           return row;
@@ -640,8 +669,16 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
 
       let nColums = df.columns.length;
 
-      let adjustedDf = adjustRows(df, nColums)
-      setDf(adjustedDf);
+      if (df.shape[0] < MAX_ROWS) {
+        const adjustedDf = adjustRows(df, nColums)
+        setDf(adjustedDf);
+
+      } else {
+        worker.postMessage({
+          action: 'croptable',
+          df: dfd.toJSON(df, { format: 'row' }),
+        })
+      }
 
       setOpsHistory(opsHistory.concat({
         op: 'crop',

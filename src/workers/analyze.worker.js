@@ -4,6 +4,10 @@ import { batchDf } from '../utils/batcher';
 
 console.log("loading analyzer");
 
+Array.zip = function(keys, values) {
+  return keys.map((key, idx) => [key, values[idx]])
+}
+
 const handleAnalyze = (self, data) => {
   const { df, delimiter } = data;
   const newDf = new dfd.DataFrame(df);
@@ -60,25 +64,8 @@ function handleTransform(self, data) {
 
   let newDf = new dfd.DataFrame(df);
 
-
-  // const validateFn = (value, fn, expectedType) => {
-  //   let result = fn(value);
-  //   let errMsg = `Failed to convert ${value} to ${expectedType}`
-  //
-  //   try {
-  //     // TODO: mapDTypeToClass is defined in ApplyTransform
-  //     let Klassify = mapDtypeToClass(expectedType);
-  //     if (Klassify === null) {
-  //       throw new Error(errMsg);
-  //     }
-  //
-  //     Klassify(result)
-  //     return true;
-  //   } catch (e) {
-  //     console.log(`Worker error message ${e}`);
-  //     throw new Error(errMsg)
-  //   }
-  // }
+  // TODO: maybe validateFn here, since its
+  // on a single value, its done in the main loop
 
   try {
     // action === 'apply' && validateFn(column, fn, type);
@@ -100,18 +87,99 @@ function handleTransform(self, data) {
   }
 }
 
+const adjustRows = (df, targetLength, padValue = null) => {
+  const newData = df.values.map(row => {
+    if (row.length < targetLength) {
+      return [...row, ...Array(targetLength - row.length).fill(padValue)];  // Pad shorter rows
+    } else if (row.length > targetLength) {
+      return row.slice(0, targetLength);  // Truncate longer rows
+    }
+    return row;
+  });
+
+  return [newData, df.columns.slice(0, targetLength)]
+  // return new dfd.DataFrame(newData, { columns: df.columns.slice(0, targetLength) });
+}
+
+const handleCropping = (self, data) => {
+  const { df } = data;
+  let newDf = new dfd.DataFrame(df);
+
+  const [values, columns] = adjustRows(newDf, newDf.columns.length)
+
+  self.postMessage({
+    action: 'croptable::response',
+    data: { columns, values },
+  })
+}
+
+const handleUpdateDefaults = (self, data) => {
+  const { fillCols, fillValues, defaults } = data;
+
+  let df = new dfd.DataFrame(data.df);
+  // these are for NaN and undefined
+  let newDf = df.fillNa(fillValues, { columns: fillCols })
+
+  const colIdxMap = Object.fromEntries(df.columns.map((col, idx) => [col, idx]));
+  const colTransMap = fillCols.map(col => ([colIdxMap[col], defaults[col]]));
+
+  newDf = newDf.apply((row) => {
+    colTransMap.forEach(([idx, value]) => {
+      if (row[idx] === "") row[idx] = value
+    })
+    return row;
+  }, { axis: 1 })
+
+
+  self.postMessage({
+    action: 'update::dfvalues::response',
+    data: { columns: newDf.columns, values: newDf.values }
+  });
+}
+
+const handleCleanData = (self, data) => {
+  let df = new dfd.DataFrame(data.df);
+
+  if (data.reset) {
+    Array.zip(df.columns, df.dtypes).forEach(([col, typ]) => {
+      try {
+        df = df.asType(col, typ)
+      } catch (e) {
+        console.error(`${col} has null values, and cannot converted back to ${typ}`)
+      }
+    })
+  } else {
+    df = df.dropNa()
+  }
+
+  self.postMessage({
+    action: 'update::dfclean::response',
+    columns: df.columns,
+    values: df.values,
+  })
+}
+
 const handleMessage = function(e) {
   const { action } = e.data;
 
   console.log(e.data, action, "worker");
 
-  if (action === 'analyze') {
-    handleAnalyze(self, e.data)
-    return;
-  }
-
-  if (action === 'transform::value') {
-    handleTransform(self, e.data)
+  switch (action) {
+    case 'analyze':
+      handleAnalyze(self, e.data)
+      return;
+    case 'transform::value':
+      handleTransform(self, e.data)
+      return
+    case 'croptable':
+      handleCropping(self, e.data)
+      return;
+    case 'update::dfvalues':
+      handleUpdateDefaults(self, e.data)
+      return
+    case 'update:dfclean':
+      handleCleanData(self, e.data)
+      return
   }
 }
 
