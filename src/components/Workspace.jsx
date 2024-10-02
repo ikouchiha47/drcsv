@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import * as dfd from 'danfojs';
 import * as Papa from 'papaparse';
 
@@ -21,6 +21,8 @@ const worker = new Worker(
   new URL('../workers/analyze.worker.js', import.meta.url),
   { type: "module" }
 );
+
+const MemoisedSideDeck = React.memo(SideDeck);
 
 async function load(file, delimiter, signal, preview) {
   preview ||= 0;
@@ -520,11 +522,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
 
     console.log("sanitize data ", event);
 
-    window._df = df;
-    window._odf = origDf;
-
     let { action, isOn } = event;
-
 
     if (action === 'remove_header') {
       if (!isOn) return setDf(origDf.copy());
@@ -692,6 +690,19 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
     setDf(newDf);
   }
 
+  const memoizedHandleSelectFile = useCallback(handleSelectFile, []);
+  const memoizedHandleRemoveFile = useCallback(handleRemoveFile, []);
+
+  // Use useMemo for derived state
+
+  const sideDeckProps = useMemo(() => ({
+    df,
+    files,
+    currentFile: file,
+    handleSelectFile: memoizedHandleSelectFile,
+    handleRemoveFile: memoizedHandleRemoveFile
+  }), [df, files, file, memoizedHandleSelectFile, memoizedHandleRemoveFile]);
+
   if (!(df && origDf)) return null;
 
   // console.log("history", JSON.stringify(opsHistory, null, 2))
@@ -703,13 +714,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
 
   return (
     <>
-      <SideDeck
-        df={df}
-        files={files}
-        currentFile={file}
-        handleSelectFile={handleSelectFile}
-        handleRemoveFile={handleRemoveFile}
-      />
+      <MemoisedSideDeck {...sideDeckProps} />
       <section className="workspace" style={{ minWidth: '84%' }}>
         {shouldRenderWithoutSql() ? (
           <Toolbar
