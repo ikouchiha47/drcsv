@@ -34,7 +34,7 @@ function Portal({ title, handleClick, noToggle, alt, children }) {
         style={{ cursor: 'pointer' }}
         onClick={onClick}
         className={showHide ? 'active' : ''}
-        alt={alt || ''}
+        title={alt || ''}
       >
         {`${title}${noToggle ? '!' : ''}`}
       </h3>
@@ -50,7 +50,7 @@ export function DumbPortal({ title, handleClick, showHide, children, alt }) {
         style={{ cursor: 'pointer' }}
         onClick={handleClick}
         className={showHide ? 'active' : ''}
-        alt={alt || ''}
+        title={alt || ''}
       >
         {title}
       </h3>

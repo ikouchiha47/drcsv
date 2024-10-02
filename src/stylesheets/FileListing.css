@@ -1,7 +1,7 @@
 .File-history {
   flex-grow: 1;
   overflow-x: auto;
-  padding-left: 24px;
+  /* padding-left: 24px; */
 }
 
 .List {
@@ -53,3 +53,24 @@
   height: 0;
   overflow: hidden;
 }
+
+li.sidebar-table-info-column {
+  display: flex;
+  flex-direction: row;
+  padding: 8px;
+  border: 0;
+  justify-content: space-between;
+}
+.sidebar-table-info-column b {
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sidebar-table-info-column span {
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+

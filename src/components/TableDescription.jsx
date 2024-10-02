@@ -60,7 +60,12 @@ export const TableInfoList = ({ df, isActive }) => {
     <ul className={!isActive ? 'sidebar-table-info hide' : 'sidebar-table-info'}>
       {tinfos.map((tinfo, key) => {
         return (
-          <li key={`tinfo-list-${key}`} className="flex flex-row" style={{ gap: '16px', width: 'max-content', justifyContent: 'space-between', border: 0 }}>
+          <li
+            title={tinfo[0]}
+            aria-label={`${tinfo[0]} ${tinfo[1]}`}
+            key={`tinfo-list-${key}`}
+            className="flex flex-row sidebar-table-info-column"
+          >
             <b>{tinfo[0]}</b>
             <span>{tinfo[1]}</span>
           </li>

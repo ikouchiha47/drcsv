@@ -36,7 +36,7 @@ function RenderFileHistory({
       // console.log(file.name, currentFile.name, "fname");
       console.log('re-rendering file list')
       return (
-        <li
+        <div
           key={`files-${idx + 1}`}
           style={{ border: 0, padding: '8px' }}
           onClick={async () => await handleSelectFile(file)}
@@ -47,14 +47,14 @@ function RenderFileHistory({
             <TrashIcon width={24} onClick={() => handleRemoveFile(file)} />
           </p>
           {currentFile && currentFile.name === file.name ? <TableInfoList df={df} isActive={activeCol[idx]} /> : null}
-        </li>
+        </div>
       )
     })
 
     return it;
   }
 
-  return <ul className='List'>{renderFileList(files)}</ul>;
+  return <section className='List'>{renderFileList(files)}</section>;
 }
 
 function UploadHistory({ files, df, currentFile, handleSelectFile, handleRemoveFile }) {
