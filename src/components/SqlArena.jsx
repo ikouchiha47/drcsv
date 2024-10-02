@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import * as dfd from 'danfojs';
 import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
-
+import Plotter from "./Plotter";
 import { ScrollableDataTable } from './DataTable';
 import Notifier from '../utils/notifications';
 
@@ -26,8 +26,10 @@ const notifier = new Notifier();
 const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
   const [query, setQuery] = useState('');
 
-  const [data, setData] = useState([]);
-  const [columns, setColumns] = useState([]);
+  // const [data, setData] = useState([]);
+  // const [columns, setColumns] = useState([]);
+  const [resDf, setResDf] = useState(null);
+
   const [errorsResult, setErrors] = useState([]);
 
   let initalDbStatus = { status: SqlLoaderStates.LOADING, message: 'Creating Database', table: tableName }
@@ -92,8 +94,9 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
         }
 
         setErrors(resultErrors);
-        setColumns(resultColumns);
-        setData(resultValues);
+        setResDf(toDF(resultColumns, resultValues))
+        // setColumns(resultColumns);
+        // setData(resultValues);
 
         return;
       }
@@ -125,8 +128,9 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
       console.log("deregistered");
 
       setErrors([]);
-      setColumns([]);
-      setData([]);
+      setResDf(null);
+      // setColumns([]);
+      // setData([]);
 
       worker.onmessage = null;
     }
@@ -204,7 +208,7 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
         {/* Results Table */}
         {renderStatus()}
 
-        {data.length > 0 ? (
+        {resDf && resDf.size > 0 ? (
           <>
             <header className='flex flex-row' style={{ gap: '24px' }}>
               <h3 className='Section-header'>Results</h3>
@@ -215,11 +219,13 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
                 onClick={() => dfd.toCSV(df, { fileName: file.name, download: true })}
               />
             </header>
-            <ScrollableDataTable df={toDF(columns, data)} classNames={['query-result']} />
+            <ScrollableDataTable df={resDf} classNames={['query-result']} />
           </>
         ) : null}
 
       </section>
+      <hr className="separator" />
+      {df && df.size > 0 && resDf && resDf.size > 0 && <Plotter df={resDf} />}
     </>
   );
 };
