@@ -263,7 +263,10 @@ const Toolbar = ({
 
   return (
     <section className="toolbar-wrapper margin-b-xl">
-      <h3 className="Section-header">Action Center</h3>
+      <header className="flex flex-row" style={{ alignItems: 'center', gap: '16px' }}>
+        <h3 className="Section-header">Action Center</h3>
+        <em className="caption">! operations invalidate previous operations</em>
+      </header>
       <div className="flex flex-row toolbar">
 
         <Portal title='Fix Headers' handleClick={handleFixHeaders} />
@@ -332,9 +335,6 @@ const Toolbar = ({
           handleClick={onAdvanceCtrl}
         />
       </div>
-      <p className="caption">
-        <span style={{ fontSize: '18px', fontFamily: 'Archivo' }}>!</span>&nbsp;<em style={{ color: 'var(--btn-yellow)' }}>operations invalidate previous operations</em>
-      </p>
     </section>
   )
 

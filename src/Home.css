@@ -227,7 +227,7 @@ input[type="file"] {
 .preview-table header {
   align-items: baseline;
   gap: 16px; 
-  margin-bottom: 16px;
+  margin-bottom: 32px;
 }
 
 .shape {
@@ -251,12 +251,12 @@ td.hottable-overrides {
 }
 
 .caption {
-  margin-top: 32px;
-  font-weight: bold;
-  width: max-content;
-  padding: 8px 8px;
-  background: #b036c688;
-  border-radius: 8px;
+  font-size: 18px;
+  display: inline-block;
+  color: rgb(204, 204, 204);
+  padding: 4px 8px;
+  border: 1px dotted;
+  border-radius: 16px;
 }
 
 .Table-errors {
