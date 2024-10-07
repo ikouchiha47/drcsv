@@ -30,5 +30,5 @@ Builds the app for production mode with .env.production
 ### Screenshot
 
 ![alt screenshot](./shots/Sep25::071509.png)
-![alt screenshot](./shots/Sep25::071015.png)
+![alt screenshot](./shots/Oct07::073206.png)
 ![alt screenshot](./shots/Sep25::071126.png)
