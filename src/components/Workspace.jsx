@@ -752,7 +752,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
   return (
     <>
       <MemoisedSideDeck {...sideDeckProps} />
-      <section className="workspace" style={{ minWidth: '84%' }}>
+      <section className="workspace">
         {shouldRenderWithoutSql() ? (
           <Toolbar
             df={df}

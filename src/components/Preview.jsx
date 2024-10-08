@@ -133,7 +133,7 @@ const Preview = ({ df, fileName, filters, loadedFull, loadedPreview }) => {
             className="absolute"
             width={32}
             title='Export Data'
-            style={{ left: '80vw', top: 0, cursor: 'pointer' }}
+            style={{ right: 0, top: 0, cursor: 'pointer' }}
             onClick={() => dfd.toCSV(df, { fileName: fileName, download: true })}
           />
         </header>

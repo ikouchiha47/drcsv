@@ -96,10 +96,9 @@ export class SQLite {
     return this;
   }
 
-  _getColumns(df, withoutID = true) {
-    const isID = (col) => col && col === 'id';
-
-    return df.columns.filter(col => withoutID ? !isID(col) : true).map(col => col.toLowerCase());
+  _getColumns(df) {
+    // const isID = (col) => col && col === 'id';
+    return df.columns.map(col => col.toLowerCase());
   }
 
   _overrideDefFields(df, idx) {
@@ -129,7 +128,11 @@ export class SQLite {
       if (colType === 'TEXT') colType = this._overrideDefFields(df, idx);
 
       return [column.toLowerCase(), colType, 'DEFAULT NULL']
-    }).filter(col => col && col[0] !== 'id').concat(defaultColumns);
+    });
+
+    if (!df.columns.includes('id')) {
+      defs = defaultColumns.concat(defs.filter(col => col && col[0] !== 'id')) //.concat(defaultColumns)
+    }
 
     return defs
   }
@@ -138,6 +141,8 @@ export class SQLite {
     this._hasDB();
 
     const columns = this._getColumnDefs(df);
+
+    // console.log("columns", columns, "tablename", tableName)
     const stmt = `CREATE TABLE IF NOT EXISTS ${tableName} (\n${columns.map(frags => frags.join(' ').trim()).join(', ').trim()}\n);`
 
     console.log("create", stmt);
@@ -155,7 +160,7 @@ export class SQLite {
 
       const sql = insertSQL + values;
 
-      console.log("insert", batch.shape, batch.values.length);
+      // console.log("insert", sql, batch.values.flat());
 
       const stmt = this.db.prepare(sql);
       const flatValues = batch.values.flat();
@@ -178,29 +183,18 @@ export class SQLite {
     let resolvers = [];
 
     for (const batch of generator) {
-      // const insertSQL = `INSERT INTO ${tableName} (${columns.join(',')}) VALUES `;
-      //
-      // const values = batch.values.map(row => {
-      //   const placeholders = row.map(() => '?').join(', ');
-      //   return `(${placeholders})`;
-      // }).join(', ');
-      //
-      // const sql = insertSQL + values;
-      //
-      // console.log("insert", batch.shape, batch.values.length);
-      //
-      // const stmt = this.db.prepare(sql);
-      // const flatValues = batch.values.flat();
-      //
-      // stmt.run(flatValues);
-      // stmt.free();
       resolvers.push(this.insertBatch(tableName, columns, batch));
     }
 
     console.log(`Inserted ${totalRows} records into ${tableName}`);
     let results = await Promise.allSettled(resolvers)
 
-    console.log("results of insert", results);
+    let hasError = results.find(result => result.status === 'rejected');
+    console.log("insert has error", hasError.reason);
+
+    if (hasError) throw new Error('SqlInsertError', {
+      cause: hasError.reason.message,
+    })
 
     return totalRows;
   }

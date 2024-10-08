@@ -95,14 +95,16 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
 
         setErrors(resultErrors);
         setResDf(toDF(resultColumns, resultValues))
-        // setColumns(resultColumns);
-        // setData(resultValues);
 
         return;
       }
 
       if (status === SqlLoaderStates.FAILED) {
-        let allErrs = Array.from(new Set([...errorsResult, ...errors, 'Maybe Fix Headers first']))
+        let allErrs = Array.from(new Set([...errorsResult, ...errors]))
+
+        if (errors.length === 0) {
+          allErrs.push('Maybe Fix Headers first')
+        }
 
         setDataLoaded({ status: SqlLoaderStates.FAILED, message: allErrs.join('\n') })
         setErrors(allErrs)

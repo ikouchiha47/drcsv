@@ -37,9 +37,7 @@
 }
 
 .Sidebar {
-  width: 16%;
-  max-width: 640px;
-  min-width: 320px;
+  width: 320px;
   background-color: rgb(23, 22, 39);
   display: flex;
   flex-direction: column;
@@ -218,6 +216,7 @@
 .workspace {
   padding: 16px;
   padding-top: 32px;
+  width: calc(100svw - 320px);
 }
 
 input[type="file"] {
