@@ -5,6 +5,7 @@
   min-width: 100svw;
   max-width: 1680px;
   margin: 0 auto;
+  overflow: scroll;
 }
 
 .App-logo {
