@@ -43,6 +43,8 @@ const groupData = (df, filters) => {
       // _df.loc({ rows: _df['column'].gt(value)})
       // _df.loc({ rows: _df['column'][operation](value)})
 
+      console.log("filter", column, action, clause);
+
       try {
         filteredDf = filteredDf.loc({ rows: filteredDf[column][action](clause) })
       } catch (err) {
@@ -77,7 +79,7 @@ const groupData = (df, filters) => {
 
   if (filteredDf.size === 0) return filteredDf;
 
-  let groupedDf = df.groupby([...selectedColumns]);
+  let groupedDf = filteredDf.groupby([...selectedColumns]);
 
   if (aggrFound) {
     const aggregators = taggedColumns.aggrs.reduce((acc, data) => {
