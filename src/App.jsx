@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { registerAllModules } from 'handsontable/registry';
 
@@ -14,6 +14,8 @@ import { FileUpload } from './components/FileUpload';
 import WorkSpace from './components/Workspace';
 import Logo from './Logo';
 import HeroSection from './components/HeroSection';
+
+import fileFromURL from './utils/filedownload.js'
 
 Array.zip = (src, dst) => {
   return src.map((item, i) => [item, dst[i]])
@@ -44,20 +46,50 @@ function App() {
   const [file, setFile] = useState(null);
   const [files, updateFiles] = useState(new Map());
 
+  const urlParams = new URLSearchParams(window.location.search);
+
+  const handleFileUpdateState = (files) => (prevFiles) => {
+    let newMap = new Map(prevFiles);
+
+    return [...files].reduce((acc, file) => {
+      acc.set(file.name, file)
+      return acc;
+    }, newMap)
+  }
+
+  // Load from url if present
+  useEffect(() => {
+    const fileUrl = urlParams.get('url');
+
+    if (!fileUrl) {
+      return;
+    }
+
+    async function fetchFile() {
+      const { file } = await fileFromURL(fileUrl);
+      if (!file) return;
+
+      updateFiles(handleFileUpdateState([file]))
+      setFile(file)
+
+      if (!isLoaded) {
+        setLoaded(true)
+      }
+    }
+
+    fetchFile();
+
+  }, []);
+
+
+
   const onFileUpload = async (event) => {
     const files = event.target.files;
 
     if (!files) return;
     if (!files.length) return;
 
-    updateFiles(prevFiles => {
-      let newMap = new Map(prevFiles);
-
-      return [...files].reduce((acc, file) => {
-        acc.set(file.name, file)
-        return acc;
-      }, newMap)
-    })
+    updateFiles(handleFileUpdateState(files))
 
     setFile(files[0]);
 
