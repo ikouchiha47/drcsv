@@ -1,8 +1,3 @@
-.App-container {
-  display: flex;
-  min-height: calc(100vh - 8vh - 64px);
-}
-
 .Button {
   margin: 0;
   padding: 8px 16px;
@@ -233,8 +228,8 @@ input[type="file"] {
 }
 
 .hottable-overrides {
-    font-size: 18px;
-    font-family: 'IBM Plex Mono';
+    font-size: 16px !important;
+    font-family: 'IBM Plex Mono' !important;
 }
 
 td.hottable-overrides {

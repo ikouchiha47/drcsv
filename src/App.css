@@ -1,9 +1,8 @@
 .App {
-  /* text-align: center; */
   min-height: 100svh;
 
   min-width: 916px;
-  max-width: 1680px;
+  max-width: 2560px;
   margin: 0 auto;
   overflow: scroll;
 }
@@ -13,11 +12,16 @@
   pointer-events: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.App-container {
+  display: flex;
+  min-height: calc(100vh - 8vh - 64px);
 }
+
+/* @media (prefers-reduced-motion: no-preference) { */
+/*   .App-logo { */
+/*     animation: App-logo-spin infinite 20s linear; */
+/*   } */
+/* } */
 
 .App-header {
   background-color: rgb(20, 17, 36);
