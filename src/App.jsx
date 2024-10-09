@@ -31,7 +31,7 @@ function Header({ handleFileUpload }) {
         href="https://drcsv.onrender.com"
         rel="noopener noreferrer"
       >
-        <Logo fillColor='#61dafb' width='200' height='100' />
+        <Logo fillColor='#61dafb' width='120' height='50' />
       </a>
       <nav className='flex flex-row' style={{ gap: '16px' }}>
         {/*<FaqLink />*/}

@@ -21,7 +21,7 @@
 
 .App-header {
   background-color: rgb(20, 17, 36);
-  padding: 32px;
+  padding: 20px 32px;
   display: flex;
   flex-direction: row;
   align-items: center;
