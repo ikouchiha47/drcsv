@@ -48,6 +48,7 @@ export function DumbPortal({ title, handleClick, showHide, children, alt }) {
   const rectRef = useRef(null)
 
   const [alignLeft, setAlignLeft] = useState(false)
+  const [alignComplete, setAlignComplete] = useState('loading')
 
   useEffect(() => {
     if (!showHide) return;
@@ -56,11 +57,11 @@ export function DumbPortal({ title, handleClick, showHide, children, alt }) {
     const rect = rectRef.current.getBoundingClientRect()
 
     const spaceOnRight = viewportWidth - rect.right;
-    const portalWidth = rectRef.current.offsetWidth;
+    const spaceLeft = rect.left;
 
-    // console.log("vw", viewportWidth, "rc", spaceOnRight, portalWidth);
-
-    setAlignLeft(spaceOnRight > portalWidth)
+    // console.log("vw", viewportWidth, "rc", rectRef.current, spaceOnRight, spaceLeft);
+    setAlignLeft(spaceLeft > spaceOnRight)
+    setAlignComplete('complete')
 
   }, [showHide])
 
@@ -74,7 +75,7 @@ export function DumbPortal({ title, handleClick, showHide, children, alt }) {
       >
         {title}
       </h3>
-      {showHide && children ? (
+      {showHide && alignComplete === 'complete' && children ? (
         <section ref={elRef} className="portal-content" style={{ left: alignLeft ? 'auto' : 0 }}>{children}</section>
       ) : null}
     </section>

@@ -33,6 +33,8 @@ const selectStyle = {
   }),
   control: provided => ({
     ...provided,
+    minHeight: '3rem',
+    height: '3rem',
     color: 'black'
   }),
   singleValue: provided => ({
@@ -40,6 +42,10 @@ const selectStyle = {
     color: 'black'
   }),
   menu: base => ({ ...base, zIndex: 999 }),
+  dropdownIndicator: (provided) => ({
+    ...provided,
+    padding: '2px 8px',
+  }),
 }
 
 const filterHeaderStyle = {
@@ -50,11 +56,20 @@ const filterHeaderStyle = {
 
 const formRowStyle = {
   gap: '1rem',
-  alignItems: 'baseline',
-  marginBottom: '1px',
+  alignItems: 'flex-end',
+  marginBottom: '1.125rem',
+  height: '3rem',
 }
 
-const inputStyle = { minHeight: '1.5rem', padding: '4px' }
+const inputStyle = {
+  padding: '0 8px',
+  borderRadius: '4px',
+  outline: 0,
+  borderWidth: '1px',
+  borderRadius: '4px',
+  minHeight: '2.25rem',
+  height: '3rem',
+}
 
 const Filters = ({ df, handleUpdateClauses }) => {
   let columns = df.columns;

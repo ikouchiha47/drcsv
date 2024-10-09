@@ -215,7 +215,7 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
             <header className='flex flex-row' style={{ gap: '1.5rem' }}>
               <h3 className='Section-header'>Results</h3>
               <ArrowDownTrayIcon
-                width={32}
+                width={'2.25rem'}
                 title='Export Data'
                 style={{ cursor: 'pointer' }}
                 onClick={() => dfd.toCSV(df, { fileName: file.name, download: true })}

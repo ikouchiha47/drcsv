@@ -133,7 +133,7 @@ const Preview = ({ df, fileName, filters, loadedFull, loadedPreview }) => {
           {renderFileLoadStatus()}
           <ArrowDownTrayIcon
             className="absolute"
-            width={32}
+            width={'2.25rem'}
             title='Export Data'
             style={{ right: 0, top: 0, cursor: 'pointer' }}
             onClick={() => dfd.toCSV(df, { fileName: fileName, download: true })}
