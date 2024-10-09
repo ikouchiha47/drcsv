@@ -40,7 +40,9 @@
 
 .portal-content {
   position: absolute;
-  left: 0;
+
+  /* left: 0; */ /* add this dynamically*/
+
   right: 0;
   top: 48px;
 

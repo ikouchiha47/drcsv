@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 export const PortalTypes = Object.freeze({
   GROUP_BY: 'group_by',
@@ -44,8 +44,28 @@ function Portal({ title, handleClick, noToggle, alt, children }) {
 }
 
 export function DumbPortal({ title, handleClick, showHide, children, alt }) {
+  const elRef = useRef(null)
+  const rectRef = useRef(null)
+
+  const [alignLeft, setAlignLeft] = useState(false)
+
+  useEffect(() => {
+    if (!showHide) return;
+
+    const viewportWidth = window.innerWidth;
+    const rect = rectRef.current.getBoundingClientRect()
+
+    const spaceOnRight = viewportWidth - rect.right;
+    const portalWidth = rectRef.current.offsetWidth;
+
+    // console.log("vw", viewportWidth, "rc", spaceOnRight, portalWidth);
+
+    setAlignLeft(spaceOnRight > portalWidth)
+
+  }, [showHide])
+
   return (
-    <section className="portal">
+    <section className="portal" ref={rectRef}>
       <h3
         style={{ cursor: 'pointer' }}
         onClick={handleClick}
@@ -54,7 +74,9 @@ export function DumbPortal({ title, handleClick, showHide, children, alt }) {
       >
         {title}
       </h3>
-      {showHide && children ? <section className="portal-content">{children}</section> : null}
+      {showHide && children ? (
+        <section ref={elRef} className="portal-content" style={{ left: alignLeft ? 'auto' : 0 }}>{children}</section>
+      ) : null}
     </section>
   )
 
