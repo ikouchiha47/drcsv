@@ -14,7 +14,7 @@ function loadMoreData(df, start, count, totalRows) {
   return df.iloc({ rows: [`${start}:${end}`] });
 }
 
-export const ScrollableDataTable = ({ df, classNames }) => {
+export const ScrollableDataTable = ({ df, classNames, hiddenColumns }) => {
   const [data, setData] = useState([]);
   const [startIdx, setStartIdx] = useState(WINDOW_SIZE);
   const [loading, setLoading] = useState(false);
@@ -23,7 +23,9 @@ export const ScrollableDataTable = ({ df, classNames }) => {
   const scrollRef = useRef(null);
 
   dfRef.current = df;
+
   classNames ||= [];
+  hiddenColumns ||= []; // [columns.findIndex(col => col.title === 'id')]
 
   useEffect(() => {
     const loadData = async () => {
@@ -114,7 +116,7 @@ export const ScrollableDataTable = ({ df, classNames }) => {
               width='100%'
               contextMenu={true}
               className='hottable-overrides'
-              hiddenColumns={{ columns: [columns.findIndex(col => col.title === 'id')] }}
+              hiddenColumns={{ columns: hiddenColumns }}
               columnSorting={true}
             />
           </div>

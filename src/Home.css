@@ -215,7 +215,7 @@
 .workspace {
   padding: 16px;
   padding-top: 32px;
-  width: calc(100svw - 320px);
+  min-width: calc(100svw - 320px);
 }
 
 input[type="file"] {
