@@ -1,8 +1,10 @@
 .App {
   min-height: 100svh;
 
-  min-width: 916px;
-  max-width: 2560px;
+  /* min-width: 916px; */
+  /* max-width: 2560px; */
+  min-width: 57.25rem;
+  max-width: 160rem;
   margin: 0 auto;
   overflow: scroll;
 }
@@ -14,7 +16,7 @@
 
 .App-container {
   display: flex;
-  min-height: calc(100vh - 8vh - 64px);
+  min-height: calc(100vh - 8vh - 4rem);
 }
 
 /* @media (prefers-reduced-motion: no-preference) { */
@@ -25,7 +27,6 @@
 
 .App-header {
   background-color: rgb(20, 17, 36);
-  padding: 20px 32px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -33,7 +34,9 @@
   font-size: calc(10px + 2vmin);
   color: white;
   border-bottom: 1px solid var(--border-color);
-  height: 8vh;
+  /* height: 8vh; */
+  /* padding: 20px 32px; */
+  padding: 1.25rem 2rem;
 }
 
 .App-link {
@@ -41,8 +44,14 @@
   font-weight: 800;
   font-family: var(--header-font), -apple-system, BlinkMacSystemFont, sans-serif;
   text-decoration: none;
-  font-size: 32px;
+  /* font-size: 32px; */
+  font-size: 2rem;
   flex: 1;
+}
+
+.App-logo-item {
+  width: 7.5rem;
+  height: 3.5rem;
 }
 
 @keyframes App-logo-spin {

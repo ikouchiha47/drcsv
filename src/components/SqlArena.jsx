@@ -192,7 +192,7 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
     if (response.status === SqlLoaderStates.SUCCESS) return null;
     if (errorsResult.length) return renderErrors(errorsResult);
 
-    return <p style={{ fontWeight: 600, fontSize: '24px' }}>{response.message}</p>
+    return <p style={{ fontWeight: 600, fontSize: '1.5rem' }}>{response.message}</p>
   }
 
   if (!df) return null;
@@ -212,7 +212,7 @@ const SqlArena = ({ df, file, tableName, launched, handleSqlState }) => {
 
         {resDf && resDf.size > 0 ? (
           <>
-            <header className='flex flex-row' style={{ gap: '24px' }}>
+            <header className='flex flex-row' style={{ gap: '1.5rem' }}>
               <h3 className='Section-header'>Results</h3>
               <ArrowDownTrayIcon
                 width={32}

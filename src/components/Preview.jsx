@@ -127,7 +127,7 @@ const Preview = ({ df, fileName, filters, loadedFull, loadedPreview }) => {
       <section className="preview-table margin-b-xl relative">
         <header className="flex flex-row">
           <h3 className="Section-header">Preview:</h3>
-          <p style={{ width: '320px', overflow: 'hidden', whiteSpace: 'nowrap', cursor: 'pointer' }}>
+          <p style={{ width: '20rem', overflow: 'hidden', whiteSpace: 'nowrap', cursor: 'pointer' }}>
             <em style={{ maxWidth: '100%', textOverflow: 'ellipsis', overflow: 'hidden' }} title={fileName}>{fileName}</em>
           </p>
           {renderFileLoadStatus()}

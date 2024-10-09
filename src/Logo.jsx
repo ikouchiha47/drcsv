@@ -1,11 +1,12 @@
 import React from "react";
 
 
-const Logo = ({ fillColor, width, height }) => {
+const Logo = ({ fillColor, width, height, classList }) => {
   fillColor ||= "#61dafb"
+  classList = (classList || []).concat("looka-1j8o68f")
 
   return (
-    <svg width={width} height={height} viewBox="0 0 370 100.2734059579222" className="looka-1j8o68f">
+    <svg width={width} height={height} viewBox="0 0 370 100.2734059579222" className={classList.join(' ')}>
       <defs id="SvgjsDefs2114"></defs>
       <g id="SvgjsG2115" featurekey="xG21Y3-0" transform="matrix(2.1246140003204346,0,0,2.1246140003204346,-0.91916888284562,-0.637389695235917)" fill={fillColor}>
         <g xmlns="http://www.w3.org/2000/svg">

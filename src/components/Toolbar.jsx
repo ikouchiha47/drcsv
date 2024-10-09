@@ -12,8 +12,8 @@ import Filters from "./Filters";
 const AggregateColumns = ['sum', 'max', 'min', 'cumsum', 'count'].sort();
 
 const filterHeaderStyle = {
-  marginBottom: '16px',
-  fontSize: '20px',
+  marginBottom: '1rem',
+  fontSize: '1.25rem',
   fontWeight: 700,
 }
 
@@ -32,9 +32,9 @@ const Delimiter = ({ handleDelimiter, classNames }) => {
   else classNames = defaultClasses.union(classNames);
 
   return (
-    <section className={[...classNames].join(' ')} style={{ gap: '16px' }}>
+    <section className={[...classNames].join(' ')} style={{ gap: '1rem' }}>
       <h4 style={filterHeaderStyle}>New Delimieter</h4>
-      <section className="flex flex-row" style={{ gap: '16px' }}>
+      <section className="flex flex-row" style={{ gap: '1rem' }}>
         <input ref={inputRef} type="text" placeholder="Update seperator, defaults to ," id="tableName" />
         <button type="button" onClick={handleSubmit} className="Button Btn-blue">Apply</button>
       </section>
@@ -61,10 +61,10 @@ export const SelectPortalBox = ({ handleChange, classNames, title, columns, isMu
   else classNames = defaultClasses.union(classNames);
 
   return (
-    <section className={[...classNames].join(' ')} style={{ gap: '16px' }}>
+    <section className={[...classNames].join(' ')} style={{ gap: '1rem' }}>
       <h4 style={filterHeaderStyle}>{title}</h4>
 
-      <section className="flex flex-row" style={{ gap: '16px' }}>
+      <section className="flex flex-row" style={{ gap: '1rem' }}>
         <Select
           isClearable
           isMulti={isMulti || false}
@@ -263,7 +263,7 @@ const Toolbar = ({
 
   return (
     <section className="toolbar-wrapper margin-b-xl">
-      <header className="flex flex-row" style={{ alignItems: 'center', gap: '16px' }}>
+      <header className="flex flex-row" style={{ alignItems: 'center', gap: '1rem' }}>
         <h3 className="Section-header">Action Center</h3>
         <em className="caption">! operations invalidate previous operations</em>
       </header>

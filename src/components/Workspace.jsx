@@ -778,7 +778,7 @@ const WorkSpace = ({ files, file, handleSelectFile, handleRemoveFile }) => {
           <button
             type="button"
             className="Button Btn-blue"
-            style={{ marginBottom: '16px' }}
+            style={{ marginBottom: '1rem' }}
             onClick={() => handleClear('all')}
           >
             Clear All

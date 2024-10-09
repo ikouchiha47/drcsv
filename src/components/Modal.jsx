@@ -46,7 +46,7 @@ export const TextInputModal = ({
         />
         <div style={{ marginTop: '10px' }}>
           <button onClick={handleApply}>Apply</button>
-          <button onClick={onModalClose} style={{ marginLeft: '10px' }}>
+          <button onClick={onModalClose} style={{ marginLeft: '0.625rem' }}>
             Cancel
           </button>
         </div>

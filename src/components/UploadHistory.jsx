@@ -38,12 +38,12 @@ function RenderFileHistory({
       return (
         <div
           key={`files-${idx + 1}`}
-          style={{ border: 0, padding: '8px' }}
+          style={{ border: 0, padding: '0.5rem' }}
           onClick={async () => await handleSelectFile(file)}
         >
           <p className={currentFile && currentFile.name === name ? 'sidebar-table-name active' : 'sidebar-table-name'}>
             <TableCellsIcon width={24} onClick={(e) => handleOpenCloseCols(e, idx)} />
-            <span style={{ display: 'inline-block', marginLeft: '8px', flex: 1 }}>{name}</span>
+            <span style={{ display: 'inline-block', marginLeft: '0.5rem', flex: 1 }}>{name}</span>
             <TrashIcon width={24} onClick={() => handleRemoveFile(file)} />
           </p>
           {currentFile && currentFile.name === file.name ? <TableInfoList df={df} isActive={activeCol[idx]} /> : null}

@@ -5,7 +5,8 @@ export const selectStyle = {
   }),
   control: provided => ({
     ...provided,
-    width: '320px',
+    width: '20rem',
+    // width: '320px',
     color: 'black'
   }),
   singleValue: provided => ({
@@ -14,7 +15,7 @@ export const selectStyle = {
   }),
   menu: base => ({
     ...base,
-    width: '320px',
+    width: '20rem',
     zIndex: 999,
   }),
 }

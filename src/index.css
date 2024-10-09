@@ -27,11 +27,56 @@
   --border-color: #b5abab40;
   --dark-bg-color: rgb(23, 22, 39);
   --bg-color: var(--dark-bg-color);
+
+  font-size: 16px;
 }
 
 * {
   margin: 0;
   padding: 0;
+}
+
+/* default font-size: 16px */
+
+/* For ultra-wide monitors (2560px and above), scale font size by 150% */
+@media (min-width: 3840px) {
+  :root {
+    font-size: calc(16px * 1.5); /* 150% of the default */
+  }
+}
+
+/* For desktops and larger laptops (between 1920px and 2560px) */
+@media (max-width: 2559px) and (min-width: 1920px) {
+  :root {
+    font-size: 16px; 
+  }
+}
+
+/* For smaller laptops (between 1680px and 1920px), scale down to 75% */
+@media (max-width: 1919px) and (min-width: 1280px) {
+  :root {
+    font-size: calc(16px * 0.75); 
+  }
+}
+
+/* For tablets or screens between 1280px and 1680px, you can use a custom size if needed */
+/* @media (max-width: 1679px) and (min-width: 1280px) { */
+/*   html { */
+/*     font-size: 14px; 
+/*   } */
+/* } */
+
+/* For very large tablets (or small laptops), down to 1280px width */
+@media (max-width: 1279px) and (min-width: 1024px) {
+  :root {
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 320px) and (max-width: 1023px){
+  :root {
+    font-size: 8px;
+  }
 }
 
 
@@ -81,12 +126,14 @@ code, pre, a, button {
 }
 
 td {
-  font-size: 16px;
+  /* font-size: 16px; */
+  font-size: 1rem;
 }
 
 th {
-  font-size: 18px;
+  /* font-size: 18px; */
   font-weight: bold;
+  font-size: 1.125rem;
 }
 
 .dark-bg {
@@ -114,15 +161,18 @@ th {
 }
 
 .separator {
-  margin: 32px auto;
-  margin-top: 56px;
+  /* margin: 32px auto; */
+  /* margin-top: 56px; */
+  margin: 2rem auto;
+  margin-top: 3.5rem;
   width: 100%;
 }
 
 .alert {
   background: #911b91;
   width: max-content;
-  padding: 8px 12px;
+  /* padding: 8px 12px; */
+  padding: 0.5rem 0.75rem;
   font-weight: 700;
 }
 

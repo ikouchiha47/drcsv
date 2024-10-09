@@ -1,19 +1,19 @@
 .toolbar-wrapper h3 {
-  margin: 32px 0;
+  margin: 2rem 0;
 }
 
 .toolbar {
-  gap: 16px;
+  gap: 1rem;
   align-items: center;
-  margin-bottom: 16px;
-  font-size: 16px;
+  margin-bottom: 1rem;
+  font-size: 1rem;
   color: #ccc;
   flex-wrap: wrap;
 }
 
 .aggregations {
   align-items: center;
-  gap: 16px;
+  gap: 1rem;
 }
 
 .toolbar h3 {
@@ -28,9 +28,9 @@
 }
 
 .portal h3 {
-  padding: 8px 16px;
+  padding: 0.5rem 1rem;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 0.5rem;
 }
 
 .portal h3.active {
@@ -44,23 +44,23 @@
   /* left: 0; */ /* add this dynamically*/
 
   right: 0;
-  top: 48px;
+  top: 3rem;
 
-  padding: 32px 16px;
+  padding: 2rem 1rem;
   border: 1px solid var(--border-color);
   background-color: rgb(66, 59, 174);
   width: max-content;
-  min-width: 400px;
+  min-width: 25rem;
   box-shadow: 2px 1px 5px #333;
   z-index: 999;
 }
 
 .advanced-ctrl {
-  padding: 16px 8px;
+  padding: 1rem 0.5rem;
   border: 1px solid var(--border-color);
 }
 
 .advanced-ctrl .portal {
   width: max-content;
-  font-size: 16px;
+  font-size: 1rem;
 }

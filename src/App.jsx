@@ -31,9 +31,9 @@ function Header({ handleFileUpload, handleFileURLUpload }) {
         href="https://drcsv.onrender.com"
         rel="noopener noreferrer"
       >
-        <Logo fillColor='#61dafb' width='120' height='50' />
+        <Logo fillColor='#61dafb' classList={['App-logo-item']} width='120' height='50' />
       </a>
-      <nav className='flex flex-row' style={{ gap: '16px' }}>
+      <nav className='flex flex-row' style={{ gap: '1rem' }}>
         {/*<FaqLink />*/}
         <FileUpload
           handleFileUpload={handleFileUpload}

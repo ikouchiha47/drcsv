@@ -76,7 +76,7 @@ const ApplyTransform = ({ df, handleApplyTransform }) => {
     <section className='Transforms'>
       <h3>Apply Transform To Columns</h3>
       <form className='Form margin-b-m'>
-        <div className='flex flex-row' style={{ gap: '16px' }}>
+        <div className='flex flex-row' style={{ gap: '1rem' }}>
           <Select
             isClearable
             hideSelectedOptions={true}
@@ -91,7 +91,7 @@ const ApplyTransform = ({ df, handleApplyTransform }) => {
             placeholder={'variable `value` is available, represents a cell value for column'}
           />
         </div>
-        <div className='flex flex-row' style={{ gap: '16px' }}>
+        <div className='flex flex-row' style={{ gap: '1rem' }}>
           <button type='button' className='Button Btn-green' style={{ width: 'max-content' }} onClick={handleClick}>
             Apply
           </button>

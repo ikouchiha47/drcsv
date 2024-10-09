@@ -4,24 +4,24 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: calc(92vh - 64px);
+  height: calc(92vh - 4rem);
   color: white;
 }
 
 .banner {
   position: relative;
-  padding: 164px;
+  padding: 10.25rem;
   text-align: center;
-  border-radius: 10px;
-  max-width: 600px; 
+  border-radius: 0.625rem;
+  max-width: 37.5rem; 
   background: rgba(0, 0, 0, 0.24);
-  box-shadow: 0 4px 20px rgba(178, 172, 172, 0.5);
+  box-shadow: 0 0.25rem x rgba(178, 172, 172, 0.5);
   border: 1px solid rgba(178, 172, 172, 0.5);
 }
 
 .banner h1 {
   font-size: 2.5rem;
-  margin: 0 0 10px;
+  margin: 0 0 0.625rem;
   font-family: 'Archivo';
 }
 
@@ -32,7 +32,7 @@
 .glass-button {
   background: rgba(0, 135, 255, 0.6); /* Blue with transparency */
   color: white;
-  padding: 10px 20px;
+  padding: 0.625rem 1.25rem;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -46,19 +46,19 @@
 
 .description {
   text-align: center;
-  margin-top: 30px;
-  max-width: 800px; /* Limit width for better aesthetics */
-  padding: 0 20px; /* Add some padding for smaller screens */
+  margin-top: 1.875rem;
+  max-width: 50rem; /* Limit width for better aesthetics */
+  padding: 0 1.25rem; /* Add some padding for smaller screens */
 }
 
 .description h2 {
   font-size: 2rem;
-  margin-bottom: 10px;
+  margin-bottom: 0.625rem;
 }
 
 .description h3 {
   font-size: 1.6rem;
-  margin-bottom: 32px;
+  margin-bottom: 2rem;
 }
 
 .description p {

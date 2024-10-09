@@ -63,7 +63,7 @@ const CSVAnalyzer = ({ df, delimiter, show }) => {
     <div>
       <hr className='separator' />
       {show ? <h3 className='margin-b-m'>Analysis Results:</h3> : null}
-      {status && <p style={{ fontSize: '24px' }}>{status}...</p>}
+      {status && <p style={{ fontSize: '1.5rem' }}>{status}...</p>}
       {offenderDf && (
         <div>
           <ScrollableDataTable df={offenderDf} />

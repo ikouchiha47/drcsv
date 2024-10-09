@@ -11,7 +11,7 @@ function GroupFilters({ filters, removeFilter }) {
           <li
             key={idx + 1}
             className='flex flex-row'
-            style={{ gap: '8px' }}
+            style={{ gap: '0.5rem' }}
             onClick={() => removeFilter(filter)}
           >
             <p>{filter.type}: {[filter.column, filter.action, filter.clause].filter(f => f).join('.')}</p>

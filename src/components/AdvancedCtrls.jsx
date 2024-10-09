@@ -52,7 +52,7 @@ function AdvancedCtrl({ df, defaults, handleSanitizer, show }) {
 
   return (
     <section className="advanced-ctrl margin-b-xl">
-      <div className="flex flex-row" style={{ gap: '16px' }}>
+      <div className="flex flex-row" style={{ gap: '1rem' }}>
         <Portal
           title='Remove Headers'
           handleClick={removeHeaders} />

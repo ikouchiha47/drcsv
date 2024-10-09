@@ -39,7 +39,7 @@ export const SqlFrame = ({
   return (
     <>
       <header className='Table-name-header'>
-        <p style={{ fontSize: '28px' }}>Table: <b>{sqlState.table}</b></p>
+        <p style={{ fontSize: '1.75rem' }}>Table: <b>{sqlState.table}</b></p>
         <button type="button"
           className="Button Btn-yellow"
           onClick={() => { setSqlState({ status: null, table: sqlState.table }) }}

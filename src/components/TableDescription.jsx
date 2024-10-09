@@ -9,17 +9,17 @@ const tableStyles = {
 };
 
 const headerCellStyles = {
-  padding: '8px',
+  padding: '0.5rem',
   textAlign: 'left',
   borderBottom: '1px solid #ddd',
   backgroundColor: 'rgba(70, 66, 126, 0.18)',
 };
 
 const cellStyles = {
-  padding: '8px',
+  padding: '0.5rem',
   borderBottom: '1px solid #eee',
   textAlign: 'left',
-  fontSize: '16px',
+  fontSize: '1rem',
   color: '#ccc',
 };
 
@@ -137,13 +137,13 @@ export const TableInfo = ({ df }) => {
 
     return (
       <>
-        <div className="flex flex-col" style={{ gap: '16px' }}>
+        <div className="flex flex-col" style={{ gap: '1rem' }}>
           <section className="shape">
             <p><b>Records:</b> {shape[0]}</p>
             <p><b>Columns:</b> {shape[1]}</p>
           </section>
 
-          <section className="flex flex-row" style={{ gap: '16px' }}>
+          <section className="flex flex-row" style={{ gap: '1rem' }}>
             {sanitizedCols.difference(new Set(columns)).size > 0 ? <p className="alert">Header Names Need Fixup</p> : null}
             {isInConsistent ? null : <p className="alert">Varying data count per row, Crop it</p>}
             {/*descDf && <ScrollableDataTable df={descDf} />*/}
@@ -154,8 +154,8 @@ export const TableInfo = ({ df }) => {
   }
 
   return (
-    <section className="Table-info" style={{ marginBottom: '32px' }}>
-      <header className="flex flex-row" style={{ gap: '16px', alignItems: 'center', marginBottom: '32px' }}>
+    <section className="Table-info" style={{ marginBottom: '2rem' }}>
+      <header className="flex flex-row" style={{ gap: '1rem', alignItems: 'center', marginBottom: '2rem' }}>
         <h3 className="Section-header">Info</h3>
         {renderToggle()}
       </header>

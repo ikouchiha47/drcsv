@@ -125,7 +125,7 @@ const DuckArena = ({ df, file, tableName, launched, handleSqlState }) => {
     if (response.status === SqlLoaderStates.SUCCESS) return null;
     if (errors.length) return renderErrors();
 
-    return <p style={{ fontWeight: 600, fontSize: '24px' }}>{response.message}</p>
+    return <p style={{ fontWeight: 600, fontSize: '1.5rem' }}>{response.message}</p>
   }
 
   if (!df) return null;

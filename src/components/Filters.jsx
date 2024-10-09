@@ -43,18 +43,18 @@ const selectStyle = {
 }
 
 const filterHeaderStyle = {
-  marginBottom: '16px',
-  fontSize: '20px',
+  marginBottom: '1rem',
+  fontSize: '1.25rem',
   fontWeight: 700,
 }
 
 const formRowStyle = {
-  gap: '16px',
+  gap: '1rem',
   alignItems: 'baseline',
-  marginBottom: '16px',
+  marginBottom: '1px',
 }
 
-const inputStyle = { minHeight: '24px', padding: '4px' }
+const inputStyle = { minHeight: '1.5rem', padding: '4px' }
 
 const Filters = ({ df, handleUpdateClauses }) => {
   let columns = df.columns;
@@ -99,7 +99,7 @@ const Filters = ({ df, handleUpdateClauses }) => {
     <section className="filterForm">
       <h4 style={filterHeaderStyle}>Show Records</h4>
       <div className="filterFormRow flex flex-row" style={formRowStyle}>
-        <span style={{ fontWeight: 'bold', fontSize: '20px', color: '#fff' }}>Where</span>
+        <span style={{ fontWeight: 'bold', fontSize: '1.25rem', color: '#fff' }}>Where</span>
         <Select
           isClearable
           defaultValue={null}

@@ -123,7 +123,7 @@ export const ScrollableDataTable = ({ df, classNames, hiddenColumns }) => {
         )
       }
 
-      <em style={{ marginTop: '16px', color: '#999' }}> {loading ? `loading...` : ''}&nbsp;</em>
+      <em style={{ marginTop: '1rem', color: '#999' }}> {loading ? `loading...` : ''}&nbsp;</em>
     </>
   );
 };

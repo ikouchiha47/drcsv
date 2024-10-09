@@ -11,7 +11,7 @@
 
 .List li {
   cursor: pointer;
-  padding: 16px;
+  padding: 1rem;
   transition: background-color 0.3s ease;
   color: #aaa;
   font-weight: 700;
@@ -37,15 +37,15 @@
 .sidebar-table-name {
   display: flex;
   flex-direction: row;
-  padding: 12px;
+  padding: 0.75rem;
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: 0.25rem;
   align-items: center;
 }
 
 .sidebar-table-info {
-  margin-left: 16px;
-  margin-top: 16px;
+  margin-left: 1rem;
+  margin-top: 1rem;
   border-left: 1px solid var(--border-color);
 }
 
@@ -57,7 +57,7 @@
 li.sidebar-table-info-column {
   display: flex;
   flex-direction: row;
-  padding: 8px;
+  padding: 0.5rem;
   border: 0;
   justify-content: space-between;
 }
@@ -66,6 +66,7 @@ li.sidebar-table-info-column {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 1.25rem;
 }
 .sidebar-table-info-column span {
   max-width: 40%;

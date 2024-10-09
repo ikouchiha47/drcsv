@@ -95,7 +95,7 @@ const MultiSelectPlot = ({ df, plottingFn, setShowPlot }) => {
   }
 
   return (
-    <section className="plot-controls flex flex-row" style={{ gap: '16px', alignItems: 'center' }}>
+    <section className="plot-controls flex flex-row" style={{ gap: '1rem', alignItems: 'center' }}>
       <Select
         isClearable
         isMulti
@@ -134,7 +134,7 @@ const TwoDPlotter = ({ df, plottingFn, setShowPlot }) => {
   }
 
   return (
-    <section className="plot-controls flex flex-row" style={{ gap: '16px', alignItems: 'center' }}>
+    <section className="plot-controls flex flex-row" style={{ gap: '1rem', alignItems: 'center' }}>
       <Select
         isClearable
         isSearchable
@@ -210,7 +210,7 @@ const Plotter = ({ df }) => {
     <section className="plotter margin-b-xl">
       <h3 className="margin-b-m">Plot your results</h3>
       <section className="plotter-ui-container margin-b-m">
-        <header className="flex flex-row margin-b-xl" style={{ gap: '16px', alignItems: 'center' }}>
+        <header className="flex flex-row margin-b-xl" style={{ gap: '1rem', alignItems: 'center' }}>
           <p>Chart Type:</p>
           <Select
             isClearable
