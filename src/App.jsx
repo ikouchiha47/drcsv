@@ -23,7 +23,7 @@ Array.zip = (src, dst) => {
 
 registerAllModules();
 
-function Header({ handleFileUpload }) {
+function Header({ handleFileUpload, handleFileURLUpload }) {
   return (
     <header className="App-header">
       <a
@@ -35,7 +35,11 @@ function Header({ handleFileUpload }) {
       </a>
       <nav className='flex flex-row' style={{ gap: '16px' }}>
         {/*<FaqLink />*/}
-        <FileUpload handleFileUpload={handleFileUpload} wrapperClass='Upload-container' />
+        <FileUpload
+          handleFileUpload={handleFileUpload}
+          handleFileURLUpload={handleFileURLUpload}
+          wrapperClass='Upload-container'
+        />
       </nav>
     </header>
   )
@@ -57,6 +61,18 @@ function App() {
     }, newMap)
   }
 
+  const fetchFile = async (fileUrl) => {
+    const { file } = await fileFromURL(fileUrl);
+    if (!file) return;
+
+    updateFiles(handleFileUpdateState([file]))
+    setFile(file)
+
+    if (!isLoaded) {
+      setLoaded(true)
+    }
+  }
+
   // Load from url if present
   useEffect(() => {
     const fileUrl = urlParams.get('url');
@@ -65,23 +81,21 @@ function App() {
       return;
     }
 
-    async function fetchFile() {
-      const { file } = await fileFromURL(fileUrl);
-      if (!file) return;
-
-      updateFiles(handleFileUpdateState([file]))
-      setFile(file)
-
-      if (!isLoaded) {
-        setLoaded(true)
-      }
-    }
-
-    fetchFile();
+    fetchFile(fileUrl);
 
   }, []);
 
 
+  const onFileURLUpload = async (url) => {
+    try {
+      new URL(url)
+
+      await fetchFile(url)
+
+    } catch (e) {
+      alert(`Invalid URL provided`)
+    }
+  }
 
   const onFileUpload = async (event) => {
     const files = event.target.files;
@@ -112,7 +126,7 @@ function App() {
       return;
     }
 
-    console.log(file.name, "now file");
+    // console.log(file.name, "now file");
 
     let newFileList = new Map(files);
     newFileList.delete(selectedFile.name);
@@ -132,7 +146,7 @@ function App() {
 
   return (
     <div className="App">
-      <Header handleFileUpload={onFileUpload} />
+      <Header handleFileUpload={onFileUpload} handleFileURLUpload={onFileURLUpload} />
       <section className='App-container'>
         {!isLoaded ? <HeroSection /> : null}
         {isLoaded && file && (
