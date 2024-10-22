@@ -20,11 +20,10 @@ function Header() {
     <header className="App-header">
       <a
         className="App-link"
-        href="https://reactjs.org"
-        target="_blank"
+        href="https://drcsv.onrender.com"
         rel="noopener noreferrer"
       >
-        <Logo fillColor='#61dafb' width='200' height='100' />
+        <Logo fillColor='#61dafb' classList={['App-logo-item']} width='120' height='50' />
       </a>
     </header>
   )
