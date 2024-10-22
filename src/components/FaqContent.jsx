@@ -70,7 +70,7 @@ const FaqContent = () => {
               </a>
               {faq.question}
             </div>
-            {<p className={getAnswerClassName(index)}>{faq.answer} {faq.answer}</p>}
+            {<p className={getAnswerClassName(index)}>{faq.answer}</p>}
           </li>
         ))}
       </ul>
