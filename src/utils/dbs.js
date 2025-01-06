@@ -190,7 +190,7 @@ export class SQLite {
     let results = await Promise.allSettled(resolvers)
 
     let hasError = results.find(result => result.status === 'rejected');
-    console.log("insert has error", hasError.reason);
+    console.log("insert has error", hasError);
 
     if (hasError) throw new Error('SqlInsertError', {
       cause: hasError.reason.message,
