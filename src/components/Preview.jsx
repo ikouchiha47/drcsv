@@ -46,7 +46,17 @@ const groupData = (df, filters) => {
       console.log("filter", column, action, clause);
 
       try {
-        filteredDf = filteredDf.loc({ rows: filteredDf[column][action](clause) })
+        window._filteredDf = filteredDf;
+
+        if (action == 'search') {
+          clause = new RegExp(clause)
+          let mask = filteredDf[column]['str'][action](clause).values.map(v => v !== -1)
+
+          filteredDf = filteredDf.loc({ rows: mask })
+        } else {
+          filteredDf = filteredDf.loc({ rows: filteredDf[column][action](clause) })
+        }
+
       } catch (err) {
         console.error('df filter error', err);
         continue
@@ -71,11 +81,11 @@ const groupData = (df, filters) => {
   // BHARATIYA JANATA PARTY
   // ALL INDIA TRINAMOOL CONGRESS
 
-  console.log("aggr",
-    selectedColumns,
-    taggedColumns,
-    !aggrFound,
-    !clausesFound);
+  // console.log("aggr",
+  //   selectedColumns,
+  //   taggedColumns,
+  //   !aggrFound,
+  //   !clausesFound);
 
   if (filteredDf.size === 0) return filteredDf;
 

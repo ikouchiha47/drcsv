@@ -7,6 +7,7 @@ const dfActions = [
   { label: 'lower', value: 'lt' },
   { label: 'lower equals', value: 'le' },
   { label: 'equals', value: 'eq' },
+  { label: 'contains', value: 'search' },
 ]
 
 function convertDTypeToJS(dtype, value) {
